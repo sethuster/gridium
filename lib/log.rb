@@ -43,8 +43,8 @@ end # class logger
 
 
 # Singleton Logger class
-
-class Gridium::Log
+module Gridium
+class Log
   # make this class static
   class << self
 
@@ -72,13 +72,13 @@ class Gridium::Log
 
     def warn(msg)
       log.warn(msg)
-      Gridium::Selenium::Driver.save_screenshot('warning') if Gridium.config.screenshot_on_failure
+      Driver.save_screenshot('warning') if Gridium.config.screenshot_on_failure
       $execution_warnings << msg
     end
 
     def error(msg)
       log.error(msg)
-      Gridium::Selenium::Driver.save_screenshot('error') if Gridium.config.screenshot_on_failure
+      Driver.save_screenshot('error') if Gridium.config.screenshot_on_failure
       $verification_errors << msg
     end
 
@@ -139,3 +139,4 @@ class Gridium::Log
     end # initialize_logger
   end # class << self
 end # Log class
+end

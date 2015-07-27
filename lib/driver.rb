@@ -1,12 +1,8 @@
 require 'selenium-webdriver'
 require 'uri'
 
-module Gridium
-  module Selenium
-  end
-end
 
-class Gridium::Selenium::Driver
+class Driver
   @@driver = nil
 
   def self.reset

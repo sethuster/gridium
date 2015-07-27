@@ -1,7 +1,7 @@
 require 'selenium-webdriver'
 require 'oily_png'
 
-class Gridium::Selenium::Element
+class Element
   attr_reader :name, :by, :locator
 
   def initialize(name, by, locator)
@@ -10,7 +10,7 @@ class Gridium::Selenium::Element
     @locator = locator
 
     # wrapped driver
-    @driver = Gridium::Selenium::Driver.driver
+    @driver = Driver.driver
 
     # selenium web element
     @element = nil
