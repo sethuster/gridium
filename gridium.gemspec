@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Seth Urban"]
   spec.email         = ["sethuster@gmail.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{This Gem is used to make building Selenium Tests without Capybara Easier.}
+  spec.description   = %q{Capybara is a great tool to start making automated tests for your web application.  However, many automation engineers find it difficult to use effectively for UI tests.  Capybara works better when webkit, and not so well with mozilla.  This makes Selenium integration difficult, this gem remedies that.}
+  spec.homepage      = "http://github.com/sethuster/gridium"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
@@ -30,4 +30,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec"
+  spec.add_development_dependency "selenium-webdriver", ">=2.45.0"
+  spec.add_development_dependency "oily_png"
+
+
 end
