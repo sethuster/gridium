@@ -10,14 +10,14 @@ Gem::Specification.new do |spec|
   spec.email         = ["sethuster@gmail.com"]
 
   spec.summary       = %q{This Gem is used to make building Selenium Tests without Capybara Easier.}
-  spec.description   = %q{Capybara is a great tool to start making automated tests for your web application.  However, many automation engineers find it difficult to use effectively for UI tests.  Capybara works better when webkit, and not so well with mozilla.  This makes Selenium integration difficult, this gem remedies that.}
+  spec.description   = %q{Gridium makes integrating ruby and Selenium a breeze.  This is not for novice automation engineers.  Novices should checkout Capybara.  However, if you're comfortable with Selenium, and have used Capybara but find it not working well give Gridium a shot.}
   spec.homepage      = "http://github.com/sethuster/gridium"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
   # delete this section to allow pushing this gem to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+    spec.metadata['allowed_push_host'] = "https://rubygems.org"
   else
     raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
   end
