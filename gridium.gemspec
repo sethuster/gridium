@@ -33,5 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "selenium-webdriver", ">=2.45.0"
   spec.add_development_dependency "oily_png"
 
+  spec.add_runtime_dependency "selenium-webdriver", ">=2.45.0"
+  spec.add_runtime_dependency "oily_png"
 
 end
