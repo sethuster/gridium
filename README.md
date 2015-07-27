@@ -1,8 +1,9 @@
 # Gridium
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/gridium`. To experiment with that code, run `bin/console` for an interactive prompt.
+Welcome to Gridium! Gridium helps you build better automated tests using only Selenium and your advanced knowledge of page objects.  This is a replacement gem for Capybara.  I found it more difficult to use Capybara with Firefox and Selenium, and wanted to take advantage of everything that Selenium offered and Capybara lacked.
 
-TODO: Delete this and the text above, and describe your gem
+Before you get started you should understand how page objects work.  A primer on Page Objects:
+[Template Design Pattern](http://www.electricsheepdreams.com/blog/2014/12/4/template-design-pattern-the-first-avenger)
 
 ## Installation
 
@@ -22,7 +23,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Comming Soon!
 
 ## Development
 
@@ -32,7 +33,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/gridium. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/sethuster/gridium. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
 
 
 ## License
