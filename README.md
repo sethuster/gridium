@@ -135,7 +135,7 @@ This action will return a new page, that our test is setup to handle.
 
 ##Elements
 
-Elements are the building blocks of page objects.  Elements are anything that a user, or a test would care about on the page.  To create a new Element, you will need three things:
+Elements are the building blocks of page objects.  Elements are anything that a user, or a test would care about on the page.  To create a new Element, you will need three things:  
 *Element Name - A human readable string used to identify the element to the tester.  Used primarily in the log file.  
 *Locator Type - `:css` `:xpath` `:link` `:link_text` `:id` `:class` `:class_name` `:name` `:tag_name` are all valid.  
 *Locator - This is the chosen locator Type string to find the element.  
@@ -148,12 +148,6 @@ It's important to remember that Elements are not actually found on the page, unt
 [Browser Tools and Plugins](http://www.electricsheepdreams.com/2014/12/4/su5lssyi84k4ycrmuaceuswbf9ojwr)  
 [Automation Pyramid - Theory](http://www.electricsheepdreams.com/2014/12/4/zje1wyef0621gv1w4r7tn3g7h3j19h)  
 
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake rspec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
