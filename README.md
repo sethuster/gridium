@@ -1,4 +1,5 @@
 # Gridium
+[![Gem Version](https://badge.fury.io/rb/gridium.svg)](http://badge.fury.io/rb/gridium)
 
 Welcome to Gridium! Gridium helps you build better automated tests using only Selenium and your advanced knowledge of page objects.  This is a replacement gem for Capybara.  I found it more difficult to use Capybara with Firefox and Selenium, and wanted to take advantage of everything that Selenium offered and Capybara lacked.
 
