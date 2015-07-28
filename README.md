@@ -23,7 +23,94 @@ Or install it yourself as:
 
 ## Usage
 
-Comming Soon!
+Gridium is built to support the Page Object Design pattern for automated User Interface tests.  Gridium works best when page objects are abstracted from the test files.  While Rspec is preferred, you should still be able to use Gridium with other test runners.  
+
+In order to use Gridium, you will first need to need to add it to your automtion suite.  Gridium comes with Selenium and is currently configured to run tests on Firefox only.  Future updates will be available to run tests on other browsers and Selenium Grid.
+
+#### Spec Helper
+To get started using Gridium add the Gem to your automated test library.  Include the following section in your `spec_helper.rb` file:
+
+```ruby
+Gridium.configure do |config|
+  config.report_dir = '/path/to/automation/project'
+  config.target_environment = "Integration"
+  config.browser = :firefox
+  config.url = "http://www.applicationundertest.com"
+  config.page_load_timeout = 30
+  config.element_timeout = 30
+  config.visible_elements_only = true
+  config.log_level = :debug
+  config.highlight_verifications = true
+  config.highlight_duration = 0.100
+  config.screenshot_on_failure = false
+end
+```
+
+Additionally, there are some options that should be configured in the `Rspec.configure` section of your `spec_helper.rb` file:
+
+```ruby
+RSpec.configure do |config|
+include Gridium
+  config.before :all do
+    # Create the test report root directory
+    report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
+    Dir.mkdir(report_root_dir) if not File.exist?(report_root_dir)
+
+    # Create the sub-directory for the test suite run
+    current_run_report_dir = File.join(report_root_dir, "spec_results__" +               DateTime.now.strftime("%m_%d_%Y__%H_%M_%S"))
+    $current_run_dir = current_run_report_dir
+    Dir.mkdir(current_run_report_dir)
+
+    # Add the output log file for the rspec test run to the logger
+    Log.add_device(File.open(File.join(current_run_report_dir, "spec_logging_output.log"), File::WRONLY | File::APPEND | File::CREAT))
+
+    # Reset Suite statistics
+    $verifications_total = 0
+    $warnings_total = 0
+    $errors_total = 0
+
+    #Setup Gridium Spec Data
+    Spec_data.load_suite_state
+    Spec_data.load_spec_state
+  end #end before:all
+end #end Rspec.config
+```
+
+#### Settings Overview
+
+You may be saying to yourself - 'Holy Crap that's a lot of settings!'.  Yeah.  It is.  Let me preface by saying, I would rather give to many configuration options than not enough.  That being said, we'll probably take some away at some point or make combine them into fewer configuration settings.  With that in Mind let's go over the settings we have now:
+
+##### Gridium Configuration Options:  
+`config.report_dir = '/path/to/automation/project'`: This setting tells Gridium where to write reports (i.e. Log files) out to.  This could and probably will be changed at some point to eliminate some required Rspec.configuration options.  
+`config.target_environment = "Stage"`: This is a simple log entry to tell remind you which environment you're testing.  
+`config.browser = :firefox`: This tells gridium which browser you will be testing.  Only firefox is working currently.  Future browsers to come.  
+`config.url = "http://www.applicationundertest.com"`: Where's the entry point for your web application?  
+`config.page_load_timeout = 30` Along with Element Timeout, how long (in seconds) should Selenium wait when finding an element?  
+`config.visible_elements_only = true`: With this enabled Gridium will only find VISIBLE elements on the page.  Hidden elements or non-enabled elements will not be matched.  
+`config.log_level = :debug`: There are a few levels here `:debug` `:info` `:warn` `:error` and `:fatal`.  Your Gridium tests objects can have different levels of logging.  Adjusting this setting will turn those log levels on or off depending on your needs at the time.  
+`config.highlight_verifications = true`: Will highlight the element Gridium finds in the browser.  This makes watching tests run easier to follow, although it does slow the test execution time down.  Recommend this is turned off for automated tests running in Jenkins or headless mode.
+`config.highlight_duration = 0.100`: How long should the element be highlighted (in miliseconds) before the action is performed on the element.
+`config.screenshot_on_failure = false`: Take a screenshot on failure.  On or off. Obviously.
+
+##### Rspec Configuration Options:  
+The first bit of the Rspec configuration section is used to set up a log file directory.  I like to have log files kept in seperate dated directories.  However, that may not be needed depending on your preference.  If you choose to use a single directory for your log files, you will need to make sure that the log file name is unique, as screenshots are saved into the same directory.  Whichever method you prefer, you will need to setup the Gridium Log Device.  
+`Log.add_device(File.open(File.join(current_run_report_dir, "spec_logging_output.log"), File::WRONLY | File::APPEND | File::CREAT))`: This tells Gridium where to write the logs to for any paticular test run.
+
+The following is used for throughout the test execution and displayed in the logs to quickly access how many of each paticular failure your tests are discovering.  This can be used for quick metrics and climate checks of your aplication under test.
+```ruby
+# Reset Suite statistics
+$verifications_total = 0
+$warnings_total = 0
+$errors_total = 0
+
+#Setup Gridium Spec Data
+Spec_data.load_suite_state
+Spec_data.load_spec_state
+```
+
+##Page Objects
+
+Page objects are required for Gridium.  More to follow!
 
 ## Development
 
