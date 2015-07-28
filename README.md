@@ -110,7 +110,18 @@ Spec_data.load_spec_state
 
 ##Page Objects
 
-Page objects are required for Gridium.  More to follow!
+Page objects are required for Gridium.  Page objects abstract the functionality of the page away from the test.  There's a million reasons why page objects are the way to go.  Not the least of all is that it helps you maintain your tests.
+
+###Example Page Object
+
+
+
+##Helper Blog Posts:
+[Beginner Guide to Automated Testing](http://www.electricsheepdreams.com/2014/12/4/a-beginners-guide-to-automated-test-design)  
+[How to build Xpath locators](http://www.electricsheepdreams.com/2014/12/4/1wq9pbds8m9vktez0qc2w0r0xxlhp6)
+[Browser Tools and Plugins](http://www.electricsheepdreams.com/2014/12/4/su5lssyi84k4ycrmuaceuswbf9ojwr)
+[Automation Pyramid - Theory](http://www.electricsheepdreams.com/2014/12/4/zje1wyef0621gv1w4r7tn3g7h3j19h)
+
 
 ## Development
 
