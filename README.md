@@ -12,11 +12,6 @@ Add this line to your application's Gemfile:
 ```ruby
 gem 'gridium'
 ```
-
-And then execute:
-
-    $ bundle
-
 Or install it yourself as:
 
     $ gem install gridium
@@ -112,9 +107,40 @@ Spec_data.load_spec_state
 
 Page objects are required for Gridium.  Page objects abstract the functionality of the page away from the test.  There's a million reasons why page objects are the way to go.  Not the least of all is that it helps you maintain your tests.
 
-###Example Page Object
+####Sample Page Object
+```ruby
+include Gridium
+class LoginPage < Page
 
+  def initialize   
+    @username = Element.new("UserName - Stage", :css, "input#login_username")
+    @password = Element.new("Password - Stage", :css, "input#login_password")
+    @login = Element.new("Login Button", :xpath, "//a[@class='submit button']")
+  end
 
+  def login(user_name, password)
+    Log.info("- Login to staging site Username: #{user_name} Password: #{password}")
+    @username.text = user_name
+    @password.text = password
+    @login.click
+  end
+end
+```
+
+Notice that to use Gridium functionality, Gridium needs to be included at the top of the page object definition.  Also notice that the LoginPage inherits from the Gridium `Page`.  The `Page` object in gridium provides methods that emulate some of Capybara's API.  For more information checkout the `lib/page.rb`.
+
+Page object are made up of Elements.  The methods on the page object tells the test how interact with the elements.  For example, the Login method shown in the example sets the Username field, the password field and then clicks the login button.  
+
+This action will return a new page, that our test is setup to handle.
+
+##Elements
+
+Elements are the building blocks of page objects.  Elements are anything that a user, or a test would care about on the page.  To create a new Element, you will need three things:
+*Element Name - A human readable string used to identify the element to the tester.  Used primarily in the log file.  
+*Locator Type - `:css` `:xpath` `:link` `:link_text` `:id` `:class` `:class_name` `:name` `:tag_name` are all valid.  
+*Locator - This is the chosen locator Type string to find the element.  
+
+It's important to remember that Elements are not actually found on the page, until an action is attempted.  Only then will the element be attempted to be located.
 
 ##Helper Blog Posts:
 [Beginner's Guide to Automated Testing](http://www.electricsheepdreams.com/2014/12/4/a-beginners-guide-to-automated-test-design)  
