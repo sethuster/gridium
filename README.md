@@ -117,10 +117,10 @@ Page objects are required for Gridium.  Page objects abstract the functionality 
 
 
 ##Helper Blog Posts:
-[Beginner Guide to Automated Testing](http://www.electricsheepdreams.com/2014/12/4/a-beginners-guide-to-automated-test-design)  
-[How to build Xpath locators](http://www.electricsheepdreams.com/2014/12/4/1wq9pbds8m9vktez0qc2w0r0xxlhp6)
-[Browser Tools and Plugins](http://www.electricsheepdreams.com/2014/12/4/su5lssyi84k4ycrmuaceuswbf9ojwr)
-[Automation Pyramid - Theory](http://www.electricsheepdreams.com/2014/12/4/zje1wyef0621gv1w4r7tn3g7h3j19h)
+[Beginner's Guide to Automated Testing](http://www.electricsheepdreams.com/2014/12/4/a-beginners-guide-to-automated-test-design)  
+[How to build Xpath locators](http://www.electricsheepdreams.com/2014/12/4/1wq9pbds8m9vktez0qc2w0r0xxlhp6)  
+[Browser Tools and Plugins](http://www.electricsheepdreams.com/2014/12/4/su5lssyi84k4ycrmuaceuswbf9ojwr)  
+[Automation Pyramid - Theory](http://www.electricsheepdreams.com/2014/12/4/zje1wyef0621gv1w4r7tn3g7h3j19h)  
 
 
 ## Development
