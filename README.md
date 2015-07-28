@@ -83,9 +83,9 @@ You may be saying to yourself - 'Holy Crap that's a lot of settings!'.  Yeah.  I
 `config.page_load_timeout = 30` Along with Element Timeout, how long (in seconds) should Selenium wait when finding an element?  
 `config.visible_elements_only = true`: With this enabled Gridium will only find VISIBLE elements on the page.  Hidden elements or non-enabled elements will not be matched.  
 `config.log_level = :debug`: There are a few levels here `:debug` `:info` `:warn` `:error` and `:fatal`.  Your Gridium tests objects can have different levels of logging.  Adjusting this setting will turn those log levels on or off depending on your needs at the time.  
-`config.highlight_verifications = true`: Will highlight the element Gridium finds in the browser.  This makes watching tests run easier to follow, although it does slow the test execution time down.  Recommend this is turned off for automated tests running in Jenkins or headless mode.
-`config.highlight_duration = 0.100`: How long should the element be highlighted (in miliseconds) before the action is performed on the element.
-`config.screenshot_on_failure = false`: Take a screenshot on failure.  On or off. Obviously.
+`config.highlight_verifications = true`: Will highlight the element Gridium finds in the browser.  This makes watching tests run easier to follow, although it does slow the test execution time down.  Recommend this is turned off for automated tests running in Jenkins or headless mode.  
+`config.highlight_duration = 0.100`: How long should the element be highlighted (in miliseconds) before the action is performed on the element.  
+`config.screenshot_on_failure = false`: Take a screenshot on failure.  On or off. Obviously.  
 
 ##### Rspec Configuration Options:  
 The first bit of the Rspec configuration section is used to set up a log file directory.  I like to have log files kept in seperate dated directories.  However, that may not be needed depending on your preference.  If you choose to use a single directory for your log files, you will need to make sure that the log file name is unique, as screenshots are saved into the same directory.  Whichever method you prefer, you will need to setup the Gridium Log Device.  
