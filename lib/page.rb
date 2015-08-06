@@ -57,16 +57,16 @@ module Gridium
     end
 
     def self.scroll_to_bottom
-      Driver.execute_script('window.scrollTo(0,100000)')
+      Driver.execute_script_driver('window.scrollTo(0,100000)')
     end
 
     def self.scroll_to_top
       #TODO Verify this
-      Driver.execute_script('window.scrollTo(100000,0)')
+      Driver.execute_script_driver('window.scrollTo(100000,0)')
     end
 
     def self.execute_script(script)
-      Driver.execute_script(script)
+      Driver.execute_script_driver(script)
     end
 
     def all(by, locator)
