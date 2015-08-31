@@ -31,7 +31,6 @@ class Element
               @element = element;
             end
           end
-          @element.enabled?
         }
       else
         wait.until { @element = @driver.find_element(@by, @locator); Log.debug("Finding element #{self}..."); @element.enabled? }
@@ -170,6 +169,7 @@ class Element
   end
 
   def text= text
+    element.clear
     element.send_keys text
   end
 

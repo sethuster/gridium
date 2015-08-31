@@ -48,11 +48,25 @@ module Gridium
     end
 
     def self.has_text?(text)
-      unless Driver.html.include? text
+      if Driver.html.include? text
+        return true
+      else
         Log.warn("Could not find expected text: #{text} on page.")
         return false
-      else
+      end
+    end
+
+    def self.has_flash?(text)
+      wait = Selenium::WebDriver::Wait.new(:timeout => 5) #5 seconds every 500ms
+      begin
+        element = wait.until {Driver.html.include? text}
+      rescue
+        Log.warn("Could not find the flash message!")
+      end
+      if element
         return true
+      else
+        return false
       end
     end
 
