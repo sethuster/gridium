@@ -173,6 +173,10 @@ class Element
     element.send_keys text
   end
 
+  def value
+    element.attribute("value")
+  end
+
   #
   # Search for an element within this element
   #
