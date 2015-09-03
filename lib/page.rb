@@ -15,7 +15,7 @@ module Gridium
 
     def self.assert_selector(by, locator)
       asserted_element = Element.new("Asserted Element", by, locator)
-      unless asserted_element.enabled?
+      if asserted_element.eql? nil
         fail("Could not find element on page with locator #{locator} using #{by}")
       else
         Log.info("Asserted Element present with locator #{locator} using #{by}")
