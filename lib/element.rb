@@ -24,14 +24,7 @@ class Element
     if @element.nil? or is_stale?
       wait = Selenium::WebDriver::Wait.new :timeout => Gridium.config.element_timeout, :interval => 1
       if Gridium.config.visible_elements_only
-        wait.until {
-          elements = @driver.find_elements(@by, @locator)
-          elements.each do |element|
-            if element.displayed?
-              @element = element;
-            end
-          end
-        }
+        wait.until { @element = displayed_element }
       else
         wait.until { @element = @driver.find_element(@by, @locator); Log.debug("Finding element #{self}..."); @element.enabled? }
       end
@@ -42,6 +35,18 @@ class Element
 
   def element= e
     @element = e
+  end
+
+  def displayed_element
+    found_element = nil
+    elements = @driver.find_elements(@by, @locator)
+    ##there's a chance here the element is found but not displayed.
+    elements.each do |element|
+      if element.displayed? and element.enabled?
+        found_element = element;
+      end
+    end
+    return found_element
   end
 
   # ================ #
