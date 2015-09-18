@@ -26,7 +26,12 @@ class Driver
     begin
       unless @@driver
         @browser_type = Gridium.config.browser
-        @@driver = Selenium::WebDriver.for(Gridium.config.browser)
+        ##Adding support for remote browsers
+        if Gridium.config.browser_source == :remote
+          @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: Gridium.config.browser)
+        else
+          @@driver = Selenium::WebDriver.for(Gridium.config.browser)
+        end
         reset
       end
       @@driver

@@ -19,11 +19,12 @@ module Gridium
   end
 
   class Config
-    attr_accessor :report_dir, :target_environment, :browser, :url, :page_load_timeout, :element_timeout, :visible_elements_only, :log_level
+    attr_accessor :report_dir, :browser_source, :target_environment, :browser, :url, :page_load_timeout, :element_timeout, :visible_elements_only, :log_level
     attr_accessor :highlight_verifications, :highlight_duration, :screenshot_on_failure
 
     def initialize
       @report_dir = Dir.home
+      @browser_source = :local  #if browser source is set to remote, target environment needs to be set properly
       @target_environment = "localhost"
       @browser = :firefox
       @url = "about:blank"
