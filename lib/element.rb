@@ -243,8 +243,9 @@ class Element
 
   def is_stale?
     begin
-      @element.enabled?
-      return false
+      if @element.enabled?
+        return false
+      end
     rescue Exception => e
       return true
     end
