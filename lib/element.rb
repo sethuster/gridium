@@ -247,6 +247,7 @@ class Element
         return false
       end
     rescue Exception => e
+      Log.warn("Stale element detected.... #{self.to_s}")
       return true
     end
   end
