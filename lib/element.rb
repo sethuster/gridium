@@ -39,13 +39,20 @@ class Element
 
   def displayed_element
     found_element = nil
-    elements = @driver.find_elements(@by, @locator)
-    ##there's a chance here the element is found but not displayed.
-    elements.each do |element|
-      if element.displayed? and element.enabled?
-        found_element = element;
+    #Found an issue where the element would go stale after it's found
+    begin
+      elements = @driver.find_elements(@by, @locator)
+      ##there's a chance here the element is found but not displayed.
+      elements.each do |element|
+        if element.displayed? and element.enabled?
+          found_element = element;
+        end
       end
+    rescue Exception => e
+      Log.warn("A Crusty old element was detected.... #{self.to_s}")
+      retry
     end
+
     return found_element
   end
 

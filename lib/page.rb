@@ -96,7 +96,7 @@ module Gridium
     end
 
     def click_link(linktext)
-      link = Driver.driver.find_element(:link, linktext)
+      link = Element.new("Clicking #{linktext} Link", :link_text, linktext)
       link.click
     end
 
