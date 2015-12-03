@@ -29,6 +29,7 @@ To get started using Gridium add the Gem to your automated test library.  Includ
 ```ruby
 Gridium.configure do |config|
   config.report_dir = '/path/to/automation/project'
+  config.browser_source = :local
   config.target_environment = "Integration"
   config.browser = :firefox
   config.url = "http://www.applicationundertest.com"
