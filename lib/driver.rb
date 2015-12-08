@@ -1,5 +1,6 @@
 require 'selenium-webdriver'
 require 'uri'
+require 'spec_data'
 
 
 class Driver
@@ -163,7 +164,7 @@ class Driver
     timestamp = Time.now.strftime("%Y_%m_%d__%H_%M_%S")
     screenshot_path = File.join($current_run_dir, "screenshot__#{timestamp}__#{type}.png")
     driver.save_screenshot(screenshot_path)
-    $screenshots_captured.push("screenshot__#{timestamp}__#{type}.png")   # used by custom_formatter.rb for embedding in report
+    SpecData.screenshots_captured.push("screenshot__#{timestamp}__#{type}.png")   # used by custom_formatter.rb for embedding in report
   end
 
   def self.list_open_windows

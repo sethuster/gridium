@@ -1,10 +1,6 @@
 module Gridium
   class Page
 
-    def initialize
-
-    end
-
     def self.switch_to_frame(frame)
       Driver.driver.switch_to.frame(frame)
     end
@@ -36,7 +32,6 @@ module Gridium
       rescue Exception => e
         return false
       end
-
     end
 
     def self.has_link?(linktext)
@@ -63,6 +58,7 @@ module Gridium
       rescue
         Log.warn("Could not find the flash message!")
       end
+
       if element
         return true
       else
@@ -115,6 +111,5 @@ module Gridium
     def check(id) #checks a checkbox
       Driver.driver.find_element(:id, id).click
     end
-
   end
 end
