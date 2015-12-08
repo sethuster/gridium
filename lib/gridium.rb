@@ -7,8 +7,6 @@ require 'element'
 require 'element_extensions'
 require 'element_verification'
 require 'page'
-require 'logger_extensions'
-require 'gridium_logger'
 
 module Gridium
   class << self

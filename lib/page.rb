@@ -43,7 +43,7 @@ module Gridium
     end
 
     def self.has_text?(text)
-      if Driver.html.include? text
+      if Driver.html.include?(text)
         return true
       else
         Log.warn("Could not find expected text: #{text} on page.")
