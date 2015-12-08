@@ -49,7 +49,5 @@ describe Gridium do
         ele2.verify.present
         $verification_passes.should eql(3)
       end
-
-
     end
 end
