@@ -13,7 +13,7 @@ describe Gridium do
       after :each do
         Driver.quit
       end
-
+=begin
       it 'Test 000 has a version number' do
         expect(Gridium::VERSION).not_to be nil
       end
@@ -49,7 +49,12 @@ describe Gridium do
         ele2.verify.present
         $verification_passes.should eql(3)
       end
-
-
+=end
+      it 'Test 004 - Page.has_text method' do
+        site = test_url
+        test_driver.visit(site)
+        puts test_driver.html.include?("google")
+        puts Page.has_text?("google")
+      end
     end
 end

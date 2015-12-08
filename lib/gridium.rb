@@ -1,12 +1,12 @@
-require "gridium/version"
-require "log"
-require "spec_data"
-require "driver"
-require "driver_extensions"
-require "element"
-require "element_extensions"
-require "element_verification"
-require "page"
+require 'gridium/version'
+require 'log'
+require 'spec_data'
+require 'driver'
+require 'driver_extensions'
+require 'element'
+require 'element_extensions'
+require 'element_verification'
+require 'page'
 
 module Gridium
   class << self

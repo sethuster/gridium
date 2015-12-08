@@ -1,5 +1,6 @@
 require 'selenium-webdriver'
 require 'oily_png'
+require 'spec_data'
 
 class Element
   attr_reader :name, :by, :locator
@@ -33,7 +34,7 @@ class Element
     @element
   end
 
-  def element= e
+  def element=(e)
     @element = e
   end
 
@@ -180,9 +181,9 @@ class Element
     element.text
   end
 
-  def text= text
+  def text=(text)
     element.clear
-    element.send_keys text
+    element.send_keys(text)
   end
 
   def value
@@ -234,7 +235,7 @@ class Element
     image2 = image1.to_image
     element_screenshot_path = File.join($current_run_dir, "#{name}__#{timestamp}.png")
     image2.save(element_screenshot_path)
-    $screenshots_captured.push("#{name}__#{timestamp}.png")
+    SpecData.screenshots_captured.push("#{name}__#{timestamp}.png")
   end
 
   def method_missing(method_sym, *arguments, &block)
