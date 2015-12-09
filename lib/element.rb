@@ -43,18 +43,20 @@ class Element
     #Found an issue where the element would go stale after it's found
     begin
       elements = @driver.find_elements(@by, @locator)
-      ##there's a chance here the element is found but not displayed.
       elements.each do |element|
-        if element.displayed? and element.enabled?
-          found_element = element;
+        if element.displayed? #removed check for element.enabled
+          found_element = element; #this will always return the last displayed element
         end
       end
     rescue Exception => e
-      Log.warn("A Crusty old element was detected.... #{self.to_s}")
-      retry
+      if found_element
+        Log.warn("An element was found, but it was not displayed on the page. Gridium.config.visible_elements_only set to: #{Gridium.config.visible_elements_only} Element: #{self.to_s}")
+      else
+        Log.warn("Could not find Element: #{self.to_s}")
+      end
     end
 
-    return found_element
+    found_element
   end
 
   # ================ #
@@ -96,7 +98,7 @@ class Element
   end
 
   def enabled?
-    return element.enabled?
+    element.enabled?
   end
 
   def clear
