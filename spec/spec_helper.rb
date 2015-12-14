@@ -3,6 +3,7 @@ require 'rspec'
 require 'gridium'
 require 'page_objects/google_home'
 
+RSpec::Expectations.configuration.warn_about_potential_false_positives = false
 
 # Setup any custom configuration for the Corundum framework
 Gridium.configure do |config|

@@ -1,6 +1,7 @@
 require 'selenium-webdriver'
 require 'uri'
 require 'spec_data'
+require 'pry'
 
 
 class Driver
@@ -60,14 +61,16 @@ class Driver
 
   def self.visit(path)
     begin
-      Log.debug("Navigating to url: (#{path}).")
-      driver
-      time_start = Time.now
-      driver.navigate.to(path)
-      time_end = Time.new
-      page_load = (time_end - time_start)
-      Log.debug("Page loaded in (#{page_load}) seconds.")
-      $verification_passes += 1
+      if path
+        Log.debug("Navigating to url: (#{path}).")
+        driver
+        time_start = Time.now
+        driver.navigate.to(path)
+        time_end = Time.new
+        page_load = (time_end - time_start)
+        Log.debug("Page loaded in (#{page_load}) seconds.")
+        $verification_passes += 1
+      end
     rescue Exception => e
       Log.debug(e.backtrace.inspect)
       Log.error("#{e.message} - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
@@ -133,7 +136,6 @@ class Driver
       $verification_passes += 1
     else
       Log.error("(#{current_url}) does not include (#{given_url}).")
-      Kernel.fail
     end
   end
 
