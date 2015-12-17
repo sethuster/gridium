@@ -11,6 +11,7 @@ describe Driver do
   let(:driver_manager) { Driver.driver.manage }
   let(:test_page) { Page }
   let(:test_spec_data) { SpecData }
+  let(:test_driver_extension) { DriverExtensions }
   let(:logger) { Log }
 
   before :each do
@@ -36,11 +37,6 @@ describe Driver do
       expect(gridium_config.browser_source).to eq :local
       expect(gridium_config.browser).to eq :firefox
 
-      test_driver.driver
-    end
-
-    xit 'throws an exception if browser cannot load' do
-      binding.pry
       test_driver.driver
     end
   end
@@ -158,6 +154,88 @@ describe Driver do
 
       expect(logger).to have_received(:error).with('(https://www.google.com/?gws_rd=ssl) does not include (www.dogewow.com).')
       expect($verification_passes).to eq(1)
+    end
+  end
+
+  describe '#execute_script' do
+    it 'calls execute script on the driver' do
+      expect(test_driver.driver).to receive(:execute_script)
+
+      test_driver.execute_script('script;', 'element')
+    end
+  end
+
+  describe '#execute_script_driver' do
+    it 'calls execute script on the driver' do
+      expect(test_driver.driver).to receive(:execute_script)
+
+      test_driver.execute_script_driver('script;')
+    end
+  end
+
+  describe '#evaluate_script' do
+    it 'calls execute_script and returns' do
+      expect(test_driver.driver).to receive(:execute_script)
+
+      test_driver.evaluate_script('script;')
+    end
+  end
+
+  describe '#save_screenshot' do
+    xit 'saves the screenshot and logs it' do
+      allow(logger).to receive(:debug)
+      allow(test_driver.driver).to receive(:save_screenshot).with('path/of/screenshot/', 'screenshot__blah__saved.png')
+
+      test_driver.save_screenshot
+
+      expect(logger).to have_received(:debug).with('Capturing screenshot of browser...')
+      expect(test_spec_data.screenshots_captured).to have_received(:push).with('screenshot.png')
+    end
+  end
+
+  describe '#list_open_windows' do
+    # #window_handles function has not been implemented
+    it 'calls returns a list of open windows and logs it' do
+      allow(logger).to receive(:debug).with('List of active windows:')
+      allow(logger).to receive(:debug).and_return('Shutting down web driver...')
+
+      test_driver.list_open_windows
+
+      expect(logger).to have_received(:debug).twice
+    end
+  end
+
+  describe '#open_new_window' do
+    it 'logs and opens new window' do
+      allow(logger).to receive(:debug).with("Opening new window and loading url (#{test_url})...")
+      expect(test_driver_extension).to receive(:open_new_window).with(test_url)
+
+      test_driver.open_new_window(test_url)
+    end
+  end
+
+  describe '#close_window' do
+    it 'logs and closes new window' do
+      allow(logger).to receive(:debug).with("Closing window (#{test_driver.driver.title})...")
+      allow(logger).to receive(:debug).and_return('Shutting down web driver...')
+
+      expect(test_driver_extension).to receive(:close_window)
+      expect(logger).to receive(:debug).twice
+
+      test_driver.close_window
+    end
+  end
+
+  describe '#switch_to_window' do
+    # #window_handles function has not been implemented
+    it 'logs and switches to new window' do
+      allow(logger).to receive(:debug).with("Current window is: (#{test_driver.driver.title}).")
+      allow(logger).to receive(:debug).with('Shutting down web driver...')
+
+      expect(test_driver).to receive(:list_open_windows)
+      expect(logger).to receive(:debug).twice
+
+      test_driver.switch_to_window('title')
     end
   end
 
