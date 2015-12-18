@@ -20,4 +20,22 @@ describe Log do
       test_logger.info(log_message)
     end
   end
+
+  describe '#warn' do
+    it 'returns a warning message and puts it in execution warnings' do
+      expect(test_logger).to receive(:warn).with(log_message)
+      expect(SpecData.execution_warnings).to eq([])
+
+      test_logger.warn(log_message)
+    end
+  end
+
+  describe '#error' do
+    it 'returns an error message and puts it in verification errors' do
+      expect(test_logger).to receive(:error).with(log_message)
+      expect(SpecData.verification_errors).to eq([])
+
+      test_logger.error(log_message)
+    end
+  end
 end
