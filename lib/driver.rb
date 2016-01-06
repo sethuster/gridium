@@ -30,7 +30,11 @@ class Driver
         ##Adding support for remote browsers
         if Gridium.config.browser_source == :remote
           @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: Gridium.config.browser)
-        else
+          #this file detector is only used for remote drivers and is needed to upload files from test_host through Grid to browser
+          @@driver.file_detector = lambda do |args|
+            str = args.first.to_s
+            str if File.exist?(str)
+          end
           @@driver = Selenium::WebDriver.for(Gridium.config.browser)
         end
         reset

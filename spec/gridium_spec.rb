@@ -19,7 +19,7 @@ describe Gridium do
     end
 
     it 'Test 001 should launch browser and url (specified by spec config)' do
-      site = test_url #pulls from test config (above)
+      site = test_url #pulls from test config (afbove)
       test_driver.visit(site) #Driver pulls from test config (above)
       test_driver.verify_url("google.com")
       test_driver.visit('http://www.google.com')
