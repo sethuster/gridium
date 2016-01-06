@@ -35,6 +35,7 @@ class Driver
             str = args.first.to_s
             str if File.exist?(str)
           end
+        else
           @@driver = Selenium::WebDriver.for(Gridium.config.browser)
         end
         reset
