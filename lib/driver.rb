@@ -146,7 +146,13 @@ class Driver
   # @return The value returned from the script
   #
   def self.execute_script(script, element)
-    driver.execute_script(script, element)
+    if element.is_a?(Element)
+      #we dont care if Gridium.config.visible_elements_only is set to true or not
+      ele = driver.find_element(element.by, element.locator)
+      driver.execute_script(script, ele)
+    else
+      driver.execute_script(script, element)
+    end
   end
 
   #
@@ -220,6 +226,18 @@ class Driver
     Log.debug("Current window is: (#{current_title}).  Switching to main window...")
     driver.switch_to.window(driver.window_handles.first)
     Log.debug("Window (#{driver.title}) is now the active window.")
+  end
+
+  def self.switch_to_frame(by, locator)
+    Log.debug("Attempting to switch to Frame at: #{locator}")
+    driver.switch_to.frame(driver.find_element(by, locator))
+    Log.debug("Frame at: #{locator} is now active frame!")
+  end
+
+  def self.switch_to_parent_frame
+    Log.debug("Switching back to main parent frame")
+    driver.switch_to.parent_frame
+    Log.debug("Now back to Parent Frame")
   end
 
 end
