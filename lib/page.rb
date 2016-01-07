@@ -76,7 +76,8 @@ module Gridium
     end
 
     def self.execute_script(script)
-      Driver.execute_script_driver(script)
+      Driver.execute_script_driv
+      er(script)
     end
 
     def all(by, locator)
