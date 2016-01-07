@@ -180,7 +180,7 @@ class Element
   end
 
   def text
-    element.text
+    element.attribute("value")
   end
 
   def text=(text)
