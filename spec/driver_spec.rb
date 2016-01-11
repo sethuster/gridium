@@ -4,7 +4,7 @@ require 'pry'
 describe Driver do
   let(:gridium_config) { Gridium.config }
 
-  let(:test_url) { 'www.google.com' }
+  let(:test_url) { 'https://www.google.com' }
   let(:redirected_url) { 'https://goo.gl/H5mLQP' }
 
   let(:test_driver) { Driver }
@@ -118,7 +118,7 @@ describe Driver do
   describe '#current_domain' do
     it 'returns the current domain' do
       allow(logger).to receive(:debug)
-
+      test_driver.visit("http://www.mozilla.org")
       test_driver.current_domain
 
       expect(logger).to have_received(:debug).with('Current domain is: (www.mozilla.org).')

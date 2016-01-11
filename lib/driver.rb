@@ -131,7 +131,7 @@ class Driver
     Log.debug('Verifying URL...')
     current_url = self.current_url.to_s
     current_domain = self.current_domain.to_s
-    if current_domain.include?(given_url)
+    if current_url.include?(given_url)
       Log.debug("Confirmed. (#{current_url}) includes (#{given_url}).")
       $verification_passes += 1
     else
