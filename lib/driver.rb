@@ -1,8 +1,6 @@
 require 'selenium-webdriver'
 require 'uri'
 require 'spec_data'
-require 'pry'
-
 
 class Driver
   @@driver = nil

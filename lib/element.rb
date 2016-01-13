@@ -180,7 +180,8 @@ class Element
   end
 
   def text
-    element.attribute("value")
+    #this is used for text based elements
+    element.text
   end
 
   def text=(text)
@@ -189,6 +190,7 @@ class Element
   end
 
   def value
+    #this is used for inputs and forms
     element.attribute("value")
   end
 
