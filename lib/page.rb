@@ -19,36 +19,34 @@ module Gridium
     end
 
     def self.has_css?(css, options={})
+      wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
-        Driver.driver.find_element(:css, css).enabled?
+        wait.until {Driver.driver.find_element(:css, css).enabled?}
       rescue Exception => e
         return false
       end
     end
 
     def self.has_xpath?(xpath, options={})
+      wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
-        Driver.driver.find_element(:xpath, xpath).enabled?
+        wait.until {Driver.driver.find_element(:xpath, xpath).enabled?}
       rescue Exception => e
         return false
       end
     end
 
     def self.has_link?(linktext)
+      wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
-        Driver.driver.find_element(:link_text, linktext).enabled?
+        wait.until {Driver.driver.find_element(:link_text, linktext).enabled?}
       rescue Exception => e
         return false
       end
     end
 
     def self.has_text?(text)
-      if Driver.html.include?(text)
-        return true
-      else
-        Log.warn("Could not find expected text: #{text} on page.")
-        return false
-      end
+      has_flash?(text)
     end
 
     def self.has_flash?(text)
