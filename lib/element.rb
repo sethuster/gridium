@@ -9,6 +9,7 @@ class Element
     @name = name
     @by = by
     @locator = locator
+    @element_screenshot = nil #used to store the path of element screenshots for comparison
 
     # wrapped driver
     @driver = Driver.driver
@@ -239,7 +240,44 @@ class Element
     image2 = image1.to_image
     element_screenshot_path = File.join($current_run_dir, "#{name}__#{timestamp}.png")
     image2.save(element_screenshot_path)
+    @element_screenshot = element_screenshot_path
     SpecData.screenshots_captured.push("#{name}__#{timestamp}.png")
+  end
+
+  def compare_element_screenshot(base_image_path)
+    #Returns TRUE if there are no differences, FALSE if there are
+    begin
+      images = [
+          ChunkyPNG::Image.from_file(base_image_path),
+          ChunkyPNG::Image.from_file(@element_screenshot)
+      ]
+      #used to store image x,y diff
+      diff = []
+
+      images.first.height.time do |y|
+        images.first.row(y).each_with_index do |pixel, x|
+          diff << [x,y] unless pixel == images.last[x,y]
+        end
+      end
+
+      Log.debug("Pixels total:    #{images.first.pixels.length}")
+      Log.debug("Pixels changed:  #{diff.length}")
+      Log.debug("Pixels changed:  #{(diff.length.to_f / images.first.pixels.length) * 100}%")
+
+      x, y = diff.map{|xy| xy[0]}, diff.map{|xy| xy[1]}
+
+      if x.any? && y.any?
+        name = self.name.gsub(' ', '_')
+        element_screenshot_path = File.join($current_run_dir, "#{name}__diff_#{Time.now.to_i}.png")
+        images.last.rect(x.min, y.min, x.max, y.max, ChunkyPNG::Color(0,255,0))
+        images.last.save(element_screenshot_path)
+        return false
+      else
+        return true
+      end
+    rescue Exception => e
+      Log.error("There was a problem comparing element images. #{e.to_s}")
+    end
   end
 
   def method_missing(method_sym, *arguments, &block)
