@@ -247,14 +247,15 @@ class Element
   def compare_element_screenshot(base_image_path)
     #Returns TRUE if there are no differences, FALSE if there are
     begin
+      Log.debug("Loading Images for Comparison...")
       images = [
           ChunkyPNG::Image.from_file(base_image_path),
           ChunkyPNG::Image.from_file(@element_screenshot)
       ]
       #used to store image x,y diff
       diff = []
-
-      images.first.height.time do |y|
+      Log.debug("Comparing Images...")
+      images.first.height.times do |y|
         images.first.row(y).each_with_index do |pixel, x|
           diff << [x,y] unless pixel == images.last[x,y]
         end
@@ -267,8 +268,10 @@ class Element
       x, y = diff.map{|xy| xy[0]}, diff.map{|xy| xy[1]}
 
       if x.any? && y.any?
+        Log.debug("Differences Detected! Writing Diff Image...")
         name = self.name.gsub(' ', '_')
-        element_screenshot_path = File.join($current_run_dir, "#{name}__diff_#{Time.now.to_i}.png")
+        #timestamp = Time.now.strftime("%Y_%m_%d__%H_%M_%S")
+        element_screenshot_path = File.join($current_run_dir, "#{name}__diff_.png")
         images.last.rect(x.min, y.min, x.max, y.max, ChunkyPNG::Color(0,255,0))
         images.last.save(element_screenshot_path)
         return false
