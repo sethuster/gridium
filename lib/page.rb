@@ -89,19 +89,18 @@ module Gridium
       Driver.driver.find_elements(by, locator).first
     end
 
-    def click_link(linktext)
-      link = Element.new("Clicking #{linktext} Link", :link_text, linktext)
-      link.click
+    def click_link(link_text)
+      Element.new("Clicking #{link_text} Link", :xpath, "//a[contains(., '#{link_text}')]").click
     end
 
     def click_button(button_name)
       #The button maybe a link that looks like a button - we want to handle both
-      button = Element.new("A #{button_name} button", :xpath, "//button[contains(text(), '#{button_name}')]")
+      button = Element.new("A #{button_name} button", :xpath, "//button[contains(., '#{button_name}')]")
       begin
         button.click
       rescue Exception => e
         Log.debug("Button not found - Attempting Link - speed up test by using click_link method if this works...")
-        link = Element.new("A #{button_name} link", :xpath, "//a[contains(text(), '#{button_name}')]")
+        link = Element.new("A #{button_name} link", :xpath, "//a[contains(., '#{button_name}')]")
         link.click
       end
     end
