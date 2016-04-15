@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'pry'
+# require 'pry'
 
 describe Page do
   let(:test_driver) { Driver }
@@ -66,6 +66,25 @@ describe Page do
       test_page.assert_selector('by', 'locator')
 
       expect(logger).to have_received(:info).with('Asserted Element present with locator locator using by')
+    end
+  end
+
+  describe '#click_*' do
+    it 'clicks a link' do
+      $verification_passes = 0
+      Driver.visit "https://www.sendgrid.com"
+      page = Page.new
+      page.click_link "Get Started"
+      Driver.verify_url "http://sendgrid.com/pricing"
+    end
+
+    it 'clicks a button' do
+      $verification_passes = 0
+      Driver.visit "https://www.sendgrid.com"
+      page = Page.new
+
+      page.click_button "node.js"
+      expect(Page.has_text?("// using SendGrid's Node.js Library")).to eql true
     end
   end
 end
