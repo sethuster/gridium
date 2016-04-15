@@ -90,7 +90,7 @@ module Gridium
     end
 
     def click_link(link_text)
-      Element.new("Clicking #{link_text} Link", :xpath, "//a[contains(., '#{link_text}')]").click
+      Element.new("Clicking #{link_text} Link", :link_text, link_text).click
     end
 
     def click_button(button_name)
