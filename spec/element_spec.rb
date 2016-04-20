@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'pry'
+# require 'pry'
 
 describe Element do
   let(:test_element) { Element }

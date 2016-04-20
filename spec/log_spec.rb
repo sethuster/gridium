@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'pry'
+# require 'pry'
 
 describe Log do
   let(:test_logger) { Log }

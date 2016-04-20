@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'pry'
+# require 'pry'
 
 describe Driver do
   let(:gridium_config) { Gridium.config }
@@ -142,7 +142,7 @@ describe Driver do
       test_driver.verify_url(test_url)
 
       expect(logger).to have_received(:debug).with('Verifying URL...')
-      expect(logger).to have_received(:debug).with('Confirmed. (https://www.google.com/?gws_rd=ssl) includes (www.google.com).')
+      expect(logger).to have_received(:debug).with('Confirmed. (https://www.google.com/) includes (https://www.google.com).')
       expect($verification_passes).to eq(2)
     end
 
@@ -152,7 +152,7 @@ describe Driver do
       test_driver.visit(test_url)
       test_driver.verify_url('www.dogewow.com')
 
-      expect(logger).to have_received(:error).with('(https://www.google.com/?gws_rd=ssl) does not include (www.dogewow.com).')
+      expect(logger).to have_received(:error).with('(https://www.google.com/) does not include (www.dogewow.com).')
       expect($verification_passes).to eq(1)
     end
   end
@@ -249,11 +249,14 @@ describe Driver do
   end
 
   describe 'redirecting to another url' do
-    it 'raises an error when visiting a redirected website' do
+    it 'logs an error when verifying a url for a redirected website' do
+      allow(logger).to receive(:error)
+
       test_driver.visit(redirected_url)
 
       expect($verification_passes).to eq(1)
-      expect{test_driver.verify_url(redirected_url)}.to raise_error
+      test_driver.verify_url(redirected_url)
+      expect(logger).to have_received(:error).with('(https://github.com/sethuster/gridium) does not include (https://goo.gl/H5mLQP).')
     end
   end
 
