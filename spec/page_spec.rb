@@ -50,6 +50,14 @@ describe Page do
     end
   end
 
+  describe '#wait_for_ajax' do
+    it 'waits for jquery to complete on page' do
+      $verification_passes = 0
+      Driver.visit "https://www.sendgrid.com"
+      expect(Page.wait_for_ajax).to be nil
+    end
+  end
+
   describe '#all' do
     it 'it finds all elements' do
       page = Page.new
@@ -75,7 +83,7 @@ describe Page do
       Driver.visit "https://www.sendgrid.com"
       page = Page.new
       page.click_link "Get Started"
-      Driver.verify_url "http://sendgrid.com/pricing"
+      Driver.verify_url "https://sendgrid.com/pricing"
     end
 
     it 'clicks a button' do

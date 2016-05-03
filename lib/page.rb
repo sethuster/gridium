@@ -77,6 +77,20 @@ module Gridium
       Driver.execute_script_driver(script)
     end
 
+    def self.evaluate_script(script)
+      Driver.evaluate_script script
+    end
+
+    def self.wait_for_ajax
+      Timeout.timeout(Gridium.config.page_load_timeout) do
+        loop until jquery_loaded?
+      end
+    end
+
+    def self.jquery_loaded?
+      self.evaluate_script("jQuery.active").zero?
+    end
+
     def all(by, locator)
       Driver.driver.find_elements(by, locator)
     end
