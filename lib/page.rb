@@ -22,7 +22,7 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
         wait.until {Driver.driver.find_element(:css, css).enabled?}
-      rescue Exception => e
+      rescue Exception
         return false
       end
     end
@@ -31,7 +31,7 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
         wait.until {Driver.driver.find_element(:xpath, xpath).enabled?}
-      rescue Exception => e
+      rescue Exception
         return false
       end
     end
@@ -40,7 +40,7 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
         wait.until {Driver.driver.find_element(:link_text, linktext).enabled?}
-      rescue Exception => e
+      rescue Exception
         return false
       end
     end
@@ -98,7 +98,7 @@ module Gridium
       button = Element.new("A #{button_name} button", :xpath, "//button[contains(., '#{button_name}')]")
       begin
         button.click
-      rescue Exception => e
+      rescue Exception
         Log.debug("Button not found - Attempting Link - speed up test by using click_link method if this works...")
         link = Element.new("A #{button_name} link", :xpath, "//a[contains(., '#{button_name}')]")
         link.click
