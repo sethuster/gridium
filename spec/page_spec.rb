@@ -86,13 +86,35 @@ describe Page do
       Driver.verify_url "https://sendgrid.com/pricing"
     end
 
-    it 'clicks a button' do
+    xit 'clicks a button' do
+      # no buttons to click
+    end
+
+    it 'clicks link index 1' do
       $verification_passes = 0
       Driver.visit "https://www.sendgrid.com"
       page = Page.new
 
-      page.click_button "node.js"
-      expect(Page.has_text?("// using SendGrid's Node.js Library")).to eql true
+      page.click_link "Contact Us", link_index: 1
+      Driver.verify_url "https://sendgrid.com/contact"
+    end
+
+    it 'clicks link index 2' do
+      $verification_passes = 0
+      Driver.visit "https://www.sendgrid.com"
+      page = Page.new
+
+      page.click_link "Contact Us", link_index: 2
+      Driver.verify_url "https://sendgrid.com/contact"
+    end
+
+    it 'clicks on any element in dom' do
+      $verification_passes = 0
+      Driver.visit "https://www.sendgrid.com"
+      page = Page.new
+
+      page.click_link "Contact Us", link_index: 2
+      Driver.verify_url "https://sendgrid.com/login"
     end
   end
 end
