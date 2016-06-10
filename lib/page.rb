@@ -103,19 +103,36 @@ module Gridium
       Driver.driver.find_elements(by, locator).first
     end
 
-    def click_link(link_text)
-      Element.new("Clicking #{link_text} Link", :link_text, link_text).click
+    def click_on(text)
+      Element.new("Clicking #{text}", :xpath, "//*[text()='#{text}')]").click
     end
 
-    def click_button(button_name)
+    # Click the link on the page
+    # @param [String] link_text - Text of the link to click
+    # @param [Integer] link_index (optional) - With multiple links on the page with the same name, click on the specified link index
+    def click_link(link_text, link_index: nil)
+      if link_index
+        Element.new("Clicking #{link_text} Link (#{link_index})", :xpath, "(//a[contains(., '#{link_text}')])[#{link_index}]").click
+      else
+        Element.new("Clicking #{link_text} Link", :xpath, "//a[contains(., '#{link_text}')]").click
+      end
+    end
+
+    # Click the button on the page
+    # @param [String] link_text - Text of the link to click
+    # @param [Integer] link_index - With multiple links on the page with the same name, click on the specified link index (Defaults to first link found)
+    def click_button(button_name, button_index: nil)
       #The button maybe a link that looks like a button - we want to handle both
-      button = Element.new("A #{button_name} button", :xpath, "//button[contains(., '#{button_name}')]")
+      if button_index
+        button = Element.new("Clicking #{button_name} button (#{button_index})", :xpath, "(//button[contains(., '#{button_name}')])[#{button_index}]")
+      else
+        button = Element.new("Clicking #{button_name} button", :xpath, "//button[contains(., '#{button_name}')]")
+      end
       begin
         button.click
       rescue Exception
         Log.debug("Button not found - Attempting Link - speed up test by using click_link method if this works...")
-        link = Element.new("A #{button_name} link", :xpath, "//a[contains(., '#{button_name}')]")
-        link.click
+        click_link button_name, link_index: button_index
       end
     end
 
