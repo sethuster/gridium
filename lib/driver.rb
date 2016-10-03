@@ -6,6 +6,7 @@ class Driver
   @@driver = nil
 
   def self.reset
+    Log.debug("====> Driver.reset: #{@@driver}")
     driver.manage.delete_all_cookies
     driver.manage.timeouts.page_load = Gridium.config.page_load_timeout
     driver.manage.timeouts.implicit_wait = Gridium.config.element_timeout
@@ -23,12 +24,14 @@ class Driver
   end
 
   def self.driver
+    Log.debug("=====> Driver.driver: #{@@driver}")
     begin
       unless @@driver
         @browser_type = Gridium.config.browser
         ##Adding support for remote browsers
         if Gridium.config.browser_source == :remote
           @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: Gridium.config.browser)
+          Log.debug("Remote Browser Requested: #{@@driver}")
           #this file detector is only used for remote drivers and is needed to upload files from test_host through Grid to browser
           @@driver.file_detector = lambda do |args|
             str = args.first.to_s
@@ -58,6 +61,7 @@ class Driver
   # =============== #
 
   def self.visit(path)
+    Log.debug("====> Driver.Visit: #{@@driver}")
     begin
       if path
         Log.debug("Navigating to url: (#{path}).")
@@ -76,6 +80,7 @@ class Driver
   end
 
   def self.nav(path)
+    Log.debug("====> Driver.nav: #{@@driver}")
     visit(Gridium.config.url + path)
   end
 
