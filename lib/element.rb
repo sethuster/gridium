@@ -23,7 +23,7 @@ class Element
   end
 
   def element
-    if @element.nil? or is_stale?
+    if stale?
       wait = Selenium::WebDriver::Wait.new :timeout => Gridium.config.element_timeout, :interval => 1
       if Gridium.config.visible_elements_only
         wait.until { @element = displayed_element }
@@ -49,7 +49,7 @@ class Element
           found_element = element; #this will always return the last displayed element
         end
       end
-    rescue Exception => e
+    rescue StandardError
       if found_element
         Log.warn("An element was found, but it was not displayed on the page. Gridium.config.visible_elements_only set to: #{Gridium.config.visible_elements_only} Element: #{self.to_s}")
       else
@@ -65,17 +65,17 @@ class Element
   # ================ #
 
   # soft failure, will not kill test immediately
-  def verify(timeout=nil)
+  def verify(timeout: nil)
     Log.debug('Verifying new element...')
     timeout = Gridium.config.element_timeout if timeout.nil?
     ElementVerification.new(self, timeout)
   end
 
   # hard failure, will kill test immediately
-  def wait_until(timeout=nil)
+  def wait_until(timeout: nil)
     Log.debug('Waiting for new element...')
     timeout = Gridium.config.element_timeout if timeout.nil?
-    ElementVerification.new(self, timeout, fail_test=true)
+    ElementVerification.new(self, timeout, fail_test: true)
   end
 
   def attribute(name)
@@ -83,19 +83,15 @@ class Element
   end
 
   def present?
-    begin
-      return element.enabled?
-    rescue Exception => e
-      return false
-    end
+    return element.enabled?
+  rescue StandardError
+    return false
   end
 
   def displayed?
-    begin
-      return element.displayed?
-    rescue Exception => e
-      return false
-    end
+    return element.displayed?
+  rescue StandardError
+    return false
   end
 
   def enabled?
@@ -122,7 +118,7 @@ class Element
     if element.enabled?
       ElementExtensions.highlight(self) if Gridium.config.highlight_verifications
       $verification_passes += 1
-      element.send_keys *args
+      element.send_keys(*args)
     else
       Log.error('Cannot type into element.  Element is not present.')
     end
@@ -294,14 +290,11 @@ class Element
 
   private
 
-  def is_stale?
-    begin
-      if @element.enabled?
-        return false
-      end
-    rescue Exception => e
-      Log.warn("Stale element detected.... #{self.to_s}")
-      return true
-    end
+  def stale?
+    return true if @element.nil?
+    @element.disabled?
+  rescue StandardError
+    Log.warn("Stale element detected.... #{self.to_s}")
+    return true
   end
 end

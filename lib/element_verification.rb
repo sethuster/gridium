@@ -6,7 +6,7 @@ class Gridium::ElementVerification
   # @param [Integer] timeout
   # @param [Boolean] not_verification - Whether or not we are 'NOT' verifying something about the element
   #
-  def initialize(element, timeout, fail_test=false, element_should_exist=true)
+  def initialize(element, timeout, fail_test: false, element_should_exist: true)
     @element = element # Selement
     @timeout = timeout
     @should_exist = element_should_exist
@@ -14,7 +14,7 @@ class Gridium::ElementVerification
   end
 
   def not
-    ElementVerification.new(@element, @timeout, @fail_test, element_should_exist=false)
+    ElementVerification.new(@element, @timeout, @fail_test, element_should_exist: false)
   end
 
   def text(text)
