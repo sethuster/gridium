@@ -297,16 +297,16 @@ describe Driver do
       end
     end
 
-    it 'calls #is_stale? when checking for elements on the page' do
+    it 'calls #stale? when checking for elements on the page' do
       page_element = create_new_element("Get Started Button", :css, '.billboard .btn-primary')
-      allow(page_element).to receive(:is_stale?).and_return(false)
+      allow(page_element).to receive(:stale?).and_return(false)
 
       test_driver.visit("http://www.sendgrid.com")
       page_element.click
       begin
         page_element.click
       rescue
-        expect(page_element).to have_received(:is_stale?).at_least(:once)
+        expect(page_element).to have_received(:stale?).at_least(:once)
       end
     end
   end
