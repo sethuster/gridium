@@ -7,6 +7,7 @@ require 'page_objects/google_home'
 
 # Setup any custom configuration for the Corundum framework
 Gridium.configure do |config|
+  # config.report_dir = File.expand_path File.dirname(__FILE__)
   config.report_dir = Dir.home.to_s + "/desktop"
   config.browser_source = :local
   config.target_environment = "localhost"
@@ -18,4 +19,32 @@ Gridium.configure do |config|
   config.highlight_verifications = true
   config.highlight_duration = 0.100
   config.screenshot_on_failure = false
+  config.screenshots_to_s3 = true
 end
+
+RSpec.configure do |config|
+  include Gridium
+    config.before :all do
+      # Create the test report root directory
+      report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
+      Dir.mkdir(report_root_dir) if not File.exist?(report_root_dir)
+
+      # Create the sub-directory for the test suite run
+      current_run_report_dir = File.join(report_root_dir, "spec_results__" + DateTime.now.strftime("%m_%d_%Y__%H_%M_%S"))
+      $current_run_dir = current_run_report_dir
+      Dir.mkdir(current_run_report_dir)
+      puts "logging to:  #{current_run_report_dir}"
+
+      # Add the output log file for the rspec test run to the logger
+      Log.add_device(File.open(File.join(current_run_report_dir, "spec_logging_output.log"), File::WRONLY | File::APPEND | File::CREAT))
+
+      # Reset Suite statistics
+      $verifications_total = 0
+      $warnings_total = 0
+      $errors_total = 0
+
+      #Setup Gridium Spec Data
+      SpecData.load_suite_state
+      SpecData.load_spec_state
+    end #end before:all
+end #end Rspec.config

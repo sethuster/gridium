@@ -86,6 +86,7 @@ module Gridium
         @@devices ||= []
         log.attach(device)
         @@devices << device
+        log.add(log.level, "device added: #{File.absolute_path(device)}")
       end
 
       def close
@@ -134,7 +135,6 @@ module Gridium
             "#{base_msg} X #{msg}\n"
           end
         end
-
         logger
       end # initialize_logger
     end # class << self
