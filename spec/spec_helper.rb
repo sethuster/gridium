@@ -20,11 +20,14 @@ Gridium.configure do |config|
   config.highlight_duration = 0.100
   config.screenshot_on_failure = false
   config.screenshots_to_s3 = true
+  config.project_name_for_s3 = 'gridium'
+  config.subdirectory_name_for_s3 = DateTime.now.strftime("%m_%d_%Y__%H_%M_%S")
 end
 
 RSpec.configure do |config|
   include Gridium
     config.before :all do
+      project_name_for_s3 = 'gridium'
       # Create the test report root directory
       report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
       Dir.mkdir(report_root_dir) if not File.exist?(report_root_dir)
