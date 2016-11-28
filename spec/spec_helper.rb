@@ -27,7 +27,6 @@ end
 RSpec.configure do |config|
   include Gridium
     config.before :all do
-      project_name_for_s3 = 'gridium'
       # Create the test report root directory
       report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
       Dir.mkdir(report_root_dir) if not File.exist?(report_root_dir)
