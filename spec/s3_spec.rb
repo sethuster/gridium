@@ -30,7 +30,6 @@ describe GridiumS3 do
       let(:s3_secret_access_key) {ENV['S3_SECRET_ACCESS_KEY']}
       let(:s3_default_region) {ENV['S3_DEFAULT_REGION']}
       let(:s3_root_bucket) {ENV['S3_ROOT_BUCKET']}
-      let(:s3_shibboleth) {ENV['S3_SHIBBOLETH']}
 
     it 'requires that the S3_ACCESS_KEY_ID environment variable exists' do
         expect(s3_access_key_id).not_to be_nil
@@ -45,10 +44,8 @@ describe GridiumS3 do
     it 'requires that the S3_ROOT_BUCKET environment variable exists' do
         expect(s3_root_bucket).not_to be_nil
     end
+  end
 
-    it 'requires that the S3_SHIBBOLETH environment variable does not exist' do
-        expect(s3_shibboleth).to be_nil
-    end
 
   describe 's3 file naming'do
       let(:file_name) {"temp.txt"}
@@ -95,7 +92,11 @@ describe GridiumS3 do
     end
 
     it 'will default the subdirectory name to screenshots' do
-        #TODO implement this
+      default_subdir_name = 'screenshots'
+      sanitized_file_name = "temp_name.txt"
+      s3 = Gridium::GridiumS3.new(project_name)
+      actual_s3_name = s3.create_s3_name(sanitized_file_name)
+      expect(actual_s3_name).to include default_subdir_name
     end
 
   end
