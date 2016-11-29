@@ -12,6 +12,7 @@ class Driver
     driver.manage.timeouts.implicit_wait = Gridium.config.element_timeout
 
     # Ensure the browser is maximized to maximize visibility of element
+    # Ensure the browser is maximized to maximize visibility of element
     # Currently doesn't work with chromedriver, but the following workaround does:
     if @browser_type.eql?(:chrome)
       width = driver.execute_script("return screen.width;")
@@ -24,9 +25,9 @@ class Driver
   end
 
   def self.driver
-    Log.debug("=====> Driver.driver: #{@@driver}")
     begin
       unless @@driver
+        Log.debug("=====> Driver.driver: instantiating new driver")
         @browser_type = Gridium.config.browser
         ##Adding support for remote browsers
         if Gridium.config.browser_source == :remote
@@ -40,6 +41,17 @@ class Driver
         else
           @@driver = Selenium::WebDriver.for(Gridium.config.browser)
         end
+        if Gridium.config.screenshots_to_s3
+          #do stuff
+          s3_project_folder = Gridium.config.project_name_for_s3
+          s3_subfolder = Gridium.config.subdirectory_name_for_s3
+          Log.debug("configuring s3 to save files to this directory: #{s3_project_folder} in addition to being saved locally")
+          @s3 = Gridium::GridiumS3.new(s3_project_folder, s3_subfolder)
+          Log.debug("s3 is #{@s3}")
+        else
+          Log.debug("s3 screenshots not enabled in spec_helper; they will be only be saved locally")
+          @s3 = nil
+        end
         reset
       end
       @@driver
@@ -49,6 +61,12 @@ class Driver
       $fail_test_instantly = true
       Kernel.fail(e.message)
     end
+  end
+
+
+  def self.s3
+    #TODO figure out why I can't just use attr_reader :s3
+    @s3
   end
 
   def self.driver= driver
@@ -180,8 +198,18 @@ class Driver
     timestamp = Time.now.strftime("%Y_%m_%d__%H_%M_%S")
     screenshot_path = File.join($current_run_dir, "screenshot__#{timestamp}__#{type}.png")
     driver.save_screenshot(screenshot_path)
+    _save_to_s3_if_configured(screenshot_path)
     SpecData.screenshots_captured.push("screenshot__#{timestamp}__#{type}.png")   # used by custom_formatter.rb for embedding in report
+    screenshot_path
   end
+
+  def self._save_to_s3_if_configured(screenshot_path)
+    if Gridium.config.screenshots_to_s3
+      url = @s3.save_file(screenshot_path)
+      Log.info("#{screenshot_path} saved to #{url}")
+    end
+  end
+
 
   def self.list_open_windows
     handles = driver.window_handles

@@ -311,6 +311,38 @@ describe Driver do
     end
   end
 
+  describe 'S3 support' do
+
+    before :each do
+      Gridium.config.screenshots_to_s3 = true
+    end
+
+    it 'should ignore S3 if configuration is false' do
+      Gridium.config.screenshots_to_s3 = false
+      test_driver.driver
+      s3_is_instantiated = !test_driver.s3.nil?
+      expect(s3_is_instantiated).to be false
+    end
+
+    it 'should instantiate S3 if configuration is true' do
+      test_driver.driver
+      s3_is_instantiated = !test_driver.s3.nil?
+      expect(s3_is_instantiated).to be true
+    end
+
+    it 'should save a screenshot to s3 when configured' do |test|
+      #TODO fix the things that make this test ugly
+      test_driver.visit('https://the-internet.herokuapp.com/')
+      test_name = "#{test.metadata[:description]}".gsub(/[^\w]/i, '_')
+      local_file = test_driver.save_screenshot(test_name)
+      remote_file = test_driver.s3.create_s3_name(File.basename(local_file))
+      Log.debug("remote_file is #{remote_file} and local_file is #{local_file}")
+      upload_success = test_driver.s3._verify_upload(remote_file, local_file)
+      expect(upload_success).to be true
+    end
+
+  end
+
   def create_new_element(name, by, locator)
     Element.new(name, by, locator)
   end
