@@ -4,4 +4,3 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rspec-mocks'
-gem 'aws-sdk', '~> 2'
