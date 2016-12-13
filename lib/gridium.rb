@@ -22,6 +22,7 @@ module Gridium
   class Config
     attr_accessor :report_dir, :browser_source, :target_environment, :browser, :url, :page_load_timeout, :element_timeout, :visible_elements_only, :log_level
     attr_accessor :highlight_verifications, :highlight_duration, :screenshot_on_failure, :screenshots_to_s3, :project_name_for_s3, :subdirectory_name_for_s3
+    attr_accessor :tr_enabled
 
     def initialize
       @report_dir = Dir.home
@@ -39,6 +40,7 @@ module Gridium
       @screenshots_to_s3 = false
       @project_name_for_s3 = 'gridium'
       @subdirectory_name_for_s3 = '' #rely on GridiumS3 default
+      @tr_enabled = true
     end
   end
 end
