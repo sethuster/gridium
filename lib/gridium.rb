@@ -8,6 +8,7 @@ require 'element_extensions'
 require 'element_verification'
 require 'page'
 require 's3'
+require 'testrail'
 
 module Gridium
   class << self
@@ -40,7 +41,12 @@ module Gridium
       @screenshots_to_s3 = false
       @project_name_for_s3 = 'gridium'
       @subdirectory_name_for_s3 = '' #rely on GridiumS3 default
-      @tr_enabled = true
+      @tr_enabled = false
     end
   end
+
+  def testrail
+    TRClient.new
+  end
+
 end

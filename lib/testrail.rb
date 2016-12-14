@@ -12,6 +12,13 @@ module Gridium
 		PASS = ENV['GRIDIUM_TR_PW']
     PID = ENV['GRIDIUM_TR_PID']
 
+    #TestRail Statuses
+    PASSED = 1
+    BLOCKED = 2
+    UNTESTED = 3
+    RETEST = 4
+    FAILED = 5
+
 		attr_accessor :user, :password, :pid
 
 		def initialize
@@ -20,23 +27,48 @@ module Gridium
       @password = PASS
       @pid = PID
 
-      puts @url
 		end
 
     def add_run(name, desc)
-      url = "add_run/#{@pid}"
-      r = _send_request('POST', url, {:name => name, :description => desc})
-      @runid = r["id"]
+      Log.debug("Creating run name: #{name} desc: #{desc}")
+      if Gridium.config.tr_enabled
+        r = _send_request('POST', "add_run/#{@pid}", {:name => name, :description => desc, :include_all => false})
+        Log.debug("Result: #{r}")
+        unless r["id"].nil?
+          @runid = r["id"]
+        end
+      end
     end
 
     def close_run
-      if @runid
+      Log.debug("Closing RunID: #{@runid}")
+      unless @runid.nil?
         r = _send_request('POST', "close_run/#{@runid}", nil)
       end
     end
 
+    def add_case(rspec_test)
+      Log.debug("Adding case: #{rspec_test} for RunID: #{@runid}")
+      unless @runid.nil?
+        r = _send_request('POST', "update_run/#{@runid}", {:case_ids => [rspec_test.metadata[:testrail_id]]})
+        if rspec_test.exception
+          status = FAILED
+          message = rspec_test.exception.message
+        else
+          status = PASSED
+          message = ''
+        end
+        r = _send_request(
+          'POST',
+          "add_result_for_case/#{@runid}/#{rspec_test.metadata[:testrail_id]}",
+          status_id: status,
+          comment: message
+        )
+      end
+    end
 
 
+    private
 		def _send_request(method, uri, data)
 			url = URI.parse(@url + uri)
 			if method == 'POST'

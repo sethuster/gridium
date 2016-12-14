@@ -34,5 +34,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "selenium-webdriver", ">= 2.50.0", "< 3"
   spec.add_runtime_dependency "oily_png", "~> 1.2"
   spec.add_runtime_dependency 'aws-sdk', '~> 2'
-  spec.add_runtime_dependency 'testrail', '~> 0.0'
 end
