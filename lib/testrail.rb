@@ -27,7 +27,7 @@ module Gridium
     def add_run(name, desc)
       if Gridium.config.testrail
         Log.debug("[GRIDIUM::TestRail] Creating Test Run: name: #{name} desc: #{desc}")
-        if name.nil? || name.blank? then
+        if name.nil? || name.empty? then
           raise(ArgumentError, "Empty Run Name - Run name is required")
         end
         r = _send_request('POST', "add_run/#{@pid}", {:name => name, :description => desc, :include_all => false})
@@ -50,7 +50,7 @@ module Gridium
     def add_case(rspec_test)
       if Gridium.config.testrail
         Log.debug("[GRIDIUM::TestRail] Adding case: #{rspec_test} for RunID: #{@runid}")
-        if rspec_test.nil? then
+        if rspec_test.nil? || rspec_test.empty? then
           raise(ArgumentError, "No test data was passed in.")
         end
         unless @runid.nil?

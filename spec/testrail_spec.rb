@@ -1,14 +1,12 @@
 require 'spec_helper'
-require 'tmpdir'
 
-describe GridiumTR do
+describe TestRail do
   let(:gridium_config) { Gridium.config }
   let(:runname) { "Spec Run" }
   let(:rundesc) {"child_of_spec"}
   let(:empty_name) { "" }
-  let(:empty_desc) { "" } #tab, carriage return, newline, space
+  let(:empty_result) { "" }
   let(:tr) { Gridium::TestRail.new }
-  let(:logger) { Log }
 
   describe 'Testrail configuration' do
 
@@ -33,7 +31,23 @@ describe GridiumTR do
   end
 
   describe 'TestRail Endpoint Tests' do
-
+    it 'Can add Run' do
+      tr.add_run("Valid Name", "Valid Description")
+    end
+    it 'Fail to add case without Name' do
+      empty_string_call = lambda {tr.add_run empty_name}
+      expect(&empty_string_call).to raise_error(ArgumentError)
+    end
+    it 'Can Close Run' do
+      tr.close_run
+    end
+    it 'Can Add Case to Run' do
+      tr.add_case("TestCase")
+    end
+    it 'Fail to add result with empty set' do
+      empty_result_call = lambda {tr.add_case empty_result}
+      expect(&empty_result_call).to raise_error(ArgumentError)
+    end
   end
 
 end

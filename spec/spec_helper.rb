@@ -2,7 +2,8 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'rspec'
 require 'gridium'
 require 'page_objects/google_home'
-
+require 'webmock/rspec'
+require 'dotenv'
 #RSpec::Expectations.configuration.warn_about_potential_false_positives = false
 
 # Setup any custom configuration for the Corundum framework
@@ -28,6 +29,7 @@ end
 RSpec.configure do |config|
   include Gridium
     config.before :all do
+      Dotenv.load './spec/fake_tr.env'
       # Create the test report root directory
       report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
       Dir.mkdir(report_root_dir) if not File.exist?(report_root_dir)
@@ -50,4 +52,10 @@ RSpec.configure do |config|
       SpecData.load_suite_state
       SpecData.load_spec_state
     end #end before:all
+
+    config.before :each do
+      stub_request(:post, /fake.faketr.fake/).
+      with(headers: {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+      to_return(status: 200, body: '{"id":1153, "suite_id":560}', headers: {})
+    end
 end #end Rspec.config
