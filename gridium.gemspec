@@ -30,6 +30,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "webmock", "~>2.3"
+  spec.add_development_dependency "dotenv", "~>2.1"
 
   spec.add_runtime_dependency "selenium-webdriver", ">= 2.50.0", "< 3"
   spec.add_runtime_dependency "oily_png", "~> 1.2"

@@ -21,7 +21,7 @@ Or install it yourself as:
 
 Gridium is built to support the Page Object Design pattern for automated User Interface tests.  Gridium works best when page objects are abstracted from the test files.  While Rspec is preferred, you should still be able to use Gridium with other test runners.  
 
-In order to use Gridium, you will first need to need to add it to your automtion suite.  Gridium comes with Selenium and is currently configured to run tests on Firefox only.  Future updates will be available to run tests on other browsers and Selenium Grid.
+In order to use Gridium, you will first need to need to add it to your automation suite.  Gridium comes with Selenium and is currently configured to run tests on Firefox only.  Future updates will be available to run tests on other browsers and Selenium Grid.
 
 #### Spec Helper
 To get started using Gridium add the Gem to your automated test library.  Include the following section in your `spec_helper.rb` file:
@@ -40,6 +40,10 @@ Gridium.configure do |config|
   config.highlight_verifications = true
   config.highlight_duration = 0.100
   config.screenshot_on_failure = false
+  config.screenshots_to_s3 = false
+  config.project_name_for_s3 = 'gridium'
+  config.subdirectory_name_for_s3 = '' #rely on GridiumS3 default
+  config.testrail = false
 end
 ```
 
@@ -48,7 +52,10 @@ Additionally, there are some options that should be configured in the `Rspec.con
 ```ruby
 RSpec.configure do |config|
 include Gridium
+tr = Gridium::TestRail.new  #this would only work if Gridium.config.testrail is set to true
   config.before :all do
+    # Set up new testrail run
+    tr.add_run("Test Run Name", "Test Run description")
     # Create the test report root directory
     report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
     Dir.mkdir(report_root_dir) if not File.exist?(report_root_dir)
@@ -70,6 +77,15 @@ include Gridium
     Spec_data.load_suite_state
     Spec_data.load_spec_state
   end #end before:all
+
+  config.after :example, testrail_id: proc { |value| !value.nil? } do |example|
+    tr.add_case(example) #Add the results of the case to TestRail
+  end
+
+  config.after :all do
+    tr.close_run #closes out the TestRun
+  end
+
 end #end Rspec.config
 ```
 
@@ -86,14 +102,40 @@ You may be saying to yourself - 'Holy Crap that's a lot of settings!'.  Yeah.  I
 `config.visible_elements_only = true`: With this enabled Gridium will only find VISIBLE elements on the page.  Hidden elements or non-enabled elements will not be matched.  
 `config.log_level = :debug`: There are a few levels here `:debug` `:info` `:warn` `:error` and `:fatal`.  Your Gridium tests objects can have different levels of logging.  Adjusting this setting will turn those log levels on or off depending on your needs at the time.  
 `config.highlight_verifications = true`: Will highlight the element Gridium finds in the browser.  This makes watching tests run easier to follow, although it does slow the test execution time down.  Recommend this is turned off for automated tests running in Jenkins or headless mode.  
-`config.highlight_duration = 0.100`: How long should the element be highlighted (in miliseconds) before the action is performed on the element.  
+`config.highlight_duration = 0.100`: How long should the element be highlighted (in milliseconds) before the action is performed on the element.  
 `config.screenshot_on_failure = false`: Take a screenshot on failure.  On or off. Obviously.  
+`config.screenshots_to_s3 = false`: This option allows users to save screenshots to an s3 bucket.  AWS S3 buckets need to be setup and configured in AWS.  Environment variables needs to be set for S3.  See environment variables section.
+`config.project_name_for_s3 = 'GRIDIUM'`: This will be appended to the filename in the front of the file. Should not contain spaces.
+`config.subdirectory_name_for_s3 = 'TEST NAME'`: This will be the directory in S3 root to store the files.  Used primarily to differentiate between project artifacts in the same s3 bucket.
+`config.testrail = true`: This to enable TestRail integration. With this turned on, test results will be updated in your TestRail instance.
+
+##### Environment variables
+
+S3 Features require the following Environment variables be set on the machine running the Gridium Test:
+
+```
+S3_ACCESS_KEY_ID
+S3_SECRET_ACCESS_KEY
+S3_DEFAULT_REGION
+S3_ROOT_BUCKET
+```
+
+For TestRail Integration the following Environment variables are required:
+
+```
+GRIDIUM_TR_URL
+GRIDIUM_TR_USER
+GRIDIUM_TR_PW
+GRIDIUM_TR_PID
+```
+
 
 ##### Rspec Configuration Options:  
-The first bit of the Rspec configuration section is used to set up a log file directory.  I like to have log files kept in seperate dated directories.  However, that may not be needed depending on your preference.  If you choose to use a single directory for your log files, you will need to make sure that the log file name is unique, as screenshots are saved into the same directory.  Whichever method you prefer, you will need to setup the Gridium Log Device.  
-`Log.add_device(File.open(File.join(current_run_report_dir, "spec_logging_output.log"), File::WRONLY | File::APPEND | File::CREAT))`: This tells Gridium where to write the logs to for any paticular test run.
+The first bit of the Rspec configuration section is used to set up a log file directory.  I like to have log files kept in separate dated directories.  However, that may not be needed depending on your preference.  If you choose to use a single directory for your log files, you will need to make sure that the log file name is unique, as screenshots are saved into the same directory.  Whichever method you prefer, you will need to setup the Gridium Log Device.  
+`Log.add_device(File.open(File.join(current_run_report_dir, "spec_logging_output.log"), File::WRONLY | File::APPEND | File::CREAT))`: This tells Gridium where to write the logs to for any particular test run.
 
-The following is used for throughout the test execution and displayed in the logs to quickly access how many of each paticular failure your tests are discovering.  This can be used for quick metrics and climate checks of your aplication under test.
+The following is used for throughout the test execution and displayed in the logs to quickly access how many of each particular failure your tests are discovering.  This can be used for quick metrics and climate checks of your application under test.
+
 ```ruby
 # Reset Suite statistics
 $verifications_total = 0
@@ -105,11 +147,11 @@ Spec_data.load_suite_state
 Spec_data.load_spec_state
 ```
 
-##Page Objects
+## Page Objects
 
 Page objects are required for Gridium.  Page objects abstract the functionality of the page away from the test.  There's a million reasons why page objects are the way to go.  Not the least of all is that it helps you maintain your tests.
 
-####Sample Page Object
+#### Sample Page Object
 ```ruby
 include Gridium
 class LoginPage < Page
@@ -129,22 +171,22 @@ class LoginPage < Page
 end
 ```
 
-Notice that to use Gridium functionality, Gridium needs to be included at the top of the page object definition.  Also notice that the LoginPage inherits from the Gridium `Page`.  The `Page` object in gridium provides methods that emulate some of Capybara's API.  For more information checkout the `lib/page.rb`.
+Notice that to use Gridium functionality, Gridium needs to be included at the top of the page object definition.  Also notice that the LoginPage inherits from the Gridium `Page`.  The `Page` object in Gridium provides methods that emulate some of Capybara's API.  For more information checkout the `lib/page.rb`.
 
 Page object are made up of Elements.  The methods on the page object tells the test how interact with the elements.  For example, the Login method shown in the example sets the Username field, the password field and then clicks the login button.  
 
 This action will return a new page, that our test is setup to handle.
 
-##Elements
+## Elements
 
 Elements are the building blocks of page objects.  Elements are anything that a user, or a test would care about on the page.  To create a new Element, you will need three things:  
-*Element Name - A human readable string used to identify the element to the tester.  Used primarily in the log file.  
-*Locator Type - `:css` `:xpath` `:link` `:link_text` `:id` `:class` `:class_name` `:name` `:tag_name` are all valid.  
-*Locator - This is the chosen locator Type string to find the element.  
+* Element Name - A human readable string used to identify the element to the tester.  Used primarily in the log file.  
+* Locator Type - `:css` `:xpath` `:link` `:link_text` `:id` `:class` `:class_name` `:name` `:tag_name` are all valid.  
+* Locator - This is the chosen locator Type string to find the element.  
 
 It's important to remember that Elements are not actually found on the page, until an action is attempted.  Only then will the element be attempted to be located.
 
-##Helper Blog Posts:
+## Helper Blog Posts:
 [Beginner's Guide to Automated Testing](http://www.electricsheepdreams.com/2014/12/4/a-beginners-guide-to-automated-test-design)  
 [How to build Xpath locators](http://www.electricsheepdreams.com/2014/12/4/1wq9pbds8m9vktez0qc2w0r0xxlhp6)  
 [Browser Tools and Plugins](http://www.electricsheepdreams.com/2014/12/4/su5lssyi84k4ycrmuaceuswbf9ojwr)  
@@ -159,4 +201,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/sethus
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
