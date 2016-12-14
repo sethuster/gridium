@@ -5,12 +5,8 @@ require 'json'
 require 'dotenv'
 
 module Gridium
-	class TRClient
-    Dotenv.load '~/shells/gridrail.env'
-		URL = ENV['GRIDIUM_TR_URL']
-		USER = ENV['GRIDIUM_TR_USER']
-		PASS = ENV['GRIDIUM_TR_PW']
-    PID = ENV['GRIDIUM_TR_PID']
+	class TestRail
+		ENV_ERROR = "Environment Variable not set!"
 
     #TestRail Statuses
     PASSED = 1
@@ -19,19 +15,21 @@ module Gridium
     RETEST = 4
     FAILED = 5
 
-		attr_accessor :user, :password, :pid
-
 		def initialize
-      @url = URL + '/index.php?/api/v2/'
-      @user = USER
-      @password = PASS
-      @pid = PID
-
+      if Gridium.config.testrail
+        @url = ENV['GRIDIUM_TR_URL'].empty? || ENV['GRIDIUM_TR_URL'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_URL'] + '/index.php?/api/v2/'
+        @user = ENV['GRIDIUM_TR_USER'].empty? || ENV['GRIDIUM_TR_USER'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_USER']
+        @password = ENV['GRIDIUM_TR_PW'].empty? || ENV['GRIDIUM_TR_PW'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PW']
+        @pid = ENV['GRIDIUM_TR_PID'].empty? || ENV['GRIDIUM_TR_PID'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PID']
+      end
 		end
 
     def add_run(name, desc)
-      Log.debug("Creating run name: #{name} desc: #{desc}")
-      if Gridium.config.tr_enabled
+      if Gridium.config.testrail
+        Log.debug("[GRIDIUM::TestRail] Creating Test Run: name: #{name} desc: #{desc}")
+        if name.nil? || name.blank? then
+          raise(ArgumentError, "Empty Run Name - Run name is required")
+        end
         r = _send_request('POST', "add_run/#{@pid}", {:name => name, :description => desc, :include_all => false})
         Log.debug("Result: #{r}")
         unless r["id"].nil?
@@ -41,29 +39,36 @@ module Gridium
     end
 
     def close_run
-      Log.debug("Closing RunID: #{@runid}")
-      unless @runid.nil?
-        r = _send_request('POST', "close_run/#{@runid}", nil)
+      if Gridium.config.testrail
+        Log.debug("[GRIDIUM::TestRail] Closing RunID: #{@runid}")
+        unless @runid.nil?
+          r = _send_request('POST', "close_run/#{@runid}", nil)
+        end
       end
     end
 
     def add_case(rspec_test)
-      Log.debug("Adding case: #{rspec_test} for RunID: #{@runid}")
-      unless @runid.nil?
-        r = _send_request('POST', "update_run/#{@runid}", {:case_ids => [rspec_test.metadata[:testrail_id]]})
-        if rspec_test.exception
-          status = FAILED
-          message = rspec_test.exception.message
-        else
-          status = PASSED
-          message = ''
+      if Gridium.config.testrail
+        Log.debug("[GRIDIUM::TestRail] Adding case: #{rspec_test} for RunID: #{@runid}")
+        if rspec_test.nil? then
+          raise(ArgumentError, "No test data was passed in.")
         end
-        r = _send_request(
-          'POST',
-          "add_result_for_case/#{@runid}/#{rspec_test.metadata[:testrail_id]}",
-          status_id: status,
-          comment: message
-        )
+        unless @runid.nil?
+          r = _send_request('POST', "update_run/#{@runid}", {:case_ids => [rspec_test.metadata[:testrail_id]]})
+          if rspec_test.exception
+            status = FAILED
+            message = rspec_test.exception.message
+          else
+            status = PASSED
+            message = ''
+          end
+          r = _send_request(
+            'POST',
+            "add_result_for_case/#{@runid}/#{rspec_test.metadata[:testrail_id]}",
+            status_id: status,
+            comment: message
+          )
+        end
       end
     end
 

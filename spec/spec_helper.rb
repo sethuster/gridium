@@ -22,6 +22,7 @@ Gridium.configure do |config|
   config.screenshots_to_s3 = true
   config.project_name_for_s3 = 'gridium'
   config.subdirectory_name_for_s3 = DateTime.now.strftime("%m_%d_%Y__%H_%M_%S")
+  config.testrail = true
 end
 
 RSpec.configure do |config|
