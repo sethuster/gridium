@@ -2,7 +2,6 @@ require 'net/http'
 require 'net/https'
 require 'uri'
 require 'json'
-require 'dotenv'
 
 module Gridium
 	class TestRail
@@ -50,7 +49,7 @@ module Gridium
     def add_case(rspec_test)
       if Gridium.config.testrail
         Log.debug("[GRIDIUM::TestRail] Adding case: #{rspec_test} for RunID: #{@runid}")
-        if rspec_test.nil? || rspec_test.empty? then
+        if rspec_test.nil? then
           raise(ArgumentError, "No test data was passed in.")
         end
         unless @runid.nil?

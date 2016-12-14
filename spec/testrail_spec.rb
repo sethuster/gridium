@@ -45,7 +45,7 @@ describe TestRail do
       tr.add_case("TestCase")
     end
     it 'Fail to add result with empty set' do
-      empty_result_call = lambda {tr.add_case empty_result}
+      empty_result_call = lambda {tr.add_case nil}
       expect(&empty_result_call).to raise_error(ArgumentError)
     end
   end
