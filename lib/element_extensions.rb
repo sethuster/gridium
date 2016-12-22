@@ -27,4 +27,12 @@ class Gridium::ElementExtensions
     Driver.execute_script("var evObj = document.createEvent('MouseEvents'); evObj.initMouseEvent(\"mouseout\",true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null); arguments[0].dispatchEvent(evObj);", element.element)
     sleep 1
   end
+
+  def self.mouse_over(element)
+    Driver.driver.mouse.move_to(element.element)
+  end
+
+  def self.trigger_onblur(element)
+    Driver.execute_script("arguments[0].focus(); arguments[0].blur(); return true", element.element)
+  end
 end

@@ -151,12 +151,33 @@ class Element
     end
   end
 
+  # Raw webdriver mouse over
+  def mouse_over
+    Log.debug("Triggering mouse over for (#{self.to_s})...")
+    if element.enabled?
+      $verification_passes += 1
+      ElementExtensions.mouse_over(self)
+    else
+      Log.error('Cannot mouse over.  Element is not present.')
+    end
+  end
+
   def scroll_into_view
     if element.enabled?
       $verification_passes += 1
       ElementExtensions.scroll_to(self)
     else
       Log.error('Cannot scroll element into view.  Element is not present.')
+    end
+  end
+
+  def trigger_onblur
+    Log.debug("Triggering onblur for (#{self.to_s})...")
+    if element.enabled?
+      $verification_passes += 1
+      ElementExtensions.trigger_onblur(self)
+    else
+      Log.error('Cannot trigger onblur.  Element is not present.')
     end
   end
 
