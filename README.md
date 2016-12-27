@@ -146,7 +146,33 @@ $errors_total = 0
 Spec_data.load_suite_state
 Spec_data.load_spec_state
 ```
+##Saving screenshots to S3
 
+S3 support is available for persisting screenshots online. This is especially helpful when running tests in CI and/or Docker environments.
+
+#### 1. Setup environment variables
+```
+export S3_ACCESS_KEY_ID="your access key"
+export S3_SECRET_ACCESS_KEY="your secret access key"
+export S3_DEFAULT_REGION="your region"
+export S3_ROOT_BUCKET="your root bucket"
+```
+#### 2. Setup spec_helper file
+
+```
+  #inside Gridium.configure do |config|
+  config.screenshots_to_s3 = true
+  config.project_name_for_s3 = 'name the folder below the root bucket'
+  config.subdirectory_name_for_s3 = 'name for folder just below that, probably dynamic to mitigate ginormous directories'
+
+```
+
+#### 3. Integrate into a test
+```
+Driver.visit('https://the-internet.herokuapp.com/')
+driver.save_screenshot()
+#based on your needs, choose how to publish this screenshot to your interested parties
+```
 ## Page Objects
 
 Page objects are required for Gridium.  Page objects abstract the functionality of the page away from the test.  There's a million reasons why page objects are the way to go.  Not the least of all is that it helps you maintain your tests.
