@@ -24,6 +24,7 @@ module Gridium
     attr_accessor :report_dir, :browser_source, :target_environment, :browser, :url, :page_load_timeout, :element_timeout, :visible_elements_only, :log_level
     attr_accessor :highlight_verifications, :highlight_duration, :screenshot_on_failure, :screenshots_to_s3, :project_name_for_s3, :subdirectory_name_for_s3
     attr_accessor :testrail
+    attr_accessor :page_load_strategy
 
     def initialize
       @report_dir = Dir.home
