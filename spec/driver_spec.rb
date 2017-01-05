@@ -14,6 +14,8 @@ describe Driver do
   let(:test_driver_extension) { DriverExtensions }
   let(:logger) { Log }
 
+
+
   before :each do
     $verification_passes = 0
   end
@@ -341,6 +343,45 @@ describe Driver do
       expect(upload_success).to be true
     end
 
+  end
+
+  describe 'page load strategy' do
+    too_long = 1 + Gridium.config.page_load_timeout
+    #fire this up with npm start
+    slow_page = "http://localhost:3000/slow?seconds=#{too_long}"
+    header_css = "h1"
+    wait = Selenium::WebDriver::Wait.new
+
+    before :each do
+      #TODO: left off here. need to standup a docker hub/ffnode and configure gridium to remote
+      # Gridium.config.page_load_strategy = 'eager'
+    end
+
+    it 'should interact with the page while it is loading' do
+      page = Page.new
+      puts "slowpage is #{slow_page}\nheader is #{header_css}"
+      test_driver.visit "about:blank"
+      start_time = Time.now.utc.to_i
+      test_driver.visit slow_page
+      end_time = Time.now.utc.to_i
+      wait.until {test_driver.driver.find_element(:css, header_css)}
+      page.find(:css, header_css)
+      Log.error "start: #{start_time}\n end: #{end_time}\n diff: #{end_time - start_time}\n"
+      # the visit method should return before the page finishes loading when using eager page load strategy
+      expect(too_long).to be > (end_time - start_time)
+    end
+
+    it 'should raise exception if page loads too slowly' do
+      Gridium.config.page_load_strategy = 'normal' #this is the default, set it back for this test
+      puts "slowpage is #{slow_page}\nheader is #{header_css}"
+      visit_to_slow_page = lambda {test_driver.visit slow_page}
+      expect(&visit_to_slow_page).to raise_error Selenium::WebDriver::Error::TimeOutError
+    end
+
+    it 'should have a test for none strategy' do
+      Gridium.config.page_load_strategy = 'none' #wait for absolutely nothing
+      #TODO: write a simple test here that proves we use this setting correctly
+    end
   end
 
   def create_new_element(name, by, locator)
