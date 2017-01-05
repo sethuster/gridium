@@ -88,12 +88,13 @@ class Driver
         driver.navigate.to(path)
         time_end = Time.new
         page_load = (time_end - time_start)
-        Log.debug("Page loaded in (#{page_load}) seconds.")
+        Log.debug("Page loaded in (#{page_load}/#{Gridium.config.page_load_timeout}) seconds.")
         $verification_passes += 1
       end
-    rescue Exception => e
-      Log.debug(e.backtrace.inspect)
-      Log.error("#{e.message} - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
+    rescue Selenium::WebDriver::Error::TimeOutError => e
+        Log.debug(e.backtrace.inspect)
+        Log.error("#{e.message} Waited #{Gridium.config.page_load_timeout} seconds for #{path} to load - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
+      raise
     end
   end
 
