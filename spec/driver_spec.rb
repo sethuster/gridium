@@ -348,7 +348,7 @@ describe Driver do
   describe 'page load strategy' do
     too_long = 1 + Gridium.config.page_load_timeout
     #fire this up with npm start
-    slow_page = "http://localhost:3000/slow?seconds=#{too_long}"
+    slow_page = "http://localhost:3000/slow?seconds=#{too_long}" #how to get docker node to access this???
     header_css = "h1"
     wait = Selenium::WebDriver::Wait.new
 

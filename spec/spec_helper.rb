@@ -10,8 +10,11 @@ require 'dotenv'
 Gridium.configure do |config|
   # config.report_dir = File.expand_path File.dirname(__FILE__)
   config.report_dir = Dir.home.to_s + "/desktop"
-  config.browser_source = :local
-  config.target_environment = "localhost"
+  config.browser_source = :remote
+  #need to get the port each time for now
+  config.target_environment = "http://192.168.99.100:32770/wd/hub" #docker ps --format "{{.Names}},{{.Ports}}" | grep hub
+  # config.browser_source = :local
+  # config.target_environment = "localhost"
   config.browser = :firefox
   config.url = "http://www.sendgrid.com"
   config.page_load_timeout = 15
