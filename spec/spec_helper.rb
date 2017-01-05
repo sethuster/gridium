@@ -1,8 +1,8 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'rspec'
-require 'gridium'
+# require 'gridium'
 require 'page_objects/google_home'
-require 'webmock/rspec'
+# require 'webmock/rspec'
 require 'dotenv'
 #RSpec::Expectations.configuration.warn_about_potential_false_positives = false
 
@@ -53,9 +53,10 @@ RSpec.configure do |config|
       SpecData.load_spec_state
     end #end before:all
 
-    config.before :each do
-      stub_request(:post, /fake.faketr.fake/).
-      with(headers: {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
-      to_return(status: 200, body: '{"id":1153, "suite_id":560}', headers: {})
-    end
+    #TODO: uncomment this and workaround it
+    # config.before :each do
+    #   stub_request(:post, /fake.faketr.fake/).
+    #   with(headers: {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+    #   to_return(status: 200, body: '{"id":1153, "suite_id":560}', headers: {})
+    # end
 end #end Rspec.config
