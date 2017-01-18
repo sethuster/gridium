@@ -1,6 +1,14 @@
 require 'spec_helper'
+require 'webmock/rspec'
 
 describe TestRail do
+
+  before :each do
+    stub_request(:post, /fake.faketr.fake/).
+    with(headers: {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+    to_return(status: 200, body: '{"id":1153, "suite_id":560}', headers: {})
+  end
+
   let(:gridium_config) { Gridium.config }
   let(:runname) { "Spec Run" }
   let(:rundesc) {"child_of_spec"}

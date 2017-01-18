@@ -1,0 +1,14 @@
+version: '2'
+services:
+  hub:
+    image: sethuster/selenium-hub
+  firefox:
+    image: sethuster/node-firefox-debugx
+    depends_on:
+    - hub
+    ports:
+      - "5900"
+  lag:
+    image: sethuster/node_lag
+  gridium:
+    image: .

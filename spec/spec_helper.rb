@@ -12,7 +12,7 @@ Gridium.configure do |config|
   config.report_dir = Dir.home.to_s + "/desktop"
   config.browser_source = :remote
   #need to get the port each time for now
-  config.target_environment = "http://192.168.99.100:32770/wd/hub" #docker ps --format "{{.Names}},{{.Ports}}" | grep hub
+  config.target_environment = "http://hub:4444/wd/hub" #docker ps --format "{{.Names}},{{.Ports}}" | grep hub
   # config.browser_source = :local
   # config.target_environment = "localhost"
   config.browser = :firefox
@@ -57,9 +57,5 @@ RSpec.configure do |config|
     end #end before:all
 
     #TODO: uncomment this and workaround it
-    # config.before :each do
-    #   stub_request(:post, /fake.faketr.fake/).
-    #   with(headers: {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
-    #   to_return(status: 200, body: '{"id":1153, "suite_id":560}', headers: {})
-    # end
+    
 end #end Rspec.config
