@@ -102,6 +102,10 @@ class Element
     element.clear
   end
 
+  def value
+    element.attribute "value"
+  end
+
   def click
     Log.debug("Clicking on #{self}")
     if element.enabled?
@@ -113,15 +117,97 @@ class Element
     end
   end
 
-  def send_keys(*args)
-    Log.debug("Typing: #{args} into element: (#{self}).")
-    if element.enabled?
-      ElementExtensions.highlight(self) if Gridium.config.highlight_verifications
-      $verification_passes += 1
-      element.send_keys(*args)
-    else
-      Log.error('Cannot type into element.  Element is not present.')
+  #
+  # add to what's already in the text field
+  # for cases when you don't want to stomp what's already in the text field
+  #
+
+  def append_keys *args
+    ElementExtensions.highlight(self) if Gridium.config.highlight_verifications
+    $verification_passes += 1
+    unless element.enabled?
+      raise "Browser Error: tried to enter #{args} but the input is disabled"
     end
+    element.send_keys(*args)
+    # when it's possible to validate for more than non-empty outcomes, do that here
+  end
+
+  #
+  # overwrite to what's already in the text field
+  # and validate afterward
+  #
+
+  def send_keys(*args)
+    ElementExtensions.highlight(self) if Gridium.config.highlight_verifications
+    $verification_passes += 1
+    unless element.enabled?
+      raise "Browser Error: tried to enter #{args} but the input is disabled"
+    end
+    if _is_only_symbols? *args
+      append_keys *args
+    else
+      _stomp_input_text *args
+      _is_field_empty_afterward?
+    end
+  end
+  alias_method :text=, :send_keys
+
+  #
+  # helper to clear input and put new text in
+  #
+
+  def _stomp_input_text *args
+    breathing_room = 0.1
+    Log.debug("Clearing \"#{value}\" from element: (#{self})")
+    element.clear
+    sleep breathing_room
+    Log.debug("Typing: #{args} into element: (#{self}).")
+    element.send_keys(*args)
+    sleep breathing_room
+  end
+
+  #
+  # raise error if the field is empty after we sent it values
+  # TODO: verify if text correct afterward, but need to be able to handle cases
+  # of symbols like :space and :enter correctly
+  #
+
+  def _is_field_empty_afterward? *args
+    check_again = (not args.empty? and _has_no_symbols? *args)
+    field_is_empty_but_should_not_be = (check_again and _is_field_empty?)
+    if field_is_empty_but_should_not_be
+      raise "Browser Error: tried to input #{args} but found an empty string afterward: #{actual_text}"
+    end
+  end
+
+  def _is_field_empty?
+    value.empty?
+  end
+
+  #
+  # helper to check if *args to send_keys has any symbols
+  # if so, don't bother trying to validate the text afterward
+  #
+
+  def _has_no_symbols? *args
+    symbols = args.select { |_| _.is_a? Symbol }
+    if symbols.length > 0
+      return false
+    end
+    true
+  end
+
+  #
+  # helper to check if *args to send_keys has only symbols
+  # if so, don't bother clearing the field first
+  #
+
+  def _is_only_symbols? *args
+    symbols = args.select { |_| _.is_a? Symbol }
+    if symbols.length == args.length
+      return true
+    end
+    false
   end
 
   def location
@@ -200,11 +286,6 @@ class Element
   def text
     #this is used for text based elements
     element.text
-  end
-
-  def text=(text)
-    element.clear
-    element.send_keys(text)
   end
 
   def value
