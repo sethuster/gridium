@@ -4,6 +4,7 @@ require 'spec_data'
 
 class Element
   attr_reader :name, :by, :locator
+  @text_padding_time = 0.1
 
   def initialize(name, by, locator)
     @name = name
@@ -100,6 +101,7 @@ class Element
 
   def clear
     element.clear
+    sleep @text_padding_time
   end
 
   def value
@@ -129,6 +131,7 @@ class Element
       raise "Browser Error: tried to enter #{args} but the input is disabled"
     end
     element.send_keys(*args)
+    sleep @text_padding_time
     # when it's possible to validate for more than non-empty outcomes, do that here
   end
 
@@ -157,13 +160,12 @@ class Element
   #
 
   def _stomp_input_text *args
-    breathing_room = 0.1
     Log.debug("Clearing \"#{value}\" from element: (#{self})")
     element.clear
-    sleep breathing_room
+    sleep @text_padding_time
     Log.debug("Typing: #{args} into element: (#{self}).")
     element.send_keys(*args)
-    sleep breathing_room
+    sleep @text_padding_time
   end
 
   #
@@ -286,11 +288,6 @@ class Element
   def text
     #this is used for text based elements
     element.text
-  end
-
-  def value
-    #this is used for inputs and forms
-    element.attribute("value")
   end
 
   #
