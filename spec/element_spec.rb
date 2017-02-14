@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'SecureRandom'
 # require 'pry'
 
 describe Element do
@@ -17,11 +18,18 @@ describe Element do
     end
   end
 
-  #not ready to be ran, but still useful to capture test cases
-  describe 'text input', skip:true do
-    pending('the test_input_page is dockerized')
-    let(:test_input_page) { "http://localhost:3000/fields" }
-
+#not ready to be ran, but still useful to capture test cases
+  describe 'text input' do
+    # pending('the test_input_page is dockerized')
+    let(:test_input_page) { "http://mustadio:3000/fields" }
+    before :all do
+      Gridium.config.browser_source = :remote
+      Gridium.config.target_environment = "http://192.168.99.100:32788/wd/hub"
+      Gridium.config.browser = :firefox
+    end
+    after :all do
+      Gridium.config.browser_source = :local
+    end
     after :each do
       Driver.quit
     end

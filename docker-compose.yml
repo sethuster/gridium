@@ -1,0 +1,16 @@
+version: '2'
+services:
+  hub:
+    image: docker.sendgrid.net/sendgrid/selenium-hub
+    ports:
+      - "4444"
+  firefox:
+    image: docker.sendgrid.net/sendgrid/node-firefox-debug
+    ports:
+      - "5900"
+    depends_on:
+      - hub
+  mustadio:
+    image: yetanotherlucas/mustadio
+    ports:
+      - "3000"
