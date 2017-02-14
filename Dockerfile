@@ -1,0 +1,14 @@
+FROM ruby:2.3
+
+WORKDIR /
+
+COPY . /
+
+#a hack to migrate env variables
+ENV S3_ACCESS_KEY_ID {{S3_ACCESS_KEY_ID}}
+ENV S3_SECRET_ACCESS_KEY {{S3_SECRET_ACCESS_KEY}}
+ENV S3_DEFAULT_REGION {{S3_DEFAULT_REGION}}
+ENV S3_ROOT_BUCKET {{S3_ROOT_BUCKET}}
+
+CMD gem install bundle;
+RUN bundle;

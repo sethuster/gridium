@@ -4,3 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rspec-mocks'
+gem 'rspec'
+gem 'rake'

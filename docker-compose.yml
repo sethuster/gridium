@@ -1,11 +1,11 @@
 version: '2'
 services:
   hub:
-    image: docker.sendgrid.net/sendgrid/selenium-hub
+    image: sethuster/selenium-hub
     ports:
       - "4444"
   firefox:
-    image: docker.sendgrid.net/sendgrid/node-firefox-debug
+    image: sethuster/node-firefox-debugx
     ports:
       - "5900"
     depends_on:
@@ -14,3 +14,6 @@ services:
     image: yetanotherlucas/mustadio
     ports:
       - "3000"
+  gridium:
+    build: .
+    command: "tail -f /dev/null"

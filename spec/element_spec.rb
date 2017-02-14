@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'SecureRandom'
+require 'securerandom'
 # require 'pry'
 
 describe Element do
@@ -22,7 +22,7 @@ describe Element do
     let(:test_input_page) { "http://mustadio:3000/fields" }
     before :all do
       Gridium.config.browser_source = :remote
-      Gridium.config.target_environment = "http://192.168.99.100:32788/wd/hub"
+      Gridium.config.target_environment = "http://hub:4444/wd/hub"
       Gridium.config.browser = :firefox
     end
     after :all do
@@ -32,11 +32,10 @@ describe Element do
       Driver.quit
     end
 
-    xit 'should continue to work after many attempts' do
-      (1..20).each do
+    it 'should continue to work after many attempts' do
+      (1..10).each do
         Driver.visit test_input_page
         (1..11).each do |i|
-          puts "i is #{i}"
           expected_text = "#{i}_#{SecureRandom.uuid}"
           expected_selector = "[id=\"input_#{i}\"]"
           this_one = Element.new expected_selector, :css, expected_selector

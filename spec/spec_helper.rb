@@ -31,7 +31,8 @@ RSpec.configure do |config|
   include Gridium
     config.before :all do
       Dotenv.load './spec/fake_tr.env'
-      # Create the test report root directory
+      # Create the test report root directory and then the spec_report directory
+      Dir.mkdir(Gridium.config.report_dir) if not File.exist?(Gridium.config.report_dir)
       report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
       Dir.mkdir(report_root_dir) if not File.exist?(report_root_dir)
 
