@@ -4,7 +4,7 @@ require 'spec_data'
 
 class Element
   attr_reader :name, :by, :locator
-  @text_padding_time = 0.1
+
 
   def initialize(name, by, locator)
     @name = name
@@ -17,6 +17,9 @@ class Element
 
     # selenium web element
     @element = nil
+
+    #how long to wait between clearing an input and sending keys to it
+    @text_padding_time = 0.1
   end
 
   def to_s
@@ -124,7 +127,7 @@ class Element
   # for cases when you don't want to stomp what's already in the text field
   #
 
-  def append_keys *args
+  def append_keys(*args)
     ElementExtensions.highlight(self) if Gridium.config.highlight_verifications
     $verification_passes += 1
     unless element.enabled?
@@ -146,71 +149,16 @@ class Element
     unless element.enabled?
       raise "Browser Error: tried to enter #{args} but the input is disabled"
     end
-    if _is_only_symbols? *args
+    if only_symbols? *args
       append_keys *args
     else
       _stomp_input_text *args
-      _is_field_empty_afterward?
+      field_empty_afterward?
     end
   end
   alias_method :text=, :send_keys
 
-  #
-  # helper to clear input and put new text in
-  #
 
-  def _stomp_input_text *args
-    Log.debug("Clearing \"#{value}\" from element: (#{self})")
-    element.clear
-    sleep @text_padding_time
-    Log.debug("Typing: #{args} into element: (#{self}).")
-    element.send_keys(*args)
-    sleep @text_padding_time
-  end
-
-  #
-  # raise error if the field is empty after we sent it values
-  # TODO: verify if text correct afterward, but need to be able to handle cases
-  # of symbols like :space and :enter correctly
-  #
-
-  def _is_field_empty_afterward? *args
-    check_again = (not args.empty? and _has_no_symbols? *args)
-    field_is_empty_but_should_not_be = (check_again and _is_field_empty?)
-    if field_is_empty_but_should_not_be
-      raise "Browser Error: tried to input #{args} but found an empty string afterward: #{actual_text}"
-    end
-  end
-
-  def _is_field_empty?
-    value.empty?
-  end
-
-  #
-  # helper to check if *args to send_keys has any symbols
-  # if so, don't bother trying to validate the text afterward
-  #
-
-  def _has_no_symbols? *args
-    symbols = args.select { |_| _.is_a? Symbol }
-    if symbols.length > 0
-      return false
-    end
-    true
-  end
-
-  #
-  # helper to check if *args to send_keys has only symbols
-  # if so, don't bother clearing the field first
-  #
-
-  def _is_only_symbols? *args
-    symbols = args.select { |_| _.is_a? Symbol }
-    if symbols.length == args.length
-      return true
-    end
-    false
-  end
 
   def location
     element.location
@@ -396,4 +344,62 @@ class Element
     Log.warn("Stale element detected.... #{self.to_s}")
     return true
   end
+
+  #
+  # helper to clear input and put new text in
+  #
+
+  def _stomp_input_text(*args)
+    Log.debug("Clearing \"#{value}\" from element: (#{self})")
+    element.clear
+    sleep @text_padding_time
+    Log.debug("Typing: #{args} into element: (#{self}).")
+    element.send_keys(*args)
+    sleep @text_padding_time
+  end
+
+  #
+  # raise error if the field is empty after we sent it values
+  # TODO: verify if text correct afterward, but need to be able to handle cases
+  # of symbols like :space and :enter correctly
+  #
+
+  def field_empty_afterward?(*args)
+    check_again = (not args.empty? and no_symbols? *args)
+    field_is_empty_but_should_not_be = (check_again and field_empty?)
+    if field_is_empty_but_should_not_be
+      raise "Browser Error: tried to input #{args} but found an empty string afterward: #{actual_text}"
+    end
+  end
+
+  def field_empty?
+    value.empty?
+  end
+
+  #
+  # helper to check if *args to send_keys has any symbols
+  # if so, don't bother trying to validate the text afterward
+  #
+
+  def no_symbols?(*args)
+    symbols = args.select { |_| _.is_a? Symbol }
+    if symbols.length > 0
+      return false
+    end
+    true
+  end
+
+  #
+  # helper to check if *args to send_keys has only symbols
+  # if so, don't bother clearing the field first
+  #
+
+  def only_symbols?(*args)
+    symbols = args.select { |_| _.is_a? Symbol }
+    if symbols.length == args.length
+      return true
+    end
+    false
+  end
+
 end
