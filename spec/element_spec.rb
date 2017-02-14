@@ -18,9 +18,7 @@ describe Element do
     end
   end
 
-#not ready to be ran, but still useful to capture test cases
   describe 'text input' do
-    # pending('the test_input_page is dockerized')
     let(:test_input_page) { "http://mustadio:3000/fields" }
     before :all do
       Gridium.config.browser_source = :remote
@@ -34,7 +32,7 @@ describe Element do
       Driver.quit
     end
 
-    it 'should continue to work after many attempts', skip:true do
+    xit 'should continue to work after many attempts' do
       (1..20).each do
         Driver.visit test_input_page
         (1..11).each do |i|
