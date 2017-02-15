@@ -21,7 +21,7 @@ Gridium.configure do |config|
   config.highlight_verifications = true
   config.highlight_duration = 0.100
   config.screenshot_on_failure = false
-  config.screenshots_to_s3 = true
+  config.screenshots_to_s3 = false
   config.project_name_for_s3 = 'gridium'
   config.subdirectory_name_for_s3 = DateTime.now.strftime("%m_%d_%Y__%H_%M_%S")
   config.testrail = true
