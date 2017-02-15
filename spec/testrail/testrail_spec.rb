@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative 'spec_helper'
 
 describe TestRail do
   let(:gridium_config) { Gridium.config }
