@@ -1,7 +1,7 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'rspec'
 require 'gridium'
-require 'page_objects/google_home'
+require 'webmock/rspec'
 require 'dotenv'
 #RSpec::Expectations.configuration.warn_about_potential_false_positives = false
 
@@ -28,6 +28,7 @@ end
 RSpec.configure do |config|
   include Gridium
     config.before :all do
+      Dotenv.load './spec/testrail/fake_tr.env'
       # Create the test report root directory and then the spec_report directory
       Dir.mkdir(Gridium.config.report_dir) if not File.exist?(Gridium.config.report_dir)
       report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
@@ -41,7 +42,6 @@ RSpec.configure do |config|
 
       # Add the output log file for the rspec test run to the logger
       Log.add_device(File.open(File.join(current_run_report_dir, "spec_logging_output.log"), File::WRONLY | File::APPEND | File::CREAT))
-
       # Reset Suite statistics
       $verifications_total = 0
       $warnings_total = 0
@@ -52,4 +52,9 @@ RSpec.configure do |config|
       SpecData.load_spec_state
     end #end before:all
 
+    config.before :each do
+      stub_request(:post, /fake.faketr.fake/).
+      with(headers: {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+      to_return(status: 200, body: '{"id":1153, "suite_id":560}', headers: {})
+    end
 end #end Rspec.config
