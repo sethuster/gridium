@@ -37,7 +37,6 @@ describe Element do
     it 'should highlight disabled elements' do
       Driver.visit test_input_page
       disabled = Element.new "disabled field", :css, "[id=\"input_disabled\"]"
-      ElementExtensions.highlight(disabled)
       expect {ElementExtensions.highlight(disabled)}.not_to raise_error
     end
 
