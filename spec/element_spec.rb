@@ -7,6 +7,19 @@ describe Element do
   let(:logger) { Log }
   let(:test_element_verification) { ElementVerification }
 
+  before :all do
+    Gridium.config.browser_source = :remote
+    Gridium.config.target_environment = "http://hub:4444/wd/hub"
+    Gridium.config.browser = :firefox
+  end
+
+  after :all do
+    Gridium.config.browser_source = :local
+  end
+  after :each do
+    Driver.quit
+  end
+
   describe '#verify' do
     xit 'verifies new element and logs it' do
       allow(logger).to receive(:debug)
@@ -18,19 +31,21 @@ describe Element do
     end
   end
 
+  describe 'highlighting' do
+    let(:test_input_page) { "http://mustadio:3000/fields" }
+
+    it 'should highlight disabled elements' do
+      Driver.visit test_input_page
+      disabled = Element.new "disabled field", :css, "[id=\"input_disabled\"]"
+      ElementExtensions.highlight(disabled)
+      expect {ElementExtensions.highlight(disabled)}.not_to raise_error
+    end
+
+
+  end
+
   describe 'text input' do
     let(:test_input_page) { "http://mustadio:3000/fields" }
-    before :all do
-      Gridium.config.browser_source = :remote
-      Gridium.config.target_environment = "http://hub:4444/wd/hub"
-      Gridium.config.browser = :firefox
-    end
-    after :all do
-      Gridium.config.browser_source = :local
-    end
-    after :each do
-      Driver.quit
-    end
 
     it 'should continue to work after many attempts' do
       (1..10).each do
