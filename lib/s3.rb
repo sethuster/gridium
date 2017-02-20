@@ -4,21 +4,16 @@ module Gridium
 
     class GridiumS3
 
-        ACCESS_KEY_ID = ENV['S3_ACCESS_KEY_ID']
-        SECRET_ACCESS_KEY = ENV['S3_SECRET_ACCESS_KEY']
-        DEFAULT_REGION = ENV['S3_DEFAULT_REGION']
-        ROOT_BUCKET = ENV['S3_ROOT_BUCKET']
         DELIMITER = "/"
-
 
         def initialize(project_name, subdirectory_name='screenshots')
             Log.debug("initializing GridiumS3 with #{project_name} and #{subdirectory_name}")
-            Aws.config.update({ credentials: Aws::Credentials.new(ACCESS_KEY_ID, SECRET_ACCESS_KEY) ,region: DEFAULT_REGION})
+            Aws.config.update({ credentials: Aws::Credentials.new(ENV['S3_ACCESS_KEY_ID'], ENV['S3_SECRET_ACCESS_KEY']) ,region: ENV['S3_DEFAULT_REGION']})
             _validate_string(project_name)
             _validate_string(subdirectory_name)
             @project_name = _sanitize_string(project_name)
             @subdirectory_name = _sanitize_string(subdirectory_name)
-            @bucket = Aws::S3::Resource.new().bucket(ROOT_BUCKET)
+            @bucket = Aws::S3::Resource.new().bucket(ENV['S3_ROOT_BUCKET'])
         end
 
         def save_file(absolute_path_of_file)
