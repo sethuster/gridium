@@ -1,0 +1,17 @@
+#!/bin/bash
+
+main(){
+  case $1 in
+    -i) #start normally
+      docker-compose up -d
+      ;;
+    -d) #start in development mode
+      docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+      ;;
+    *)
+      echo "Usage: $0 [-i] isolated [-d] gridium dev" 1>&2; exit 1;
+      ;;
+  esac
+}
+
+main $1

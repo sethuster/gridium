@@ -1,8 +1,8 @@
 FROM ruby:2.3
 
-WORKDIR /
+WORKDIR /gridium
 
-COPY . /
+COPY . /gridium
 
 CMD gem install bundle;
 RUN bundle;
