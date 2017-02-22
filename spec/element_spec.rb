@@ -133,5 +133,17 @@ describe Element do
       actual_text = this_one.value
       expect(actual_text).to eq expected_text
     end
+
+    it 'field_empty_afterward? should raise browser error on finding an empty field' do
+      desired_text = "#{SecureRandom.uuid}"
+      expected_error = "Browser Error: tried to input [\"#{desired_text}\"] but found an empty string afterward: "
+      Driver.visit test_input_page
+      expected_selector = "[id=\"input_1\"]"
+      this_one = Element.new expected_selector, :css, expected_selector
+      this_one.append_keys desired_text
+      this_one.clear
+      expect {this_one.send(:field_empty_afterward?, desired_text)}.to  raise_error error=RuntimeError, message=expected_error
+    end
+
   end
 end

@@ -19,7 +19,7 @@ class Element
     @element = nil
 
     #how long to wait between clearing an input and sending keys to it
-    @text_padding_time = 0.1
+    @text_padding_time = 0.15
   end
 
   def to_s
@@ -153,7 +153,7 @@ class Element
       append_keys *args
     else
       _stomp_input_text *args
-      field_empty_afterward?
+      field_empty_afterward? *args
     end
   end
   alias_method :text=, :send_keys
@@ -365,10 +365,11 @@ class Element
   #
 
   def field_empty_afterward?(*args)
+    Log.debug("Checking the field after sending #{args}, to see if it's empty")
     check_again = (not args.empty? and no_symbols? *args)
     field_is_empty_but_should_not_be = (check_again and field_empty?)
     if field_is_empty_but_should_not_be
-      raise "Browser Error: tried to input #{args} but found an empty string afterward: #{actual_text}"
+      raise "Browser Error: tried to input #{args} but found an empty string afterward: #{value}"
     end
   end
 
