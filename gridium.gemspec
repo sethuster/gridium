@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{This Gem is used to make building Selenium Tests without Capybara Easier.}
   spec.description   = %q{Gridium makes integrating ruby and Selenium a breeze.  This is not for novice automation engineers.  Novices should checkout Capybara.  However, if you're comfortable with Selenium, and have used Capybara but find it not working well give Gridium a shot.}
-  spec.homepage      = "http://github.com/sethuster/gridium"
+  spec.homepage      = "http://github.com/sendgrid/gridium"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
