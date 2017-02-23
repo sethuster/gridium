@@ -22,7 +22,7 @@ Dockerfile-e
 /test/tmp/
 /test/version_tmp/
 /tmp/
-/test_results/
+/test_results
 
 # Used by dotenv library to load environment variables.
 .env
