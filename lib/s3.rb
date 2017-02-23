@@ -1,14 +1,14 @@
 require 'aws-sdk'
 module Gridium
 
-
     class GridiumS3
 
         DELIMITER = "/"
 
         def initialize(project_name, subdirectory_name='screenshots')
+            puts "*** REGION: #{ENV['S3_DEFAULT_REGION']}"
             Log.debug("initializing GridiumS3 with #{project_name} and #{subdirectory_name}")
-            Aws.config.update({ credentials: Aws::Credentials.new(ENV['S3_ACCESS_KEY_ID'], ENV['S3_SECRET_ACCESS_KEY']) ,region: ENV['S3_DEFAULT_REGION']})
+            Aws.config.update({ credentials: Aws::Credentials.new(ENV['S3_ACCESS_KEY_ID'], ENV['S3_SECRET_ACCESS_KEY']) , region: ENV['S3_DEFAULT_REGION']})
             _validate_string(project_name)
             _validate_string(subdirectory_name)
             @project_name = _sanitize_string(project_name)
@@ -37,12 +37,12 @@ module Gridium
 
         def _sanitize_string(input_string)
             #remove left/right whitespace, split and join to collapse contiguous white space, replace whitespace and non-period special chars with underscore
-            input_string = input_string.strip().split.join(" ").gsub(/[^\w.]/i, '_') 
+            input_string = input_string.strip().split.join(" ").gsub(/[^\w.]/i, '_')
             input_string
         end
 
         def _validate_string(input_string)
-            Log.debug("attempting to validate #{input_string} for use as a name") 
+            Log.debug("attempting to validate #{input_string} for use as a name")
             if input_string.empty? or input_string.strip().empty? then
                 raise(ArgumentError, "empty and/or whitespace file names are not wanted here.")
             end
@@ -59,7 +59,7 @@ module Gridium
             upload_size = @bucket.object(s3_name).content_length
             local_size = File.size local_absolute_path
             Log.debug("file upload verified: #{upload_size == local_size}. upload size is #{upload_size} and local size is #{local_size}")
-            upload_size == local_size            
+            upload_size == local_size
         end
     end
 end

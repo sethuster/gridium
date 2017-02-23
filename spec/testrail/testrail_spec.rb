@@ -41,10 +41,10 @@ describe TestRail do
     it 'Can Close Run' do
       tr.close_run
     end
-    it 'Can Add Case to Run' do
-      tr.add_case("TestCase")
+    it 'Can Add Case to Run' do |example|
+      tr.add_case(example)
     end
-    it 'Fail to add result with empty set' do
+    xit 'Fail to add result with empty set' do
       empty_result_call = lambda {tr.add_case nil}
       expect(&empty_result_call).to raise_error(ArgumentError)
     end

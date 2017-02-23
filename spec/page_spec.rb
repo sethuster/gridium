@@ -1,4 +1,4 @@
-require 'spec_helper'
+require_relative 'spec_helper'
 # require 'pry'
 
 describe Page do
@@ -82,7 +82,7 @@ describe Page do
       $verification_passes = 0
       Driver.visit "https://www.sendgrid.com"
       page = Page.new
-      page.click_link "Get Started"
+      page.click_link "See Plans and Pricing"
       Driver.verify_url "https://sendgrid.com/pricing"
     end
 
