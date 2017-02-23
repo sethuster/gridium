@@ -6,7 +6,6 @@ module Gridium
         DELIMITER = "/"
 
         def initialize(project_name, subdirectory_name='screenshots')
-            puts "*** REGION: #{ENV['S3_DEFAULT_REGION']}"
             Log.debug("initializing GridiumS3 with #{project_name} and #{subdirectory_name}")
             Aws.config.update({ credentials: Aws::Credentials.new(ENV['S3_ACCESS_KEY_ID'], ENV['S3_SECRET_ACCESS_KEY']) , region: ENV['S3_DEFAULT_REGION']})
             _validate_string(project_name)
