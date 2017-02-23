@@ -13,9 +13,6 @@ describe Element do
     Gridium.config.browser = :firefox
   end
 
-  after :all do
-    Gridium.config.browser_source = :local
-  end
   after :each do
     Driver.quit
   end

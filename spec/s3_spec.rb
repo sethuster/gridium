@@ -1,7 +1,8 @@
-require 'spec_helper'
+require_relative 'spec_helper'
 require 'tmpdir'
 
 describe GridiumS3 do
+
   let(:gridium_config) { Gridium.config }
   let(:project_name) { "spec" }
   let(:subdirectory_name) {"child_of_spec"}
@@ -49,7 +50,7 @@ describe GridiumS3 do
 
   describe 's3 file naming'do
       let(:file_name) {"temp.txt"}
-    
+
     it 'will fail without a file name' do
         no_arg_call = lambda {s3.create_s3_name}
         expect(&no_arg_call).to raise_error(ArgumentError)
@@ -61,11 +62,11 @@ describe GridiumS3 do
     end
 
     it 'will fail with a white space file name' do
-        whitespace_string_call = lambda {s3.create_s3_name whitespace_name} 
+        whitespace_string_call = lambda {s3.create_s3_name whitespace_name}
         expect(&whitespace_string_call).to raise_error(ArgumentError)
     end
 
-    it 'will sanitize whitespace in project name', :focus => true  do        
+    it 'will sanitize whitespace in project name', :focus => true  do
         whitespaced_project_name = "\t\r\n spec \t\r\n project \t\r\n "
         sanitized_project_name = "spec_project"
         s3 = Gridium::GridiumS3.new(whitespaced_project_name, subdirectory_name)
@@ -115,7 +116,7 @@ describe GridiumS3 do
          #create temp files with token contents
          @file_name = "temp_#{Time.now.to_i}.txt"
          @full_path = File.join(@temp_path, @file_name)
-         File.open(@full_path, File::WRONLY | File::APPEND | File::CREAT) do |temp_file| 
+         File.open(@full_path, File::WRONLY | File::APPEND | File::CREAT) do |temp_file|
              temp_file.write("hello world112233")
          end
          @temp_files.push @full_path
@@ -123,14 +124,14 @@ describe GridiumS3 do
 
      after :all do
          #delete the temp files
-         @temp_files.each do |temp_file| 
+         @temp_files.each do |temp_file|
             if File.exist? temp_file then
                 File.delete temp_file
                 Log.debug("deleted #{temp_file} during teardown")
             end
          end
          #delete the temp folder
-         Dir.delete(@temp_path) 
+         Dir.delete(@temp_path)
          Log.debug("deleted #{@temp_path} during teardown")
      end
 
@@ -145,11 +146,11 @@ describe GridiumS3 do
         end
         bad_file_call = lambda {s3.save_file(path_to_non_existant_file)}
         expect(bad_file_call).to raise_error ArgumentError
-    end 
+    end
     it 'fails if the file path is invalid' do
         non_existant_path = File.join(@temp_path, "#{Time.now.to_i}", @file_name)
         bad_path_call = lambda {s3.save_file(non_existant_path)}
         expect(bad_path_call).to raise_error ArgumentError
-    end 
+    end
  end
 end

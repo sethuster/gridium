@@ -6,3 +6,4 @@ gemspec
 gem 'rspec-mocks'
 gem 'rspec'
 gem 'rake'
+gem 'dotenv'

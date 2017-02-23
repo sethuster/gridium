@@ -8,7 +8,7 @@ require 'dotenv'
 # Setup any custom configuration for the Corundum framework
 Gridium.configure do |config|
   # config.report_dir = File.expand_path File.dirname(__FILE__)
-  config.report_dir = Dir.home.to_s + "/desktop"
+  config.report_dir = "./test_results"
   config.browser_source = :local
   config.target_environment = "localhost"
   config.browser = :firefox
