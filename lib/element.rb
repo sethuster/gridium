@@ -366,7 +366,7 @@ class Element
 
   def field_empty_afterward?(*args)
     Log.debug("Checking the field after sending #{args}, to see if it's empty")
-    check_again = (not args.empty? and no_symbols? *args)
+    check_again = (has_characters? *args and no_symbols? *args)
     field_is_empty_but_should_not_be = (check_again and field_empty?)
     if field_is_empty_but_should_not_be
       raise "Browser Error: tried to input #{args} but found an empty string afterward: #{value}"
@@ -401,6 +401,19 @@ class Element
       return true
     end
     false
+  end
+
+  #
+  # helper to check if *args is not empty but contains only empty string(s)/symbol(s)
+  # if so, don't bother trying to validate the text afterward
+  #
+
+  def has_characters?(*args)
+    characters = args.select { |_| not _.is_a? Symbol }.join('')
+    if characters.empty?
+      return false
+    end
+    true
   end
 
 end

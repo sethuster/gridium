@@ -123,6 +123,16 @@ describe Element do
       expect(actual_text).to eq ("1")
     end
 
+    it 'send_keys should be able to accept an empty string' do
+      Driver.visit test_input_page
+      expected_selector = "[id=\"input_1\"]"
+      this_one = Element.new expected_selector, :css, expected_selector
+      new_text = ""
+      this_one.send_keys new_text
+      actual_text = this_one.value
+      expect(actual_text).to eq (new_text)
+    end
+
     it 'should not clear the field when sending only symbols' do
       Driver.visit test_input_page
       expected_selector = "[id=\"input_1\"]"
