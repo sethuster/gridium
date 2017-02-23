@@ -10,7 +10,6 @@ Dotenv.load '.env'
 
 # Setup any custom configuration for the Corundum framework
 Gridium.configure do |config|
-
   config.report_dir = "./test_results"
   config.browser_source = :remote
   config.target_environment = "http://hub:4444/wd/hub"
@@ -30,7 +29,7 @@ end
 
 RSpec.configure do |config|
   include Gridium
-    config.before :all do
+    config.before :suite do |suite|
       # Create the test report root directory and then the spec_report directory
       Dir.mkdir(Gridium.config.report_dir) if not File.exist?(Gridium.config.report_dir)
       report_root_dir = File.expand_path(File.join(Gridium.config.report_dir, 'spec_reports'))
@@ -43,7 +42,7 @@ RSpec.configure do |config|
       puts "logging to:  #{current_run_report_dir}"
 
       # Add the output log file for the rspec test run to the logger
-      Log.add_device(File.open(File.join(current_run_report_dir, "spec_logging_output.log"), File::WRONLY | File::APPEND | File::CREAT))
+      Log.add_device(File.open(File.join(current_run_report_dir, "#{Time.now.to_i}_spec.log"), File::WRONLY | File::APPEND | File::CREAT))
 
       # Reset Suite statistics
       $verifications_total = 0
