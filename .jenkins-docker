@@ -22,7 +22,7 @@ _init_env() {
 }
 
 run_test(){
-  docker exec $(docker-compose ps -q gridium) rspec spec/s3_spec.rb
+  docker exec $(docker-compose ps -q gridium) rake spec
 }
 
 main() {
