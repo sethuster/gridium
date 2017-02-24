@@ -21,4 +21,5 @@ services:
       - S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
       - S3_DEFAULT_REGION=$S3_DEFAULT_REGION
       - S3_ROOT_BUCKET=$S3_ROOT_BUCKET
+      - BUILD_NUMBER=$BUILD_NUMBER
     command: "tail -f /dev/null"

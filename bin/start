@@ -2,11 +2,15 @@
 
 main(){
   case $1 in
-    -i) #start normally
+    -i) #start normally - used for jenkins
       docker-compose up -d
+      docker exec $(docker-compose ps -q gridium) bundle install;
       ;;
     -d) #start in development mode
+      ${BUILD_NUMBER:=dev}
+      export BUILD_NUMBER
       docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+      docker exec $(docker-compose ps -q gridium) bundle install;
       ;;
     *)
       echo "Usage: $0 [-i] isolated [-d] gridium dev" 1>&2; exit 1;
