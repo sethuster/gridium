@@ -5,4 +5,3 @@ WORKDIR /gridium
 COPY . /gridium
 
 CMD gem install bundle;
-RUN bundle;

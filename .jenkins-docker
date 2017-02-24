@@ -18,11 +18,12 @@ _init_env() {
   export NAMESPACE
   export APPNAME
   export COMPOSE_PROJECT_NAME
+  export BUILD_NUMBER
 
 }
 
 run_test(){
-  docker exec $(docker-compose ps -q gridium) rake spec
+  docker exec $(docker-compose ps -q gridium) bundle install; rake spec
 }
 
 main() {
