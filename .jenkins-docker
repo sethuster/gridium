@@ -23,7 +23,9 @@ _init_env() {
 }
 
 run_test(){
-  docker exec $(docker-compose ps -q gridium) bundle install; rake spec
+  docker exec $(docker-compose ps -q gridium) bundle install;
+  sleep 4
+  docker exec $(docker-compose ps -q gridium) rake spec
 }
 
 main() {
@@ -41,7 +43,6 @@ main() {
   fi
 
   bin/start -i
-  sleep 2
 
   run_test
 }
