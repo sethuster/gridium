@@ -13,6 +13,8 @@ module Gridium
     UNTESTED = 3
     RETEST = 4
     FAILED = 5
+		#Retry Start
+		RETRY = 5
 
 		def initialize
       if Gridium.config.testrail
@@ -22,6 +24,7 @@ module Gridium
         @pid = ENV['GRIDIUM_TR_PID'].empty? || ENV['GRIDIUM_TR_PID'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PID']
 				@testcase_ids = Array.new
 				@testcase_infos = Array.new
+				@add_run_error = false
       end
 		end
 
@@ -33,9 +36,11 @@ module Gridium
         end
         r = _send_request('POST', "add_run/#{@pid}", {:name => name, :description => desc, :include_all => false})
         Log.debug("Result: #{r}")
-        unless r["id"].nil?
-          @runid = r["id"]
-        end
+				if r.key?('error') || r["id"].nil?
+					@run_error = true
+				else
+					@runid = r["id"]
+				end
       end
     end
 
@@ -59,7 +64,8 @@ module Gridium
 		end
 
 		def close_run
-			if Gridium.config.testrail
+			#TODO need to make as few queries as possible here
+			if Gridium.config.testrail && (@run_error == false)
 				Log.debug("[GRIDIUM::TestRail] Closing test runid: #{@runid}\n")
 				unless @runid.nil?
 					r = _send_request('POST', "update_run/#{@runid}", {:case_ids => @testcase_ids})
@@ -79,6 +85,7 @@ module Gridium
 
     private
 		def _send_request(method, uri, data)
+			attempts = RETRY
 			url = URI.parse(@url + uri)
 			Log.debug("[GRIDIUM::TestRail] Method: #{method} URL:#{uri} Data:#{data}")
 			if method == 'POST'
@@ -95,29 +102,35 @@ module Gridium
 				conn.use_ssl = true
 				conn.verify_mode = OpenSSL::SSL::VERIFY_NONE
 			end
-			response = conn.request(request)
-			if response.body && !response.body.empty?
-				result = JSON.parse(response.body)
-			else
-				result = {}
-			end
-
-			if response.code != '200'
-
-				if result && result.key?('error')
-					error = '"' + result['error'] + '"'
+			begin
+				Log.debug("[GRIDIUM::TestRail] Connection Attempt #{(RETRY - attempts) +1 }/#{RETRY}...")
+				response = conn.request(request)
+				if response.body && !response.body.empty?
+					result = JSON.parse(response.body)
 				else
-					error = 'No additional error message received'
+					result = {}
 				end
-				Log.debug("[GRIDIUM::TestRail] Error with request: #{error}")
-				raise APIError.new('TestRail API returned HTTP %s (%s)' %
-					[response.code, error])
+
+				if response.code != '200'
+					if result && result.key?('error')
+						error = '"' + result['error'] + '"'
+					else
+						error = 'No additional error message received'
+					end
+					Log.debug("[GRIDIUM::TestRail] Error with request: #{error}")
+				end
+			rescue SocketError => error
+				Log.error("[GRIDIUM::TestRail] SocketError: #{error}")
+				if attempts > 0
+					attempts -= 1
+					sleep 0.5
+					retry
+				end
+				result = {error: "SocketError after #{RETRY} attempts.  See Error Log."}
 			end
 
 			result
 		end
 	end
 
-	class APIError < StandardError
-	end
 end
