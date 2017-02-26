@@ -9,6 +9,10 @@ describe TestRail do
   let(:tr) { Gridium::TestRail.new }
   let(:logger) { Log }
 
+  before :all do
+    @tr = Gridium::TestRail.new
+  end
+
   describe 'Testrail configuration' do
 
       let(:url) {ENV['GRIDIUM_TR_URL']}
@@ -31,34 +35,35 @@ describe TestRail do
     end
   end
 
-  # describe 'TestRail Endpoint Tests' do
-  #   it 'Can add Run' do
-  #     tr.add_run("Valid Name", "Valid Description")
-  #   end
-  #   it 'Fail to add case without Name' do
-  #     empty_string_call = lambda {tr.add_run empty_name}
-  #     expect(&empty_string_call).to raise_error(ArgumentError)
-  #   end
-  #   it 'Can Close Run' do
-  #     tr.close_run
-  #   end
-  #   it 'Can Add Case to Run' do |example|
-  #     tr.add_case(example)
-  #   end
-  #   xit 'Fail to add result with empty set' do
-  #     empty_result_call = lambda {tr.add_case nil}
-  #     expect(&empty_result_call).to raise_error(ArgumentError)
-  #   end
-  # end
+  describe 'TestRail Endpoint Tests' do
+    it 'Can add Run' do
+      id = @tr.add_run("Gridium Unit Test: #{Time.now.to_i}", "Valid Description")
+      expect(id).to be > 0
+    end
+    it 'Can Add a Success Case to Run', testrail_id: 13313764 do |example|
+      r = @tr.add_case(example)
+      expect(r).to be true
+    end
+    it 'Can Close Run' do
+      c = @tr.close_run
+      expect(c).to be true
+    end
+  end
 
   describe 'Bad host name tests' do
     it 'Retries multiple times' do
       expect(logger).to receive(:debug).at_least(5).times
-      tr.send(:_send_request, "GET", "farts/get", {bad: 'data'})
 
+      tr.send(:_send_request, "GET", "http://obviously.fake.fart/index.php?/api/v2/farts", {bad: 'data'})
     end
-    it 'does raise exception after failure' do
-
+    it 'Does not attempt to close invalid run' do
+      bad_tr = Gridium::TestRail.new
+      bad_tr.instance_variable_set(:@url, "http://obviously.fake.fart/index.php?/api/farts")
+      id = bad_tr.add_run("This should not display", "Anywhere")
+      expect(id).to be 0
+      expect(bad_tr.instance_variable_get(:@run_error)).to be true
+      r = bad_tr.close_run
+      expect(r).to be false
     end
   end
 

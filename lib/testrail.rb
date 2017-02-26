@@ -24,27 +24,30 @@ module Gridium
         @pid = ENV['GRIDIUM_TR_PID'].empty? || ENV['GRIDIUM_TR_PID'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PID']
 				@testcase_ids = Array.new
 				@testcase_infos = Array.new
-				@add_run_error = false
+				@run_error = false
       end
 		end
 
     def add_run(name, desc)
+			id = 0
       if Gridium.config.testrail
         Log.debug("[GRIDIUM::TestRail] Creating Test Run: name: #{name} desc: #{desc}")
         if name.nil? || name.empty? then
           raise(ArgumentError, "Empty Run Name - Run name is required")
         end
-        r = _send_request('POST', "add_run/#{@pid}", {:name => name, :description => desc, :include_all => false})
-        Log.debug("Result: #{r}")
+        r = _send_request('POST', "#{@url}add_run/#{@pid}", {:name => name, :description => desc, :include_all => false})
+        Log.debug("[GRIDIUM::TestRail] Run Added: #{r}")
 				if r.key?('error') || r["id"].nil?
 					@run_error = true
 				else
-					@runid = r["id"]
+					@runid = id = r["id"]
 				end
       end
+			return id
     end
 
 		def add_case(rspec_test)
+			added = false
 			if Gridium.config.testrail
 				Log.debug("[GRIDIUM::TestRail] Adding to list of TestRail Cases...")
 				if rspec_test.nil? then
@@ -58,35 +61,39 @@ module Gridium
 					message = 'Test Passed.'
 				end
 				test_info = {:trid => rspec_test.metadata[:testrail_id], :status_id => status, :message => message}
-				@testcase_infos.push(test_info)
-				@testcase_ids.push(test_info[:trid])
+				@testcase_infos.push(test_info) #This list contains the info for each case
+				@testcase_ids.push(test_info[:trid]) #using this list to add list of cases to run
+				added = true
 			end
+			return added
 		end
 
 		def close_run
-			#TODO need to make as few queries as possible here
-			if Gridium.config.testrail && (@run_error == false)
+			closed = false
+			if Gridium.config.testrail && !@run_error
 				Log.debug("[GRIDIUM::TestRail] Closing test runid: #{@runid}\n")
 				unless @runid.nil?
-					r = _send_request('POST', "update_run/#{@runid}", {:case_ids => @testcase_ids})
+					r = _send_request('POST', "#{@url}update_run/#{@runid}", {:case_ids => @testcase_ids})
 					@testcase_infos.each do |tc|
 						r = _send_request(
 							'POST',
-							"add_result_for_case/#{@runid}/#{tc[:trid]}",
+							"#{@url}add_result_for_case/#{@runid}/#{tc[:trid]}",
 							status_id: tc[:status_id],
 							comment: tc[:message]
 							)
 							sleep(0.25)
 					end
-					r = _send_request('POST', "close_run/#{@runid}", nil)
+					r = _send_request('POST', "#{@url}close_run/#{@runid}", nil)
+					closed = true
 				end
 			end
+			return closed
 		end
 
     private
 		def _send_request(method, uri, data)
 			attempts = RETRY
-			url = URI.parse(@url + uri)
+			url = URI.parse(uri)
 			Log.debug("[GRIDIUM::TestRail] Method: #{method} URL:#{uri} Data:#{data}")
 			if method == 'POST'
 				request = Net::HTTP::Post.new(url.path + '?' + url.query)
@@ -123,7 +130,7 @@ module Gridium
 				Log.error("[GRIDIUM::TestRail] SocketError: #{error}")
 				if attempts > 0
 					attempts -= 1
-					sleep 0.5
+					sleep 3
 					retry
 				end
 				result = {error: "SocketError after #{RETRY} attempts.  See Error Log."}
