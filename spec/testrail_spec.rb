@@ -87,16 +87,17 @@ describe TestRail do
 
   describe 'Bad host name tests' do
     it 'Retries multiple times' do
-      expect(logger).to receive(:debug).at_least(5).times
-
+      expect(logger).to receive(:warn).at_least(5).times
+      tr.instance_variable_set(:@time_between_retries, 0.10)
       tr.send(:_send_request, "GET", "http://obviously.fake.fart/index.php?/api/v2/farts", {bad: 'data'})
     end
     it 'Does not attempt to close invalid run' do
       bad_tr = Gridium::TestRail.new
+      bad_tr.instance_variable_set(:@time_between_retries, 0.10)
       bad_tr.instance_variable_set(:@url, "http://obviously.fake.fart/index.php?/api/farts")
       id = bad_tr.add_run("This should not display", "Anywhere")
       expect(id).to be 0
-      expect(bad_tr.instance_variable_get(:@run_error)).to be true
+      expect(bad_tr.instance_variable_get(:@run_info)[:error]).to be true
       r = bad_tr.close_run
       expect(r).to be false
     end

@@ -7,29 +7,26 @@ module Gridium
 	class TestRail
 		ENV_ERROR = "Environment Variable not set!"
 
-    #TestRail Statuses
-    PASSED = 1
-    BLOCKED = 2
-    UNTESTED = 3
-    RETEST = 4
-    FAILED = 5
-		#Retry Start
-		RETRY = 5
-
 		def initialize
       if Gridium.config.testrail
         @url = ENV['GRIDIUM_TR_URL'].empty? || ENV['GRIDIUM_TR_URL'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_URL'] + '/index.php?/api/v2/'
         @user = ENV['GRIDIUM_TR_USER'].empty? || ENV['GRIDIUM_TR_USER'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_USER']
         @password = ENV['GRIDIUM_TR_PW'].empty? || ENV['GRIDIUM_TR_PW'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PW']
         @pid = ENV['GRIDIUM_TR_PID'].empty? || ENV['GRIDIUM_TR_PID'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PID']
-
+				@config = {:pass => 1, :blocked => 2, :untested => 3, :retest => 4, :fail => 5}
+				@retry_attempts = 5
+				@time_between_retries = 3
 				@tc_results = Array.new
 				@tc_ids = Array.new
 				@run_info = {:id => 0 ,:error => false, :include_all => false}
       end
 		end
 
-
+		# Creates a new test Run in your TestRail instance.
+		#
+		# @param name [String] the name of the test run. Error text will be added if an error occurs
+		# @param desc [String] a description of the run being added. Error text will be added if an error occurs
+		# @return [int] The run ID of the created run or zero if no run created.
     def add_run(name, desc)
       if Gridium.config.testrail
         Log.debug("[GRIDIUM::TestRail] Creating Test Run: name: #{name} desc: #{desc}")
@@ -50,6 +47,10 @@ module Gridium
 			return @run_info[:id]
     end
 
+		# Adds determines what the result of the test is and adds information to various arrays for processing during closing.
+		#
+		# @param rspec_test [RSpec::Example] the example provided by RSpec
+		# @return [bool] determine if case was added or not
 		def add_case(rspec_test)
 			added = false
 			if Gridium.config.testrail
@@ -58,10 +59,10 @@ module Gridium
 					Log.error("[GRIDIUM::TestRail] No test added to results. Turn of Gridium.config.testrail\n")
 				end
 				if rspec_test.exception
-					status = FAILED
+					status = @config[:fail]
 					message = rspec_test.exception.message
 				else
-					status = PASSED
+					status = @config[:pass]
 					message = 'Test Passed.'
 				end
 				test_info = {:case_id => rspec_test.metadata[:testrail_id], :status_id => status, :comment => message}
@@ -72,21 +73,24 @@ module Gridium
 			return added
 		end
 
+		# Updates the existing test run with test cases and results.  Adds error text for missing test cases if needed. Closes the run as long as it exists.
+		#
+		# @return [bool] if the run was closed or not
 		def close_run
 			closed = false
 			if Gridium.config.testrail && !@run_info[:error]
 				Log.debug("[GRIDIUM::TestRail] Closing test runid: #{@run_info[:id]}\n")
 				r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:case_ids => @tc_ids})
 				Log.debug("[GRIDIUM::TestRail] UPDATE RUN: #{r}")
-				sleep 0.5
+				sleep 0.25
 				r = _send_request('POST', "#{@url}add_results_for_cases/#{@run_info[:id]}", {results: @tc_results})
 				Log.debug("[GRIDIUM::TestRail] ADD RESULTS: #{r}")
-				sleep 0.5
+				sleep 0.25
 				Log.debug("#{r.class}")
 				if r.is_a?(Hash)
 					r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:name => "ER:#{@run_info[:name]}", :description => "#{@run_info[:desc]}\nThe following was returned when adding cases: #{r}"})
 					Log.warn("[GRIDIUM::TestRail] ERROR: #{r}")
-					sleep 0.5
+					sleep 0.25
 				end
 				r = _send_request('POST', "#{@url}close_run/#{@run_info[:id]}", nil)
 				Log.debug("[GRIDIUM::TestRail] CLOSE RUN: #{r}")
@@ -97,7 +101,7 @@ module Gridium
 
     private
 		def _send_request(method, uri, data)
-			attempts = RETRY
+			attempts = @retry_attempts
 			url = URI.parse(uri)
 			Log.debug("[GRIDIUM::TestRail] Method: #{method} URL:#{uri} Data:#{data}")
 			if method == 'POST'
@@ -115,7 +119,6 @@ module Gridium
 				conn.verify_mode = OpenSSL::SSL::VERIFY_NONE
 			end
 			begin
-				Log.debug("[GRIDIUM::TestRail] Connection Attempt #{(RETRY - attempts) +1 }/#{RETRY}...")
 				response = conn.request(request)
 				if response.body && !response.body.empty?
 					result = JSON.parse(response.body)
@@ -129,16 +132,17 @@ module Gridium
 					else
 						error = 'No additional error message received'
 					end
-					Log.debug("[GRIDIUM::TestRail] Error with request: #{error}")
+					Log.error("[GRIDIUM::TestRail] #{response.code} - Error with request: #{error}")
 				end
 			rescue SocketError => error
-				Log.warn("[GRIDIUM::TestRail] SocketError: #{error}")
+				Log.warn("[GRIDIUM::TestRail] SocketError - Retrying....")
 				if attempts > 0
 					attempts -= 1
-					sleep 3
+					sleep @time_between_retries
 					retry
 				end
-				result = {error: "SocketError after #{RETRY} attempts.  See Error Log."}
+				Log.error("[GRIDIUM::TestRail] Socket Error after numerous attempts. Error: #{error}")
+				result = {error: "SocketError after #{@retry_attempts} attempts.  See Error Log."}
 			end
 
 			result
