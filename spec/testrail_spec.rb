@@ -62,8 +62,24 @@ describe TestRail do
       bulk_tr = Gridium::TestRail.new
       id = bulk_tr.add_run("Gridium Add Bulk Test: #{Time.now.to_i}", "Verify that gridium can add a small amount of test results to a run with one call")
       expect(id).to be > 0
-      bulk_tr.instance_variable_set(:@testcase_infos, @local_testcase_infos)
-      bulk_tr.instance_variable_set(:@testcase_ids, @local_testcase_ids)
+      bulk_tr.instance_variable_set(:@tc_results, @local_testcase_infos)
+      bulk_tr.instance_variable_set(:@tc_ids, @local_testcase_ids)
+      r = bulk_tr.close_run
+      expect(r).to be true
+    end
+    it 'Run still closes with missing or deleted case_id' do
+      passed = {:case_id => 13329820, :status_id => 1, :comment => "This case was added via Gridium Unit Test"}
+      failed = {:case_id => 13314061, :status_id => 5, :comment => "This case was added via Gridium Unit Test"}
+      retest = {:case_id => 13329690, :status_id => 4, :comment => "This case was added via Gridium Unit Test"}
+      blocked = {:case_id => 420, :status_id => 2, :comment => "This case was added via Gridium Unit Test"}
+      @local_testcase_infos = [passed, failed, retest, blocked]
+      @local_testcase_ids = [passed[:case_id], failed[:case_id], retest[:case_id], blocked[:case_id]]
+
+      bulk_tr = Gridium::TestRail.new
+      id = bulk_tr.add_run("Gridium Add Bulk Test: #{Time.now.to_i}", "Verify that gridium can add a small amount of test results to a run with one call")
+      expect(id).to be > 0
+      bulk_tr.instance_variable_set(:@tc_results, @local_testcase_infos)
+      bulk_tr.instance_variable_set(:@tc_ids, @local_testcase_ids)
       r = bulk_tr.close_run
       expect(r).to be true
     end

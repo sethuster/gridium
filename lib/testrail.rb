@@ -22,28 +22,32 @@ module Gridium
         @user = ENV['GRIDIUM_TR_USER'].empty? || ENV['GRIDIUM_TR_USER'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_USER']
         @password = ENV['GRIDIUM_TR_PW'].empty? || ENV['GRIDIUM_TR_PW'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PW']
         @pid = ENV['GRIDIUM_TR_PID'].empty? || ENV['GRIDIUM_TR_PID'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PID']
-				@testcase_ids = Array.new
-				@testcase_infos = Array.new
-				@run_error = false
+
+				@tc_results = Array.new
+				@tc_ids = Array.new
+				@run_info = {:id => 0 ,:error => false, :include_all => false}
       end
 		end
 
+
     def add_run(name, desc)
-			id = 0
       if Gridium.config.testrail
         Log.debug("[GRIDIUM::TestRail] Creating Test Run: name: #{name} desc: #{desc}")
         if name.nil? || name.empty? then
-          raise(ArgumentError, "Empty Run Name - Run name is required")
-        end
-        r = _send_request('POST', "#{@url}add_run/#{@pid}", {:name => name, :description => desc, :include_all => false})
-        Log.debug("[GRIDIUM::TestRail] Run Added: #{r}")
-				if r.key?('error') || r["id"].nil?
-					@run_error = true
+          @run_info[:error] = true
 				else
-					@runid = id = r["id"]
+					@run_info[:name] = name
+					@run_info[:desc] = desc
+        end
+        r = _send_request('POST', "#{@url}add_run/#{@pid}", @run_info)
+				if r.key?('error') || r["id"].nil?
+					@run_info[:error] = true
+				else
+					@run_info[:id] = r["id"]
+					Log.debug("[GRIDIUM::TestRail] Run Added: #{r}")
 				end
       end
-			return id
+			return @run_info[:id]
     end
 
 		def add_case(rspec_test)
@@ -61,8 +65,8 @@ module Gridium
 					message = 'Test Passed.'
 				end
 				test_info = {:case_id => rspec_test.metadata[:testrail_id], :status_id => status, :comment => message}
-				@testcase_infos.push(test_info) #This list contains the info for each case
-				@testcase_ids.push(test_info[:case_id]) #using this list to add list of cases to run
+				@tc_results.push(test_info)
+				@tc_ids.push(test_info[:case_id])
 				added = true
 			end
 			return added
@@ -70,16 +74,23 @@ module Gridium
 
 		def close_run
 			closed = false
-			if Gridium.config.testrail && !@run_error
-				Log.debug("[GRIDIUM::TestRail] Closing test runid: #{@runid}\n")
-				unless @runid.nil?
-					r = _send_request('POST', "#{@url}update_run/#{@runid}", {:case_ids => @testcase_ids})
+			if Gridium.config.testrail && !@run_info[:error]
+				Log.debug("[GRIDIUM::TestRail] Closing test runid: #{@run_info[:id]}\n")
+				r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:case_ids => @tc_ids})
+				Log.debug("[GRIDIUM::TestRail] UPDATE RUN: #{r}")
+				sleep 0.5
+				r = _send_request('POST', "#{@url}add_results_for_cases/#{@run_info[:id]}", {results: @tc_results})
+				Log.debug("[GRIDIUM::TestRail] ADD RESULTS: #{r}")
+				sleep 0.5
+				Log.debug("#{r.class}")
+				if r.is_a?(Hash)
+					r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:name => "ER:#{@run_info[:name]}", :description => "#{@run_info[:desc]}\nThe following was returned when adding cases: #{r}"})
+					Log.warn("[GRIDIUM::TestRail] ERROR: #{r}")
 					sleep 0.5
-					r = _send_request('POST', "#{@url}add_results_for_cases/#{@runid}", {results: @testcase_infos})
-					sleep 0.5
-					r = _send_request('POST', "#{@url}close_run/#{@runid}", nil)
-					closed = true
 				end
+				r = _send_request('POST', "#{@url}close_run/#{@run_info[:id]}", nil)
+				Log.debug("[GRIDIUM::TestRail] CLOSE RUN: #{r}")
+				closed = true
 			end
 			return closed
 		end
@@ -121,7 +132,7 @@ module Gridium
 					Log.debug("[GRIDIUM::TestRail] Error with request: #{error}")
 				end
 			rescue SocketError => error
-				Log.error("[GRIDIUM::TestRail] SocketError: #{error}")
+				Log.warn("[GRIDIUM::TestRail] SocketError: #{error}")
 				if attempts > 0
 					attempts -= 1
 					sleep 3
