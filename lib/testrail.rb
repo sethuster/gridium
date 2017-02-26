@@ -60,9 +60,9 @@ module Gridium
 					status = PASSED
 					message = 'Test Passed.'
 				end
-				test_info = {:trid => rspec_test.metadata[:testrail_id], :status_id => status, :message => message}
+				test_info = {:case_id => rspec_test.metadata[:testrail_id], :status_id => status, :comment => message}
 				@testcase_infos.push(test_info) #This list contains the info for each case
-				@testcase_ids.push(test_info[:trid]) #using this list to add list of cases to run
+				@testcase_ids.push(test_info[:case_id]) #using this list to add list of cases to run
 				added = true
 			end
 			return added
@@ -74,15 +74,9 @@ module Gridium
 				Log.debug("[GRIDIUM::TestRail] Closing test runid: #{@runid}\n")
 				unless @runid.nil?
 					r = _send_request('POST', "#{@url}update_run/#{@runid}", {:case_ids => @testcase_ids})
-					@testcase_infos.each do |tc|
-						r = _send_request(
-							'POST',
-							"#{@url}add_result_for_case/#{@runid}/#{tc[:trid]}",
-							status_id: tc[:status_id],
-							comment: tc[:message]
-							)
-							sleep(0.25)
-					end
+					sleep 0.5
+					r = _send_request('POST', "#{@url}add_results_for_cases/#{@runid}", {results: @testcase_infos})
+					sleep 0.5
 					r = _send_request('POST', "#{@url}close_run/#{@runid}", nil)
 					closed = true
 				end
