@@ -19,8 +19,8 @@ module Gridium
         @time_between_retries = 3
         @tc_results = Array.new
         @tc_ids = Array.new
-        @run_info = {:id => 0 ,:error => false, :include_all => false}
       end
+      @run_info = {:id => 0 ,:error => false, :include_all => false}
     end
 
     # Creates a new test Run in your TestRail instance.
