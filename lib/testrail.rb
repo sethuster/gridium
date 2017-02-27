@@ -6,6 +6,8 @@ require 'json'
 module Gridium
   class TestRail
     ENV_ERROR = "Environment Variable not set!"
+    CONFIG = {:pass => 1, :blocked => 2, :untested => 3, :retest => 4, :fail => 5}.freeze
+
 
     def initialize
       if Gridium.config.testrail
@@ -13,7 +15,6 @@ module Gridium
         @user = ENV['GRIDIUM_TR_USER'].empty? || ENV['GRIDIUM_TR_USER'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_USER']
         @password = ENV['GRIDIUM_TR_PW'].empty? || ENV['GRIDIUM_TR_PW'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PW']
         @pid = ENV['GRIDIUM_TR_PID'].empty? || ENV['GRIDIUM_TR_PID'].nil? ? ENV_ERROR : ENV['GRIDIUM_TR_PID']
-        @config = {:pass => 1, :blocked => 2, :untested => 3, :retest => 4, :fail => 5}
         @retry_attempts = 5
         @time_between_retries = 3
         @tc_results = Array.new
@@ -59,10 +60,10 @@ module Gridium
           Log.error("[GRIDIUM::TestRail] No test added to results. Turn of Gridium.config.testrail\n")
         end
         if rspec_test.exception
-          status = @config[:fail]
+          status = CONFIG[:fail]
           message = rspec_test.exception.message
         else
-          status = @config[:pass]
+          status = CONFIG[:pass]
           message = 'Test Passed.'
         end
         test_info = {:case_id => rspec_test.metadata[:testrail_id], :status_id => status, :comment => message}
