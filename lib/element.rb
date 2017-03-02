@@ -53,7 +53,11 @@ class Element
           found_element = element; #this will always return the last displayed element
         end
       end
-    rescue StandardError
+      if found_element.nil?
+        Log.debug "found #{elements.length} element(s) via #{@by} and #{@locator} and 0 are displayed"
+      end
+    rescue StandardError => error
+      Log.debug("element.displayed_element rescued: #{error}")
       if found_element
         Log.warn("An element was found, but it was not displayed on the page. Gridium.config.visible_elements_only set to: #{Gridium.config.visible_elements_only} Element: #{self.to_s}")
       else
@@ -88,13 +92,15 @@ class Element
 
   def present?
     return element.enabled?
-  rescue StandardError
+  rescue StandardError => error
+    Log.debug("element.present? is false because this error was rescued: #{error}")
     return false
   end
 
   def displayed?
     return element.displayed?
-  rescue StandardError
+  rescue StandardError => error
+    Log.debug("element.displayed? is false because this error was rescued: #{error}")
     return false
   end
 
@@ -340,7 +346,8 @@ class Element
   def stale?
     return true if @element.nil?
     @element.disabled?
-  rescue StandardError
+  rescue StandardError => error
+    Log.debug("element.stale? is true because this error was rescued: #{error}")
     Log.warn("Stale element detected.... #{self.to_s}")
     return true
   end
