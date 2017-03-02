@@ -27,10 +27,13 @@ describe GridiumS3 do
   end
 
   describe 's3 connectivity' do
-    it 'will gracefully handle a loss in connectivity' do
-
+    xit 'will gracefully handle a loss in connectivity' do
+      # need to figure out how to force s3 to encounter
+      # Seahorse::Client::NetworkingError after authenticating
+      # during this code: @bucket.object(destination_name).wait_until_exists
     end
   end
+
   describe 's3 configuration' do
 
       let(:s3_access_key_id) {ENV['S3_ACCESS_KEY_ID']}
