@@ -25,6 +25,12 @@ describe GridiumS3 do
         s3 = Gridium::GridiumS3.new(project_name, subdirectory_name)
     end
   end
+
+  describe 's3 connectivity' do
+    it 'will gracefully handle a loss in connectivity' do
+
+    end
+  end
   describe 's3 configuration' do
 
       let(:s3_access_key_id) {ENV['S3_ACCESS_KEY_ID']}
@@ -101,56 +107,65 @@ describe GridiumS3 do
     end
 
   end
-   describe 's3 file saving' do
-
-     before :all do
-         #create a temp folder in the systems tmp directory
-         tmp = Dir.tmpdir()
-         temp_subdirectory = "gridium_#{Time.now.to_i}"
-         @temp_path = File.join(tmp, temp_subdirectory)
-         Dir.mkdir(@temp_path)
-         @temp_files = []
-     end
-
-     before :each do
-         #create temp files with token contents
-         @file_name = "temp_#{Time.now.to_i}.txt"
-         @full_path = File.join(@temp_path, @file_name)
-         File.open(@full_path, File::WRONLY | File::APPEND | File::CREAT) do |temp_file|
-             temp_file.write("hello world112233")
-         end
-         @temp_files.push @full_path
-     end
-
-     after :all do
-         #delete the temp files
-         @temp_files.each do |temp_file|
-            if File.exist? temp_file then
-                File.delete temp_file
-                Log.debug("deleted #{temp_file} during teardown")
-            end
-         end
-         #delete the temp folder
-         Dir.delete(@temp_path)
-         Log.debug("deleted #{@temp_path} during teardown")
-     end
-
-     it 'succeeds with a local file'  do
-         s3.save_file(@full_path)
+  describe 's3 file saving' do
+    before :all do
+      #create a temp folder in the systems tmp directory
+      tmp = Dir.tmpdir()
+      temp_subdirectory = "gridium_#{Time.now.to_i}"
+      @temp_path = File.join(tmp, temp_subdirectory)
+      Dir.mkdir(@temp_path)
+      @temp_files = []
     end
-    it 'fails if the file doesn\'t exist' do
-        non_existant_file = "nuke_me_#{Time.now.to_i}.txt"
-        path_to_non_existant_file = File.join(@temp_path, non_existant_file)
-        if File.exist? path_to_non_existant_file then
-            File.delete path_to_non_existant_file
+
+    before :each do
+      #create temp files with token contents
+      @file_name = "temp_#{Time.now.to_i}.txt"
+      @full_path = File.join(@temp_path, @file_name)
+      File.open(@full_path, File::WRONLY | File::APPEND | File::CREAT) do |temp_file|
+         temp_file.write("hello world112233")
+      end
+      @temp_files.push @full_path
+    end
+
+    after :all do
+      #delete the temp files
+      @temp_files.each do |temp_file|
+        if File.exist? temp_file then
+          File.delete temp_file
+          Log.debug("deleted #{temp_file} during teardown")
         end
-        bad_file_call = lambda {s3.save_file(path_to_non_existant_file)}
-        expect(bad_file_call).to raise_error ArgumentError
+      end
+      #delete the temp folder
+      Dir.delete(@temp_path)
+      Log.debug("deleted #{@temp_path} during teardown")
+    end
+
+    it 'succeeds with a local file'  do
+      s3_path = s3.save_file(@full_path)
+      expect(s3_path).to include @file_name
+    end
+
+    it 'fails if the file doesn\'t exist' do
+      non_existant_file = "nuke_me_#{Time.now.to_i}.txt"
+      path_to_non_existant_file = File.join(@temp_path, non_existant_file)
+      if File.exist? path_to_non_existant_file then
+        File.delete path_to_non_existant_file
+      end
+      bad_file_call = lambda {s3.save_file(path_to_non_existant_file)}
+      expect(bad_file_call).to raise_error ArgumentError
     end
     it 'fails if the file path is invalid' do
         non_existant_path = File.join(@temp_path, "#{Time.now.to_i}", @file_name)
         bad_path_call = lambda {s3.save_file(non_existant_path)}
         expect(bad_path_call).to raise_error ArgumentError
     end
- end
+
+    it 'gracefully handles invalid credentials' do
+      ENV['S3_ACCESS_KEY_ID'] = 'medulla'
+      ENV['S3_SECRET_ACCESS_KEY'] = 'oblongata'
+      s3 = Gridium::GridiumS3.new(project_name, subdirectory_name)
+      s3.save_file(@full_path)
+    end
+
+  end
 end

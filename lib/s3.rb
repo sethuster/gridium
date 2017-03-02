@@ -20,11 +20,19 @@ module Gridium
             _validate_path(absolute_path_of_file)
             file_name = File.basename(absolute_path_of_file)
             destination_name = create_s3_name(file_name)
-            @bucket.object(destination_name).upload_file(absolute_path_of_file)
-            @bucket.object(destination_name).wait_until_exists
-            _verify_upload(destination_name, absolute_path_of_file)
-            # @bucket.object(s3_name).presigned_url(:get, expires_in: 3600) #uncomment this if public url ends up not working out OPREQ-83850
-            @bucket.object(destination_name).public_url
+            begin
+              @bucket.object(destination_name).upload_file(absolute_path_of_file)
+              @bucket.object(destination_name).wait_until_exists
+              _verify_upload(destination_name, absolute_path_of_file)
+              # @bucket.object(s3_name).presigned_url(:get, expires_in: 3600) #uncomment this if public url ends up not working out OPREQ-83850
+              return @bucket.object(destination_name).public_url
+            rescue Aws::S3::Errors::InvalidAccessKeyId
+              Log.error("unable to save file to s3 due to Aws::S3::Errors::InvalidAccessKeyId")
+            rescue Seahorse::Client::NetworkingError => error
+              Log.error("unable to save file to s3 due to underlying network error: #{error}")
+            rescue StandardErrer => error
+              Log.error("unable to save file to s3 due to unexpected error: #{error}")
+            end
         end
 
         def create_s3_name(file_name)
