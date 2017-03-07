@@ -1,5 +1,7 @@
 version: '2'
 services:
+  firefox:
+    image: selenium/node-firefox-debug:3.1.0
   gridium:
     volumes:
       - $GRIDIUMPATH:/gridium
