@@ -1,15 +1,14 @@
 version: '2'
 services:
   hub:
-    image: sethuster/selenium-hub
+    image: selenium/hub:3.1.0
     ports:
       - "4444"
   firefox:
-    image: sethuster/node-firefox-debugx
-    ports:
-      - "5900"
-    depends_on:
-      - hub
+    image: selenium/node-firefox:3.1.0
+    environment:
+      HUB_PORT_4444_TCP_ADDR: hub
+      HUB_PORT_4444_TCP_PORT: 4444
   mustadio:
     image: yetanotherlucas/mustadio
     ports:
