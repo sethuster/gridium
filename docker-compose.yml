@@ -14,6 +14,10 @@ services:
     image: yetanotherlucas/mustadio
     ports:
       - "3000"
+  the-internet:
+    image: gprestes/the-internet
+    ports:
+      - "5000"
   gridium:
     build: .
     environment:
