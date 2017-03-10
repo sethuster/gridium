@@ -11,6 +11,8 @@ services:
       HUB_PORT_4444_TCP_PORT: 4444
     ports:
       - "5900"
+    depends_on:
+      - hub
   mustadio:
     image: yetanotherlucas/mustadio
     ports:
