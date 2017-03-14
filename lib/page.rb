@@ -135,8 +135,7 @@ module Gridium
       begin
         button.click
       rescue Exception => exception
-        Log.debug("page.click_button exception was rescued: #{exception}")
-        Log.debug("Button not found - Attempting Link - speed up test by using click_link method if this works...")
+        Log.debug("Button not found and this exception was rescued: #{exception} Attempting Link - speed up test by using click_link method if this works...")
         click_link button_name, link_index: button_index
       end
     end
