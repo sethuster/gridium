@@ -23,7 +23,7 @@ module Gridium
       begin
         wait.until {Driver.driver.find_element(:css, css).enabled?}
       rescue Exception => exception
-        Log.debug("page.has_css? is false because this exception was rescued: #{exception}")
+        Log.debug("[GRIDIUM::Page] has_css? is false because this exception was rescued: #{exception}")
         return false
       end
     end
@@ -33,7 +33,7 @@ module Gridium
       begin
         wait.until {Driver.driver.find_element(:xpath, xpath).enabled?}
       rescue Exception => exception
-        Log.debug("page.has_xpath? is false because this exception was rescued: #{exception}")
+        Log.debug("[GRIDIUM::Page] has_xpath? is false because this exception was rescued: #{exception}")
         return false
       end
     end
@@ -43,7 +43,7 @@ module Gridium
       begin
         wait.until {Driver.driver.find_element(:link_text, linktext).enabled?}
       rescue Exception => exception
-        Log.debug("page.has_link? is false because this exception was rescued: #{exception}")
+        Log.debug("[GRIDIUM::Page] has_link? is false because this exception was rescued: #{exception}")
         return false
       end
     end
@@ -57,7 +57,7 @@ module Gridium
       begin
         element = wait.until {Driver.html.include? text}
       rescue Exception => exception
-        Log.debug("page.has_flash? exception was rescued: #{exception}")
+        Log.debug("[GRIDIUM::Page] has_flash? exception was rescued: #{exception}")
         Log.warn("Could not find the flash message!")
       end
 
@@ -135,7 +135,7 @@ module Gridium
       begin
         button.click
       rescue Exception => exception
-        Log.debug("Button not found and this exception was rescued: #{exception} Attempting Link - speed up test by using click_link method if this works...")
+        Log.debug("[GRIDIUM::Page] Button not found and this exception was rescued: #{exception} Attempting Link - speed up test by using click_link method if this works...")
         click_link button_name, link_index: button_index
       end
     end
