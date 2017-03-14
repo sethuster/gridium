@@ -22,7 +22,8 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
         wait.until {Driver.driver.find_element(:css, css).enabled?}
-      rescue Exception
+      rescue Exception => exception
+        Log.debug("page.has_css? is false because this exception was rescued: #{exception}")
         return false
       end
     end
@@ -31,7 +32,8 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
         wait.until {Driver.driver.find_element(:xpath, xpath).enabled?}
-      rescue Exception
+      rescue Exception => exception
+        Log.debug("page.has_xpath? is false because this exception was rescued: #{exception}")
         return false
       end
     end
@@ -40,7 +42,8 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => 5)
       begin
         wait.until {Driver.driver.find_element(:link_text, linktext).enabled?}
-      rescue Exception
+      rescue Exception => exception
+        Log.debug("page.has_link? is false because this exception was rescued: #{exception}")
         return false
       end
     end
@@ -53,7 +56,8 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => 5) #5 seconds every 500ms
       begin
         element = wait.until {Driver.html.include? text}
-      rescue
+      rescue Exception => exception
+        Log.debug("page.has_flash? exception was rescued: #{exception}")
         Log.warn("Could not find the flash message!")
       end
 
@@ -130,7 +134,8 @@ module Gridium
       end
       begin
         button.click
-      rescue Exception
+      rescue Exception => exception
+        Log.debug("page.click_button exception was rescued: #{exception}")
         Log.debug("Button not found - Attempting Link - speed up test by using click_link method if this works...")
         click_link button_name, link_index: button_index
       end
@@ -139,5 +144,10 @@ module Gridium
     def check(id) #checks a checkbox
       Driver.driver.find_element(:id, id).click
     end
+  end
+
+  def refresh
+    Driver.refresh
+    self.class.new
   end
 end

@@ -1,5 +1,6 @@
 require_relative 'spec_helper'
 # require 'pry'
+require 'page_objects/status_codes'
 
 describe Page do
   let(:test_driver) { Driver }
@@ -116,5 +117,16 @@ describe Page do
       page.click_link "Contact Us", link_index: 2
       Driver.verify_url "https://sendgrid.com/login"
     end
+  end
+
+  describe 'refresh' do
+    let(:internet_status_url) {'the-internet:9000/status_codes'}
+    it 'should return new subclass object' do
+      Driver.visit internet_status_url
+      status_code_page = StatusCodes.new
+      new_page_object = status_code_page.refresh
+      expect(new_page_object.class).to eq StatusCodes
+    end
+
   end
 end
