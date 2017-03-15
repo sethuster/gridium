@@ -141,7 +141,7 @@ module Gridium
     end
 
     def check(id) #checks a checkbox
-      Driver.driver.find_element(:id, id).click
+      Element.new("Checkbox", :id, id).click
     end
   end
 
