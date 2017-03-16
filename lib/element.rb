@@ -129,7 +129,7 @@ class Element
         Log.warn("[GRIDIUM::Element] Click Exception retrying...")
         sleep 0.15
         click_retry -= 1
-        if click_retry > 0
+        if click_retry >= 0
           retry
         else
           Log.error("[GRIDIUM::Element] Click Exception #{e}")
