@@ -1,9 +1,11 @@
 version: '2'
 services:
-  chrome:
-    image: selenium/node-chrome-debug:3.1.0
+  hub:
     ports:
-      - "5900"
+      - "4444:4444"
+  chrome:
+    ports:
+      - "5900:5900"
   gridium:
     volumes:
       - $GRIDIUMPATH:/gridium
