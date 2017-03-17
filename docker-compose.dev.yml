@@ -1,7 +1,9 @@
 version: '2'
 services:
-  firefox:
-    image: selenium/node-firefox-debug:3.1.0
+  chrome:
+    image: selenium/node-chrome-debug:3.1.0
+    ports:
+      - "5900"
   gridium:
     volumes:
       - $GRIDIUMPATH:/gridium

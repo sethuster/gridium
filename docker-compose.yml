@@ -4,13 +4,8 @@ services:
     image: selenium/hub:3.1.0
     ports:
       - "4444"
-  firefox:
-    image: selenium/node-firefox:3.1.0
-    environment:
-      HUB_PORT_4444_TCP_ADDR: hub
-      HUB_PORT_4444_TCP_PORT: 4444
-    ports:
-      - "5900"
+  chrome:
+    image: selenium/node-chrome:3.1.0
     depends_on:
       - hub
     environment:

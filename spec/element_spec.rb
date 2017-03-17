@@ -10,7 +10,7 @@ describe Element do
   before :all do
     Gridium.config.browser_source = :remote
     Gridium.config.target_environment = "http://hub:4444/wd/hub"
-    Gridium.config.browser = :firefox
+    Gridium.config.browser = :chrome
   end
 
   after :each do

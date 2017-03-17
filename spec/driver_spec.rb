@@ -35,7 +35,7 @@ describe Driver do
   describe '#driver' do
     it 'sets browser configuration' do
       expect(gridium_config.browser_source).to eq :remote
-      expect(gridium_config.browser).to eq :firefox
+      expect(gridium_config.browser).to eq :chrome
 
       test_driver.driver
     end
