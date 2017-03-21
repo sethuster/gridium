@@ -62,7 +62,6 @@ describe Element do
 
   describe 'child elements' do
     it '#find_element should return a gridium element' do
-      skip "unskip when this is implemented"
       Driver.visit the_internet_url
       content = Element.new("internet content", :id, "content")
       actual_header_element_class = content.find_element(:tag_name, "h1").class
@@ -71,7 +70,6 @@ describe Element do
     end
 
     it '#find_elements should return a list of gridium elements' do
-      skip "unskip when this is implemented"
       Driver.visit the_internet_url
       content = Element.new("internet content", :id, "content")
       nav_links = content.find_elements(:css, "ul > li > a")
@@ -85,7 +83,7 @@ describe Element do
     let(:test_input_page) { "http://mustadio:3000/fields" }
 
     it 'should continue to work after many attempts' do
-      (1..10).each do
+      (1..5).each do
         Driver.visit test_input_page
         (1..11).each do |i|
           expected_text = "#{i}_#{SecureRandom.uuid}"
