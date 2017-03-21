@@ -90,6 +90,12 @@ class Element
     element.attribute(name)
   end
 
+  def css_value(name)
+    element.css_value(name)
+  end
+
+
+
   def present?
     return element.enabled?
   rescue StandardError => error
@@ -166,8 +172,13 @@ class Element
 
 
 
+
   def location
     element.location
+  end
+
+  def location_once_scrolled_into_view
+    element.location_once_scrolled_into_view
   end
 
   def hover_over
