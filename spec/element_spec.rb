@@ -6,6 +6,7 @@ describe Element do
   let(:test_element) { Element }
   let(:logger) { Log }
   let(:test_element_verification) { ElementVerification }
+  let(:the_internet_url) {'http://the-internet:5000'}
 
   before :all do
     Gridium.config.browser_source = :remote
@@ -36,15 +37,53 @@ describe Element do
       disabled = Element.new "disabled field", :css, "[id=\"input_disabled\"]"
       expect {ElementExtensions.highlight(disabled)}.not_to raise_error
     end
+  end
 
+  describe '#css_value' do
+    it 'should return a css value' do
+      Driver.visit the_internet_url
+      header = Element.new('internet header', :css, "div[id=\"content\"] > h1")
+      actual_box_sizing = header.css_value("box-sizing")
+      expected_box_sizing = 'border-box'
+      expect(actual_box_sizing).to eq expected_box_sizing
+    end
+  end
 
+  describe '#location_once_scrolled_into_view' do
+    let(:long_page_url) {the_internet_url + "/large"}
+    it 'should be different than the absolute location' do
+      Driver.visit long_page_url
+      footer = Element.new('internet footer', :id, 'page-footer')
+      absolute_location = footer.location
+      scrolled_location = footer.location_once_scrolled_into_view
+      expect(scrolled_location).not_to eq absolute_location
+    end
+  end
+
+  describe 'child elements' do
+    it '#find_element should return a gridium element' do
+      Driver.visit the_internet_url
+      content = Element.new("internet content", :id, "content")
+      actual_header_element_class = content.find_element(:tag_name, "h1").class
+      expected_header_element_class = content.class
+      expect(actual_header_element_class).to eq expected_header_element_class
+    end
+
+    it '#find_elements should return a list of gridium elements' do
+      Driver.visit the_internet_url
+      content = Element.new("internet content", :id, "content")
+      nav_links = content.find_elements(:css, "ul > li > a")
+      actual_nav_element_classes = (nav_links.map {|_| _.class}).uniq
+      expected_nav_element_classes = [content.class]
+      expect(actual_nav_element_classes).to match_array(expected_nav_element_classes)
+    end
   end
 
   describe 'text input' do
     let(:test_input_page) { "http://mustadio:3000/fields" }
 
     it 'should continue to work after many attempts' do
-      (1..10).each do
+      (1..5).each do
         Driver.visit test_input_page
         (1..11).each do |i|
           expected_text = "#{i}_#{SecureRandom.uuid}"

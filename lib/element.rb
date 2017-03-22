@@ -6,7 +6,7 @@ class Element
   attr_reader :name, :by, :locator
 
 
-  def initialize(name, by, locator)
+  def initialize(name, by, locator, opts = {})
     @name = name
     @by = by
     @locator = locator
@@ -17,6 +17,9 @@ class Element
 
     # selenium web element
     @element = nil
+
+    # should always be driver unless getting an element's child
+    @parent ||= (opts[:parent] || @driver)
 
     #how long to wait between clearing an input and sending keys to it
     @text_padding_time = 0.15
@@ -32,7 +35,7 @@ class Element
       if Gridium.config.visible_elements_only
         wait.until { @element = displayed_element }
       else
-        wait.until { @element = @driver.find_element(@by, @locator); Log.debug("Finding element #{self}..."); @element.enabled? }
+        wait.until { @element = @parent.find_element(@by, @locator); Log.debug("Finding element #{self}..."); @element.enabled? }
       end
 
     end
@@ -47,7 +50,7 @@ class Element
     found_element = nil
     #Found an issue where the element would go stale after it's found
     begin
-      elements = @driver.find_elements(@by, @locator)
+      elements = @parent.find_elements(@by, @locator)
       elements.each do |element|
         if element.displayed? #removed check for element.enabled
           found_element = element; #this will always return the last displayed element
@@ -89,6 +92,12 @@ class Element
   def attribute(name)
     element.attribute(name)
   end
+
+  def css_value(name)
+    element.css_value(name)
+  end
+
+
 
   def present?
     return element.enabled?
@@ -166,8 +175,13 @@ class Element
 
 
 
+
   def location
     element.location
+  end
+
+  def location_once_scrolled_into_view
+    element.location_once_scrolled_into_view
   end
 
   def hover_over
@@ -254,7 +268,7 @@ class Element
   #
   def find_element(by, locator)
     Log.debug('Finding element...')
-    element.find_element(by, locator)
+    Element.new("Child of #{@name}", by, locator, parent: @element)
   end
 
   #
@@ -266,7 +280,8 @@ class Element
   # @return [Array] elements
   #
   def find_elements(by, locator)
-    element.find_elements(by, locator)
+    elements = element.find_elements(by, locator)
+    elements.map {|_| Element.new("Child of #{@name}", by, locator, parent: @element)}
   end
 
   def save_element_screenshot
