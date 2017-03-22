@@ -6,7 +6,7 @@ class Driver
   @@driver = nil
 
   def self.reset
-    Log.debug("====> Driver.reset: #{@@driver}")
+    Log.debug("[Gridium::Driver] Driver.reset: #{@@driver}")
     driver.manage.delete_all_cookies
     driver.manage.timeouts.page_load = Gridium.config.page_load_timeout
     driver.manage.timeouts.implicit_wait = Gridium.config.element_timeout
@@ -27,12 +27,12 @@ class Driver
   def self.driver
     begin
       unless @@driver
-        Log.debug("=====> Driver.driver: instantiating new driver")
+        Log.debug("[Gridium::Driver]  Driver.driver: instantiating new driver")
         @browser_type = Gridium.config.browser
         ##Adding support for remote browsers
         if Gridium.config.browser_source == :remote
           @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: Gridium.config.browser)
-          Log.debug("Remote Browser Requested: #{@@driver}")
+          Log.debug("[Gridium::Driver] Remote Browser Requested: #{@@driver}")
           #this file detector is only used for remote drivers and is needed to upload files from test_host through Grid to browser
           @@driver.file_detector = lambda do |args|
             str = args.first.to_s
@@ -45,19 +45,19 @@ class Driver
           #do stuff
           s3_project_folder = Gridium.config.project_name_for_s3
           s3_subfolder = Gridium.config.subdirectory_name_for_s3
-          Log.debug("configuring s3 to save files to this directory: #{s3_project_folder} in addition to being saved locally")
+          Log.debug("[Gridium::Driver] configuring s3 to save files to this directory: #{s3_project_folder} in addition to being saved locally")
           @s3 = Gridium::GridiumS3.new(s3_project_folder, s3_subfolder)
-          Log.debug("s3 is #{@s3}")
+          Log.debug("[Gridium::Driver] s3 is #{@s3}")
         else
-          Log.debug("s3 screenshots not enabled in spec_helper; they will be only be saved locally")
+          Log.debug("[Gridium::Driver] s3 screenshots not enabled in spec_helper; they will be only be saved locally")
           @s3 = nil
         end
         reset
       end
       @@driver
     rescue Exception => e
-      Log.debug(e.backtrace.inspect)
-      Log.info("Driver did not load within (#{Gridium.config.page_load_timeout}) seconds.  [#{e.message}]")
+      Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
+      Log.info("[Gridium::Driver] Driver did not load within (#{Gridium.config.page_load_timeout}) seconds.  [#{e.message}]")
       $fail_test_instantly = true
       Kernel.fail(e.message)
     end
@@ -79,32 +79,33 @@ class Driver
   # =============== #
 
   def self.visit(path)
-    Log.debug("====> Driver.Visit: #{@@driver}")
+    Log.debug("[Gridium::Driver]  Driver.Visit: #{@@driver}")
     begin
       if path
-        Log.debug("Navigating to url: (#{path}).")
+        Log.debug("[Gridium::Driver] Navigating to url: (#{path}).")
         driver
         time_start = Time.now
         driver.navigate.to(path)
         time_end = Time.new
         page_load = (time_end - time_start)
-        Log.debug("Page loaded in (#{page_load}) seconds.")
+        Log.debug("[Gridium::Driver] Page loaded in (#{page_load}) seconds.")
         $verification_passes += 1
       end
-    rescue Exception => e
-      Log.debug(e.backtrace.inspect)
-      Log.error("#{e.message} - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
+    rescue Selenium::WebDriver::Error::ScriptTimeoutError => e
+      Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
+      Log.error("[Gridium::Driver] Timed out attempting to load #{path} for #{Gridium.config.page_load_timeout} seconds:\n#{e.message}\n - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
+      raise e
     end
   end
 
   def self.nav(path)
-    Log.debug("====> Driver.nav: #{@@driver}")
+    Log.debug("[Gridium::Driver] Driver.nav: #{@@driver}")
     visit(Gridium.config.url + path)
   end
 
   def self.quit
     if @@driver
-      Log.debug('Shutting down web driver...')
+      Log.debug('[Gridium::Driver] Shutting down web driver...')
       @@driver.quit
       @@driver = nil
     end
@@ -141,22 +142,22 @@ class Driver
     domain = URI.parse(site_url)
     host = domain.host
     if (!host.nil?)
-      Log.debug("Current domain is: (#{host}).")
+      Log.debug("[Gridium::Driver] Current domain is: (#{host}).")
       return host
     else
-      Log.error("Unable to parse URL.")
+      Log.error("[Gridium::Driver] Unable to parse URL.")
     end
   end
 
   def self.verify_url(given_url)
-    Log.debug('Verifying URL...')
+    Log.debug('[Gridium::Driver] Verifying URL...')
     current_url = self.current_url.to_s
     current_domain = self.current_domain.to_s
     if current_url.include?(given_url)
-      Log.debug("Confirmed. (#{current_url}) includes (#{given_url}).")
+      Log.debug("[Gridium::Driver] Confirmed. (#{current_url}) includes (#{given_url}).")
       $verification_passes += 1
     else
-      Log.error("(#{current_url}) does not include (#{given_url}).")
+      Log.error("[Gridium::Driver] (#{current_url}) does not include (#{given_url}).")
     end
   end
 
@@ -194,7 +195,7 @@ class Driver
   end
 
   def self.save_screenshot(type = 'saved')
-    Log.debug ("Capturing screenshot of browser...")
+    Log.debug ("[Gridium::Driver] Capturing screenshot of browser...")
     timestamp = Time.now.strftime("%Y_%m_%d__%H_%M_%S")
     screenshot_path = File.join($current_run_dir, "screenshot__#{timestamp}__#{type}.png")
     driver.save_screenshot(screenshot_path)
@@ -206,71 +207,71 @@ class Driver
   def self._save_to_s3_if_configured(screenshot_path)
     if Gridium.config.screenshots_to_s3
       url = @s3.save_file(screenshot_path)
-      Log.info("#{screenshot_path} saved to #{url}")
+      Log.info("[Gridium::Driver] #{screenshot_path} saved to #{url}")
     end
   end
 
 
   def self.list_open_windows
     handles = driver.window_handles
-    Log.debug("List of active windows:")
+    Log.debug("[Gridium::Driver] List of active windows:")
     handles.each do |handle|
       driver.switch_to.window(handle)
-      Log.debug("|  Window with title: (#{driver.title}) and handle: #{handle} is currently open.")
+      Log.debug("[Gridium::Driver]  Window with title: (#{driver.title}) and handle: #{handle} is currently open.")
     end
     driver.switch_to.window(driver.window_handles.first)
   end
 
   def self.open_new_window(url)
-    Log.debug("Opening new window and loading url (#{url})...")
+    Log.debug("[Gridium::Driver] Opening new window and loading url (#{url})...")
     DriverExtensions.open_new_window(url)
   end
 
   def self.close_window
-    Log.debug("Closing window (#{driver.title})...")
+    Log.debug("[Gridium::Driver] Closing window (#{driver.title})...")
     DriverExtensions.close_window
   end
 
   def self.switch_to_window(title)
     current_title = driver.title
-    Log.debug("Current window is: (#{current_title}).  Switching to next window (#{title})...")
+    Log.debug("[Gridium::Driver] Current window is: (#{current_title}).  Switching to next window (#{title})...")
     handles = driver.window_handles
     driver.switch_to.window(handles.first)
     handles.each do |handle|
       driver.switch_to.window(handle)
       if driver.title == title
-        Log.debug("Window (#{driver.title}) is now the active window.")
+        Log.debug("[Gridium::Driver] Window (#{driver.title}) is now the active window.")
         return
       end
     end
     list_open_windows
-    Log.error("Unable to switch to window with title (#{title}).")
+    Log.error("[Gridium::Driver] Unable to switch to window with title (#{title}).")
   end
 
   def self.switch_to_next_window
     current_title = driver.title
-    Log.debug("Current window is: (#{current_title}).  Switching to next window...")
+    Log.debug("[Gridium::Driver] Current window is: (#{current_title}).  Switching to next window...")
     driver.switch_to.window(driver.window_handles.last)
-    Log.debug("Window (#{driver.title}) is now the active window.")
+    Log.debug("[Gridium::Driver] Window (#{driver.title}) is now the active window.")
   end
 
   def self.switch_to_main_window
     current_title = driver.title
-    Log.debug("Current window is: (#{current_title}).  Switching to main window...")
+    Log.debug("[Gridium::Driver] Current window is: (#{current_title}).  Switching to main window...")
     driver.switch_to.window(driver.window_handles.first)
-    Log.debug("Window (#{driver.title}) is now the active window.")
+    Log.debug("[Gridium::Driver] Window (#{driver.title}) is now the active window.")
   end
 
   def self.switch_to_frame(by, locator)
-    Log.debug("Attempting to switch to Frame at: #{locator}")
+    Log.debug("[Gridium::Driver] Attempting to switch to Frame at: #{locator}")
     driver.switch_to.frame(driver.find_element(by, locator))
-    Log.debug("Frame at: #{locator} is now active frame!")
+    Log.debug("[Gridium::Driver] Frame at: #{locator} is now active frame!")
   end
 
   def self.switch_to_parent_frame
-    Log.debug("Switching back to main parent frame")
+    Log.debug("[Gridium::Driver] Switching back to main parent frame")
     driver.switch_to.parent_frame
-    Log.debug("Now back to Parent Frame")
+    Log.debug("[Gridium::Driver] Now back to Parent Frame")
   end
 
 end
