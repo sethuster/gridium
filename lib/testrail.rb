@@ -81,17 +81,19 @@ module Gridium
       closed = false
       if Gridium.config.testrail && !@run_info[:error]
         Log.debug("[GRIDIUM::TestRail] Closing test runid: #{@run_info[:id]}\n")
-        r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:case_ids => @tc_ids})
-        Log.debug("[GRIDIUM::TestRail] UPDATE RUN: #{r}")
-        sleep 0.25
-        r = _send_request('POST', "#{@url}add_results_for_cases/#{@run_info[:id]}", {results: @tc_results})
-        Log.debug("[GRIDIUM::TestRail] ADD RESULTS: #{r}")
-        sleep 0.25
-        Log.debug("#{r.class}")
-        if r.is_a?(Hash)
-          r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:name => "ER:#{@run_info[:name]}", :description => "#{@run_info[:desc]}\nThe following was returned when adding cases: #{r}"})
-          Log.warn("[GRIDIUM::TestRail] ERROR: #{r}")
+        if @tc_ids.size > 0
+          r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:case_ids => @tc_ids})
+          Log.debug("[GRIDIUM::TestRail] UPDATE RUN: #{r}")
           sleep 0.25
+          r = _send_request('POST', "#{@url}add_results_for_cases/#{@run_info[:id]}", {results: @tc_results})
+          Log.debug("[GRIDIUM::TestRail] ADD RESULTS: #{r}")
+          sleep 0.25
+          Log.debug("#{r.class}")
+          if r.is_a?(Hash)
+            r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:name => "ER:#{@run_info[:name]}", :description => "#{@run_info[:desc]}\nThe following was returned when adding cases: #{r}"})
+            Log.warn("[GRIDIUM::TestRail] ERROR: #{r}")
+            sleep 0.25
+          end
         end
         r = _send_request('POST', "#{@url}close_run/#{@run_info[:id]}", nil)
         Log.debug("[GRIDIUM::TestRail] CLOSE RUN: #{r}")

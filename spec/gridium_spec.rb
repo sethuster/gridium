@@ -16,7 +16,7 @@ describe Gridium do
         expect(gridium_configuration.report_dir).to eq "./test_results"
         expect(gridium_configuration.browser_source).to eq(:remote)
         expect(gridium_configuration.target_environment).to eq('http://hub:4444/wd/hub')
-        expect(gridium_configuration.browser).to eq(:firefox)
+        expect(gridium_configuration.browser).to eq(:chrome)
         expect(gridium_configuration.page_load_timeout).to eq(15)
         expect(gridium_configuration.element_timeout).to eq (15)
         expect(gridium_configuration.visible_elements_only).to be(true)

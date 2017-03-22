@@ -127,13 +127,26 @@ class Element
   end
 
   def click
-    Log.debug("Clicking on #{self}")
+    Log.debug("[GRIDIUM::Element] Clicking on #{self}")
+    click_retry = 2
     if element.enabled?
       ElementExtensions.highlight(self) if Gridium.config.highlight_verifications
       $verification_passes += 1
-      element.click
+      begin
+        element.click
+      rescue Exception => e
+        Log.warn("[GRIDIUM::Element] Click Exception retrying...")
+        sleep 0.15
+        click_retry -= 1
+        if click_retry >= 0
+          retry
+        else
+          Log.error("[GRIDIUM::Element] Click Exception #{e}")
+          fail
+        end
+      end
     else
-      Log.error('Cannot click on element.  Element is not present.')
+      Log.error('[GRIDIUM::Element] Cannot click on element.  Element is not present.')
     end
   end
 

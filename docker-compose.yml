@@ -1,13 +1,13 @@
 version: '2'
 services:
   hub:
-    image: sethuster/selenium-hub
+    image: selenium/hub:3.1.0
     ports:
       - "4444"
-  firefox:
-    image: sethuster/node-firefox-debugx
-    ports:
-      - "5900"
+    environment:
+      - GRID_BROWSER_TIMEOUT=30
+  chrome:
+    image: selenium/node-chrome-debug:3.1.0
     depends_on:
       - hub
     environment:
@@ -15,6 +15,8 @@ services:
       - HUB_PORT_4444_TCP_PORT=4444
       - no_proxy=localhost
       - HUB_ENV_no_proxy=localhost
+    ports:
+      - "5900"
   mustadio:
     image: yetanotherlucas/mustadio
     ports:

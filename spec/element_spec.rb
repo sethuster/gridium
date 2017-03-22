@@ -11,7 +11,7 @@ describe Element do
   before :all do
     Gridium.config.browser_source = :remote
     Gridium.config.target_environment = "http://hub:4444/wd/hub"
-    Gridium.config.browser = :firefox
+    Gridium.config.browser = :chrome
   end
 
   after :each do
@@ -139,7 +139,8 @@ describe Element do
       expect(new_text).to eq (original_text + text_to_append)
     end
 
-    it 'should be able to send symbols for keys' do
+    it 'should be able to send printable symbols for keys' do
+      skip "This is officially broken on the Selenium Server 3.1.0: https://github.com/SeleniumHQ/selenium/issues/2704"
       Driver.visit test_input_page
       expected_selector = "[id=\"input_1\"]"
       this_one = Element.new expected_selector, :css, expected_selector
@@ -147,6 +148,30 @@ describe Element do
       this_one.send_keys new_text, :space, "1"
       actual_text = this_one.value
       expect(actual_text).to eq (new_text + " " + "1")
+    end
+
+    it 'should be able to send return symbol for keys' do
+      Driver.visit test_input_page
+      expected_selector = "[id=\"input_1\"]"
+      this_one = Element.new expected_selector, :css, expected_selector
+      initial_text = this_one.value #foo
+      this_one.clear
+      this_one.send_keys :enter
+      new_text = this_one.value #foo again
+      expect(new_text).to eq (initial_text)
+    end
+
+    it 'should be able to send tab symbol for keys' do
+      Driver.visit test_input_page
+      first_selector = "[id=\"input_1\"]"
+      second_selector = "[id=\"input_2\"]"
+      this_one = Element.new first_selector, :css, first_selector
+      next_one = Driver.driver.find_element(:css => second_selector)
+      new_text = "#{SecureRandom.uuid}"
+      this_one.send_keys new_text, :tab
+      focused = Driver.driver.switch_to.active_element #might fail
+      Log.debug "focused is #{focused} next one is #{next_one}"
+      expect(next_one).to eq (focused)
     end
 
     it 'should be able to accept numbers' do
