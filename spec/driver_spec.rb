@@ -6,6 +6,7 @@ describe Driver do
 
   let(:test_url) { 'https://www.google.com' }
   let(:redirected_url) { 'https://goo.gl/H5mLQP' }
+  let(:mustadio) {'http://mustadio:3000'}
 
   let(:test_driver) { Driver }
   let(:driver_manager) { Driver.driver.manage }
@@ -42,6 +43,25 @@ describe Driver do
   end
 
   describe '#visit' do
+
+    context 'timeout' do
+      let(:original_timeout) {gridium_config.page_load_timeout}
+      let(:instant_timeout) {0}
+      before :each do
+        #have to touch original_timeout in before, or it will be 0 in the after block
+        gridium_config.page_load_timeout = original_timeout * instant_timeout
+      end
+
+      after :each do
+        gridium_config.page_load_timeout = original_timeout
+      end
+      it 'should raise script timeout error' do
+        too_long = 1 + instant_timeout
+        slow_url = "#{mustadio}/slow?seconds=#{too_long}"
+        expect {test_driver.send(:visit, slow_url)}.to raise_error error = Selenium::WebDriver::Error::ScriptTimeoutError
+      end
+    end
+
     it 'verifies a browser opening and navigating to a specified url' do
       allow(logger).to receive(:debug).and_return("Navigating to url: (#{test_url}).")
       allow(logger).to receive(:debug).and_return('Shutting down web driver...')
@@ -57,7 +77,10 @@ describe Driver do
 
       expect($verification_passes).to eq(0)
     end
+
   end
+
+
 
   describe '#nav' do
     it 'visits a specified path via gridum configs' do
@@ -121,7 +144,7 @@ describe Driver do
       test_driver.visit("http://www.mozilla.org")
       test_driver.current_domain
 
-      expect(logger).to have_received(:debug).with('Current domain is: (www.mozilla.org).')
+      expect(logger).to have_received(:debug).with('[Gridium::Driver] Current domain is: (www.mozilla.org).')
     end
 
     xit 'returns an error if host is nil' do
@@ -141,18 +164,18 @@ describe Driver do
       test_driver.visit(test_url)
       test_driver.verify_url(test_url)
 
-      expect(logger).to have_received(:debug).with('Verifying URL...')
-      expect(logger).to have_received(:debug).with('Confirmed. (https://www.google.com/) includes (https://www.google.com).')
+      expect(logger).to have_received(:debug).with('[Gridium::Driver] Verifying URL...')
+      expect(logger).to have_received(:debug).with('[Gridium::Driver] Confirmed. (https://www.google.com/) includes (https://www.google.com).')
       expect($verification_passes).to eq(2)
     end
 
-    it 'returns an error if the current_url does not match given url' do
+    it 'rescues and logs an error if the current_url does not match given url' do
       allow(logger).to receive(:error)
 
       test_driver.visit(test_url)
       test_driver.verify_url('www.dogewow.com')
 
-      expect(logger).to have_received(:error).with('(https://www.google.com/) does not include (www.dogewow.com).')
+      expect(logger).to have_received(:error).with('[Gridium::Driver] (https://www.google.com/) does not include (www.dogewow.com).')
       expect($verification_passes).to eq(1)
     end
   end
@@ -207,7 +230,7 @@ describe Driver do
 
   describe '#open_new_window' do
     it 'logs and opens new window' do
-      allow(logger).to receive(:debug).with("Opening new window and loading url (#{test_url})...")
+      allow(logger).to receive(:debug).with("[Gridium::Driver] Opening new window and loading url (#{test_url})...")
       expect(test_driver_extension).to receive(:open_new_window).with(test_url)
 
       test_driver.open_new_window(test_url)
@@ -256,7 +279,7 @@ describe Driver do
 
       expect($verification_passes).to eq(1)
       test_driver.verify_url(redirected_url)
-      expect(logger).to have_received(:error).with('(https://github.com/sethuster/gridium) does not include (https://goo.gl/H5mLQP).')
+      expect(logger).to have_received(:error).with('[Gridium::Driver] (https://github.com/sethuster/gridium) does not include (https://goo.gl/H5mLQP).')
     end
   end
 
