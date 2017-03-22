@@ -6,7 +6,7 @@ class Element
   attr_reader :name, :by, :locator
 
 
-  def initialize(name, by, locator, parent=nil)
+  def initialize(name, by, locator, opts = {})
     @name = name
     @by = by
     @locator = locator
@@ -19,7 +19,7 @@ class Element
     @element = nil
 
     # should always be driver unless getting an element's child
-    @parent ||= @driver
+    @parent ||= (opts[:parent] || @driver)
 
     #how long to wait between clearing an input and sending keys to it
     @text_padding_time = 0.15
@@ -268,7 +268,7 @@ class Element
   #
   def find_element(by, locator)
     Log.debug('Finding element...')
-    Element.new("Child of #{@name}", by, locator, parent=@element)
+    Element.new("Child of #{@name}", by, locator, parent: @element)
   end
 
   #
@@ -281,8 +281,7 @@ class Element
   #
   def find_elements(by, locator)
     elements = element.find_elements(by, locator)
-    gridium_elements = elements.map {|element| Element.new("Child of #{@name}", by, locator, @element)}
-    gridium_elements
+    elements.map {|_| Element.new("Child of #{@name}", by, locator, parent: @element)}
   end
 
   def save_element_screenshot
