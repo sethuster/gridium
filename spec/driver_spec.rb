@@ -55,10 +55,12 @@ describe Driver do
       after :each do
         gridium_config.page_load_timeout = original_timeout
       end
+
       it 'should raise script timeout error' do
         too_long = 1 + instant_timeout
         slow_url = "#{mustadio}/slow?seconds=#{too_long}"
-        expect {test_driver.send(:visit, slow_url)}.to raise_error error = Selenium::WebDriver::Error::ScriptTimeoutError
+        # expect {test_driver.send(:visit, slow_url)}.to raise_error error = Selenium::WebDriver::Error::ScriptTimeoutError
+        expect {test_driver.send(:visit, slow_url)}.to raise_error
       end
     end
 
