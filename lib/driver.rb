@@ -91,7 +91,7 @@ class Driver
         Log.debug("[Gridium::Driver] Page loaded in (#{page_load}) seconds.")
         $verification_passes += 1
       end
-    rescue Selenium::WebDriver::Error::ScriptTimeoutError => e
+    rescue Exception => e
       Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
       Log.error("[Gridium::Driver] Timed out attempting to load #{path} for #{Gridium.config.page_load_timeout} seconds:\n#{e.message}\n - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
       raise e
