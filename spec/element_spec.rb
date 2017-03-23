@@ -4,6 +4,7 @@ require 'securerandom'
 
 describe Element do
   let(:test_element) { Element }
+  let(:test_driver) { Driver }
   let(:logger) { Log }
   let(:test_element_verification) { ElementVerification }
   let(:the_internet_url) {'http://the-internet:5000'}
@@ -26,6 +27,31 @@ describe Element do
 
       expect(test_element_verification).to receive(:new)
       expect(logger).to have_received(:debug).with('Verifying new element...')
+    end
+  end
+
+  describe '#wait_until' do
+    let(:page_countdown) {3}
+    let(:wait_timeout) {4}
+    let(:element_to_appear_id) {"will-appear"}
+    let(:element_to_vanish_id) {"will-vanish"}
+    before :each do
+      test_driver.visit "http://mustadio:3000/wait?seconds=#{page_countdown}"
+    end
+
+    after :each do
+      test_driver.quit
+    end
+
+    it 'quickly determines an element is visible' do
+      appearing_div = Element.new("I am jack's appearing div", :id, element_to_appear_id)
+      appearing_div.wait_until(timeout: wait_timeout).visible
+    end
+
+    it 'quickly determines an element is not visible' do
+      skip("skip until wait_until.not.visible works")
+      vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
+      vanishing_div.wait_until(timeout: wait_timeout).not.visible
     end
   end
 
