@@ -274,4 +274,19 @@ class Driver
     Log.debug("[Gridium::Driver] Now back to Parent Frame")
   end
 
+  def self.delete_cookie(cookie)
+    Driver.driver.manage.delete_cookie(cookie)
+  end
+
+  def self.get_cookie(cookie_name)
+    Driver.driver.manage.all_cookies().each do |cookie|
+      # match cookie
+      if cookie[:name] == cookie_name
+        return cookie
+      end
+    end
+
+    return nil
+  end
+
 end
