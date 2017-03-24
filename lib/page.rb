@@ -105,7 +105,7 @@ module Gridium
     end
 
     def first(by, locator)
-      Driver.driver.find_elements(by, locator).first
+      all(by, locator).first
     end
 
     def click_on(text)
