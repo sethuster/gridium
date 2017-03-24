@@ -35,7 +35,7 @@ class Element
       if Gridium.config.visible_elements_only
         wait.until { @element = displayed_element }
       else
-        wait.until { @element = @parent.find_element(@by, @locator); Log.debug("Finding element #{self}..."); @element.enabled? }
+        wait.until { @element = @parent.find_element(@by, @locator); Log.debug("[GRIDIUM::Element] Finding element #{self}..."); @element.enabled? }
       end
 
     end
@@ -57,14 +57,14 @@ class Element
         end
       end
       if found_element.nil?
-        Log.debug "found #{elements.length} element(s) via #{@by} and #{@locator} and 0 are displayed"
+        Log.debug "[GRIDIUM::Element] found #{elements.length} element(s) via #{@by} and #{@locator} and 0 are displayed"
       end
     rescue StandardError => error
-      Log.debug("element.displayed_element rescued: #{error}")
+      Log.debug("[GRIDIUM::Element] element.displayed_element rescued: #{error}")
       if found_element
-        Log.warn("An element was found, but it was not displayed on the page. Gridium.config.visible_elements_only set to: #{Gridium.config.visible_elements_only} Element: #{self.to_s}")
+        Log.warn("[GRIDIUM::Element] An element was found, but it was not displayed on the page. Gridium.config.visible_elements_only set to: #{Gridium.config.visible_elements_only} Element: #{self.to_s}")
       else
-        Log.warn("Could not find Element: #{self.to_s}")
+        Log.warn("[GRIDIUM::Element] Could not find Element: #{self.to_s}")
       end
     end
 
@@ -77,14 +77,14 @@ class Element
 
   # soft failure, will not kill test immediately
   def verify(timeout: nil)
-    Log.debug('Verifying new element...')
+    Log.debug('[GRIDIUM::Element] Verifying new element...')
     timeout = Gridium.config.element_timeout if timeout.nil?
     ElementVerification.new(self, timeout)
   end
 
   # hard failure, will kill test immediately
   def wait_until(timeout: nil)
-    Log.debug('Waiting for new element...')
+    Log.debug('[GRIDIUM::Element] Waiting for new element...')
     timeout = Gridium.config.element_timeout if timeout.nil?
     ElementVerification.new(self, timeout, fail_test: true)
   end
@@ -102,14 +102,14 @@ class Element
   def present?
     return element.enabled?
   rescue StandardError => error
-    Log.debug("element.present? is false because this error was rescued: #{error}")
+    Log.debug("[GRIDIUM::Element] element.present? is false because this error was rescued: #{error}")
     return false
   end
 
   def displayed?
     return element.displayed?
   rescue StandardError => error
-    Log.debug("element.displayed? is false because this error was rescued: #{error}")
+    Log.debug("[GRIDIUM::Element] element.displayed? is false because this error was rescued: #{error}")
     return false
   end
 
@@ -198,7 +198,7 @@ class Element
   end
 
   def hover_over
-    Log.debug("Hovering over element (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] Hovering over element (#{self.to_s})...")
     # @driver.mouse.move_to(element)            # Note: Doesn't work with Selenium 2.42 bindings for Firefox v31
     # @driver.action.move_to(element).perform
     # @driver.mouse_over(@locator)
@@ -206,28 +206,28 @@ class Element
       $verification_passes += 1
       ElementExtensions.hover_over(self) # Javascript workaround to above issue
     else
-      Log.error('Cannot hover over element.  Element is not present.')
+      Log.error('[GRIDIUM::Element] Cannot hover over element.  Element is not present.')
     end
   end
 
   def hover_away
-    Log.debug("Hovering away from element (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] Hovering away from element (#{self.to_s})...")
     if element.enabled?
       $verification_passes += 1
       ElementExtensions.hover_away(self) # Javascript workaround to above issue
     else
-      Log.error('Cannot hover away from element.  Element is not present.')
+      Log.error('[GRIDIUM::Element] Cannot hover away from element.  Element is not present.')
     end
   end
 
   # Raw webdriver mouse over
   def mouse_over
-    Log.debug("Triggering mouse over for (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] Triggering mouse over for (#{self.to_s})...")
     if element.enabled?
       $verification_passes += 1
       ElementExtensions.mouse_over(self)
     else
-      Log.error('Cannot mouse over.  Element is not present.')
+      Log.error('[GRIDIUM::Element] Cannot mouse over.  Element is not present.')
     end
   end
 
@@ -236,17 +236,17 @@ class Element
       $verification_passes += 1
       ElementExtensions.scroll_to(self)
     else
-      Log.error('Cannot scroll element into view.  Element is not present.')
+      Log.error('[GRIDIUM::Element] Cannot scroll element into view.  Element is not present.')
     end
   end
 
   def trigger_onblur
-    Log.debug("Triggering onblur for (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] Triggering onblur for (#{self.to_s})...")
     if element.enabled?
       $verification_passes += 1
       ElementExtensions.trigger_onblur(self)
     else
-      Log.error('Cannot trigger onblur.  Element is not present.')
+      Log.error('[GRIDIUM::Element] Cannot trigger onblur.  Element is not present.')
     end
   end
 
@@ -280,7 +280,7 @@ class Element
   # @return [Element] element
   #
   def find_element(by, locator)
-    Log.debug('Finding element...')
+    Log.debug('[GRIDIUM::Element] Finding element...')
     Element.new("Child of #{@name}", by, locator, parent: @element)
   end
 
@@ -298,7 +298,7 @@ class Element
   end
 
   def save_element_screenshot
-    Log.debug ("Capturing screenshot of element...")
+    Log.debug ("[GRIDIUM::Element] Capturing screenshot of element...")
     self.scroll_into_view
 
     timestamp = Time.now.strftime("%Y_%m_%d__%H_%M_%S")
@@ -324,28 +324,28 @@ class Element
   def compare_element_screenshot(base_image_path)
     #Returns TRUE if there are no differences, FALSE if there are
     begin
-      Log.debug("Loading Images for Comparison...")
+      Log.debug("[GRIDIUM::Element] Loading Images for Comparison...")
       images = [
           ChunkyPNG::Image.from_file(base_image_path),
           ChunkyPNG::Image.from_file(@element_screenshot)
       ]
       #used to store image x,y diff
       diff = []
-      Log.debug("Comparing Images...")
+      Log.debug("[GRIDIUM::Element] Comparing Images...")
       images.first.height.times do |y|
         images.first.row(y).each_with_index do |pixel, x|
           diff << [x,y] unless pixel == images.last[x,y]
         end
       end
 
-      Log.debug("Pixels total:    #{images.first.pixels.length}")
-      Log.debug("Pixels changed:  #{diff.length}")
-      Log.debug("Pixels changed:  #{(diff.length.to_f / images.first.pixels.length) * 100}%")
+      Log.debug("[GRIDIUM::Element] Pixels total:    #{images.first.pixels.length}")
+      Log.debug("[GRIDIUM::Element] Pixels changed:  #{diff.length}")
+      Log.debug("[GRIDIUM::Element] Pixels changed:  #{(diff.length.to_f / images.first.pixels.length) * 100}%")
 
       x, y = diff.map{|xy| xy[0]}, diff.map{|xy| xy[1]}
 
       if x.any? && y.any?
-        Log.debug("Differences Detected! Writing Diff Image...")
+        Log.debug("[GRIDIUM::Element] Differences Detected! Writing Diff Image...")
         name = self.name.gsub(' ', '_')
         #timestamp = Time.now.strftime("%Y_%m_%d__%H_%M_%S")
         element_screenshot_path = File.join($current_run_dir, "#{name}__diff_.png")
@@ -361,7 +361,7 @@ class Element
   end
 
   def method_missing(method_sym, *arguments, &block)
-    Log.debug("called #{method_sym} on element #{@locator} by #{@by_type}")
+    Log.debug("[GRIDIUM::Element] called #{method_sym} on element #{@locator} by #{@by_type}")
     if @element.respond_to?(method_sym)
       @element.method(method_sym).call(*arguments, &block)
     else
@@ -375,8 +375,8 @@ class Element
     return true if @element.nil?
     @element.disabled?
   rescue StandardError => error
-    Log.debug("element.stale? is true because this error was rescued: #{error}")
-    Log.warn("Stale element detected.... #{self.to_s}")
+    Log.debug("[GRIDIUM::Element] element.stale? is true because this error was rescued: #{error}")
+    Log.warn("[GRIDIUM::Element] Stale element detected.... #{self.to_s}")
     return true
   end
 
@@ -385,10 +385,10 @@ class Element
   #
 
   def _stomp_input_text(*args)
-    Log.debug("Clearing \"#{value}\" from element: (#{self})")
+    Log.debug("[GRIDIUM::Element] Clearing \"#{value}\" from element: (#{self})")
     element.clear
     sleep @text_padding_time
-    Log.debug("Typing: #{args} into element: (#{self}).")
+    Log.debug("[GRIDIUM::Element] Typing: #{args} into element: (#{self}).")
     element.send_keys(*args)
     sleep @text_padding_time
   end
@@ -400,7 +400,7 @@ class Element
   #
 
   def field_empty_afterward?(*args)
-    Log.debug("Checking the field after sending #{args}, to see if it's empty")
+    Log.debug("[GRIDIUM::Element] Checking the field after sending #{args}, to see if it's empty")
     check_again = (has_characters? *args and no_symbols? *args)
     field_is_empty_but_should_not_be = (check_again and field_empty?)
     if field_is_empty_but_should_not_be

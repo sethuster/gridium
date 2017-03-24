@@ -25,7 +25,7 @@ class Gridium::ElementVerification
     if @element.present?
       $verification_passes += 1
     else
-      Log.error("Cannot determine element text.  Element is not present.")
+      Log.error("[GRIDIUM::ElementVerification] Cannot determine element text.  Element is not present.")
     end
 
     if should_have_text
@@ -41,11 +41,11 @@ class Gridium::ElementVerification
       wait.until do
         element_contains_text = element_text.eql?(text)
         if should_have_text && element_contains_text
-          Log.debug("Confirming text (#{text}) is within element...")
+          Log.debug("[GRIDIUM::ElementVerification] Confirming text (#{text}) is within element...")
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
         elsif !should_have_text && !element_contains_text
-          Log.debug("Confirming text (#{text}) is NOT within element...")
+          Log.debug("[GRIDIUM::ElementVerification] Confirming text (#{text}) is NOT within element...")
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
         else
@@ -78,7 +78,7 @@ class Gridium::ElementVerification
           log_success(pass_message)
           return @element
         elsif !element_is_displayed && !should_be_visible
-          Log.debug("Confirming element is NOT visible...")
+          Log.debug("[GRIDIUM::ElementVerification] Confirming element is NOT visible...")
           log_success(pass_message)
         else
           log_issue(fail_message)
@@ -110,7 +110,7 @@ class Gridium::ElementVerification
           log_success(pass_message)
           return @element
         elsif !element_is_present && !should_be_present
-          Log.debug("Confirming element is NOT present...")
+          Log.debug("[GRIDIUM::ElementVerification] Confirming element is NOT present...")
           log_success(pass_message)
         else
           log_issue(fail_message)
@@ -145,17 +145,17 @@ class Gridium::ElementVerification
 
   def log_issue(message)
     if @fail_test
-      Log.error("#{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
+      Log.error("[GRIDIUM::ElementVerification] #{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
       $fail_test_instantly = true
       Kernel.fail(message)
     else
-      Log.error("#{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
+      Log.error("[GRIDIUM::ElementVerification] #{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
       $fail_test_at_end = true
     end
   end
 
   def log_success(pass_message)
     $verification_passes += 1
-    Log.debug("Verified: '#{@element.name}' (By:(#{@element.by} => '#{@element.locator}')) #{pass_message}")
+    Log.debug("[GRIDIUM::ElementVerification] Verified: '#{@element.name}' (By:(#{@element.by} => '#{@element.locator}')) #{pass_message}")
   end
 end

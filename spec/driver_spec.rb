@@ -320,7 +320,7 @@ describe Driver do
       begin
         get_started_btn.click
       rescue
-        expect(test_spec_data.execution_warnings.include?("Stale element detected.... 'Plans and Pricing' (By:css => '#home-pricing-cta')")).to eq true
+        expect(test_spec_data.execution_warnings.include?("[GRIDIUM::Element] Stale element detected.... 'Plans and Pricing' (By:css => '#home-pricing-cta')")).to eq true
       end
     end
 

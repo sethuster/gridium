@@ -14,7 +14,7 @@ module Gridium
       if asserted_element.eql? nil
         fail("Could not find element on page with locator #{locator} using #{by}")
       else
-        Log.info("Asserted Element present with locator #{locator} using #{by}")
+        Log.info("[GRIDIUM::Page] Asserted Element present with locator #{locator} using #{by}")
       end
     end
 
@@ -58,7 +58,7 @@ module Gridium
         element = wait.until {Driver.html.include? text}
       rescue Exception => exception
         Log.debug("[GRIDIUM::Page] has_flash? exception was rescued: #{exception}")
-        Log.warn("Could not find the flash message!")
+        Log.warn("[GRIDIUM::Page] Could not find the flash message!")
       end
 
       if element
