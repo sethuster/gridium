@@ -1,11 +1,13 @@
 require_relative 'spec_helper'
 # require 'pry'
 require 'page_objects/status_codes'
+require 'page_objects/internet_home'
 
 describe Page do
   let(:test_driver) { Driver }
   let(:test_page) { Page }
   let(:logger) { Log }
+  let(:the_internet_url) {'http://the-internet:5000'}
 
   after :each do
     test_driver.quit
@@ -60,11 +62,13 @@ describe Page do
   end
 
   describe '#all' do
-    it 'it finds all elements' do
-      page = Page.new
-      expect(test_driver.driver).to receive(:find_elements).with(:css, '.btn-primary')
-
-      page.all(:css, '.btn-primary')
+    let(:internet_home) {InternetHome.new}
+    it '#all should return a list of gridium elements' do
+      test_driver.visit the_internet_url
+      nav_links = internet_home.all(:css, "[id=\"content\"] > ul > li > a")
+      actual_nav_element_classes = (nav_links.map {|_| _.class}).uniq
+      expected_nav_element_classes = [Element]
+      expect(actual_nav_element_classes).to match_array(expected_nav_element_classes)
     end
   end
 
