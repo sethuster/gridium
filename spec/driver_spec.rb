@@ -59,6 +59,8 @@ describe Driver do
       it 'should raise script timeout error' do
         too_long = 1 + instant_timeout
         slow_url = "#{mustadio}/slow?seconds=#{too_long}"
+        #TODO seek a workaround to this issue of 'cannot determine loading status' instakilling the browser
+        # this looks like a bug in chrome https://bugs.chromium.org/p/chromedriver/issues/detail?id=402
         # expect {test_driver.send(:visit, slow_url)}.to raise_error error = Selenium::WebDriver::Error::ScriptTimeoutError
         expect {test_driver.send(:visit, slow_url)}.to raise_error
       end
@@ -368,7 +370,42 @@ describe Driver do
 
   end
 
+  describe 'selenium logging' do
+
+    after :each do
+      test_driver.quit
+    end
+
+    it 'should log nothing when level is OFF' do
+      expected_logs = {}
+      actual_logs = {}
+      gridium_config.selenium_log_level = 'OFF'
+      #force browser logging to have a value
+      test_driver.visit("http://localhost:8080")
+      test_driver.driver.manage.logs.available_types.each do |log_type|
+        actual_logs[log_type] = test_driver.driver.manage.logs.get(log_type)
+        expected_logs[log_type] = []
+      end
+      expect(actual_logs).to eq expected_logs
+    end
+
+    it 'should log something when level is ALL' do
+      expected_logs = {}
+      actual_logs = {}
+      gridium_config.selenium_log_level = 'ALL'
+      #force browser logging to have a value
+      test_driver.visit("http://localhost:8080")
+      test_driver.driver.manage.logs.available_types.each do |log_type|
+        actual_logs[log_type] = test_driver.driver.manage.logs.get(log_type)
+        expected_logs[log_type] = []
+      end
+      expect(actual_logs.values).not_to be_empty
+    end
+  end
+
+
   def create_new_element(name, by, locator)
     Element.new(name, by, locator)
   end
+
 end

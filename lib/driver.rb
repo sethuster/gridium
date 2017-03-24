@@ -31,7 +31,7 @@ class Driver
         @browser_type = Gridium.config.browser
         ##Adding support for remote browsers
         if Gridium.config.browser_source == :remote
-          @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: Gridium.config.browser)
+          @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: _set_capabilities())
           Log.debug("[Gridium::Driver] Remote Browser Requested: #{@@driver}")
           #this file detector is only used for remote drivers and is needed to upload files from test_host through Grid to browser
           @@driver.file_detector = lambda do |args|
@@ -54,6 +54,7 @@ class Driver
         end
         reset
       end
+      _log_shart #push out logs before doing something with selenium
       @@driver
     rescue Exception => e
       Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
@@ -63,6 +64,28 @@ class Driver
     end
   end
 
+  def self._log_shart
+    #squeeze out the logs between each selenium call
+    unless Gridium.config.selenium_log_level == 'OFF'
+    @@driver.manage.logs.available_types.each {|log_type|
+      @@driver.manage.logs.get(log_type).each {|log_statement|
+        Log.debug("[SELENIUM::LOGS::#{log_type.upcase}] #{log_statement}")
+      }
+    }
+    end
+  end
+
+  def self._set_capabilities()
+    log_level = Gridium.config.selenium_log_level
+    Selenium::WebDriver::Remote::Capabilities.new(
+      :browser_name => Gridium.config.browser,
+      # log all the things
+      :loggingPrefs => {:browser => log_level,
+                        :client => log_level,
+                        :driver => log_level,
+                        :server => log_level}
+    )
+  end
 
   def self.s3
     #TODO figure out why I can't just use attr_reader :s3
@@ -105,6 +128,7 @@ class Driver
 
   def self.quit
     if @@driver
+      _log_shart #push out the last logs
       Log.debug('[Gridium::Driver] Shutting down web driver...')
       @@driver.quit
       @@driver = nil
