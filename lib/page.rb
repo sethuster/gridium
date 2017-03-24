@@ -96,7 +96,8 @@ module Gridium
     end
 
     def all(by, locator)
-      Driver.driver.find_elements(by, locator)
+      root = Element.new("root", :tag_name, "html")
+      root.find_elements(by, locator)
     end
 
     def find(by, locator)
