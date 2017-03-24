@@ -212,7 +212,8 @@ This file can be found in `spec_reports/spec_results_{timestamp}/{timestamp}_spe
 Any log statements using a level equal or lower than config.log_level will be logged.
 
 #### Selenium Logging
-To open the firehose to selenium's logging (https://github.com/SeleniumHQ/selenium/wiki/Logging)
+The supported log levels in selenium are OFF, SEVERE, WARNING, INFO, DEBUG, ALL
+To open the firehose to selenium's logging (https://github.com/SeleniumHQ/selenium/wiki/Logging):
 1. Set `config.selenium_log_level = 'ALL'` to  set each type of selenium logging (browser, driver, client, server) to 'ALL'  
 2. Set `config.log_level = :debug` to have them picked up by gridium's logger.
 
