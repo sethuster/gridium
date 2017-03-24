@@ -149,7 +149,7 @@ $errors_total = 0
 Spec_data.load_suite_state
 Spec_data.load_spec_state
 ```
-##Saving screenshots to S3
+## Saving screenshots to S3
 
 S3 support is available for persisting screenshots online. This is especially helpful when running tests in CI and/or Docker environments.
 
@@ -206,7 +206,7 @@ Page object are made up of Elements.  The methods on the page object tells the t
 
 This action will return a new page, that our test is setup to handle.
 
-##Logging
+## Logging
 A log file will always be created with at least one line, showing whichever config.log_level is set to.
 This file can be found in `spec_reports/spec_results_{timestamp}/{timestamp}_spec.log` alongside any screenshots taken.
 Any log statements using a level equal or lower than config.log_level will be logged.
