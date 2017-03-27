@@ -373,7 +373,7 @@ class Element
 
   def stale?
     return true if @element.nil?
-    @element.disabled?
+    @element.displayed?
   rescue StandardError => error
     Log.debug("[GRIDIUM::Element] element.stale? is true because this error was rescued: #{error}")
     Log.warn("[GRIDIUM::Element] Stale element detected.... #{self.to_s}")
