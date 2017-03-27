@@ -2,7 +2,7 @@ include Gridium
 
 class Gridium::ElementExtensions
   def self.highlight(element)
-    Log.debug("Highlighting element...")
+    Log.debug("[GRIDIUM::ElementExtensions] Highlighting element...")
     original_border = Driver.execute_script("return arguments[0].style.border", element.element)
     original_background = Driver.execute_script("return arguments[0].style.backgroundColor", element.element)
     Driver.execute_script("arguments[0].style.border='3px solid lime'; return;", element.element)
@@ -13,7 +13,7 @@ class Gridium::ElementExtensions
   end
 
   def self.scroll_to(element)
-    Log.debug("Scrolling element into view...")
+    Log.debug("[GRIDIUM::ElementExtensions] Scrolling element into view...")
     Driver.execute_script("arguments[0].scrollIntoView(); return;", element.element)
     sleep 1
   end

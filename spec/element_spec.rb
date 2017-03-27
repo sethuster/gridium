@@ -82,6 +82,10 @@ describe Element do
   describe 'text input' do
     let(:test_input_page) { "http://mustadio:3000/fields" }
 
+    after :each do
+      Driver.quit
+    end
+
     it 'should continue to work after many attempts' do
       (1..5).each do
         Driver.visit test_input_page
@@ -93,7 +97,6 @@ describe Element do
         end
         submit = Element.new "submit button", :css, "[id=\"input_submit\"]"
         submit.click
-        Driver.quit
       end
     end
 
@@ -130,12 +133,9 @@ describe Element do
       expected_selector = "[id=\"input_1\"]"
       this_one = Element.new expected_selector, :css, expected_selector
       original_text = this_one.value
-      puts "original_text is #{original_text}"
       text_to_append = "#{SecureRandom.uuid}"
-      puts "text to append is #{text_to_append}"
       this_one.append_keys text_to_append
       new_text = this_one.value
-      puts "new_text is #{new_text}"
       expect(new_text).to eq (original_text + text_to_append)
     end
 

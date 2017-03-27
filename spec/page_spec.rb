@@ -78,7 +78,7 @@ describe Page do
 
       test_page.assert_selector('by', 'locator')
 
-      expect(logger).to have_received(:info).with('Asserted Element present with locator locator using by')
+      expect(logger).to have_received(:info).with('[GRIDIUM::Page] Asserted Element present with locator locator using by')
     end
   end
 

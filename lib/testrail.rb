@@ -88,7 +88,7 @@ module Gridium
           r = _send_request('POST', "#{@url}add_results_for_cases/#{@run_info[:id]}", {results: @tc_results})
           Log.debug("[GRIDIUM::TestRail] ADD RESULTS: #{r}")
           sleep 0.25
-          Log.debug("#{r.class}")
+          Log.debug("[GRIDIUM::TestRail] #{r.class}")
           if r.is_a?(Hash)
             r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:name => "ER:#{@run_info[:name]}", :description => "#{@run_info[:desc]}\nThe following was returned when adding cases: #{r}"})
             Log.warn("[GRIDIUM::TestRail] ERROR: #{r}")
