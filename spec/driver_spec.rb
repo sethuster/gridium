@@ -317,6 +317,8 @@ describe Driver do
       test_driver.visit("http://www.sendgrid.com")
       get_started_btn = create_new_element("Plans and Pricing", :css, '#home-pricing-cta')
       get_started_btn.click
+      sleep 0.5
+      expect(test_driver.current_url).to include '/pricing'
       begin
         get_started_btn.click
       rescue

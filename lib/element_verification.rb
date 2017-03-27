@@ -14,7 +14,7 @@ class Gridium::ElementVerification
   end
 
   def not
-    ElementVerification.new(@element, @timeout, @fail_test, element_should_exist: false)
+    ElementVerification.new(@element, @timeout, fail_test: @fail_test, element_should_exist: false)
   end
 
   def text(text)

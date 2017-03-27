@@ -16,7 +16,7 @@ services:
       - no_proxy=localhost
       - HUB_ENV_no_proxy=localhost
     ports:
-      - "5900"
+      - "5900:5900"
   mustadio:
     image: yetanotherlucas/mustadio
     ports:
