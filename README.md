@@ -217,6 +217,24 @@ To open the firehose to selenium's logging (https://github.com/SeleniumHQ/seleni
 1. Set `config.selenium_log_level = 'ALL'` to  set each type of selenium logging (browser, driver, client, server) to 'ALL'  
 2. Set `config.log_level = :debug` to have them picked up by gridium's logger.
 
+
+## Testing with docker
+Gridium's unit tests are run in docker using selenium grid and some helper images:
+* gprestes/the-internet
+* yetanotherlucas/mustadio
+
+The bin folder contains helper scripts to setup and teardown the docker containers:
+* `bin/pull`: Use this to pull the latest docker images prior to starting. 
+* `bin/start`: Use this to start up all the docker containers.
+  * `dev mode`: -d switch to map your local gridium (via $GRIDIUMPATH) to the gridium container
+  * `$GRIDIUMPATH`: set this to point at your Gridium repo -> export GRIDIUMPATH="/path/to/gridium"
+* `bin/cleanup`: Use this to cleanup any dangling containers afterward.
+
+Once the containers are running, you can shell into the gridium container to kick off tests:
+`docker exec -it gridium_gridium_1 /bin/bash`
+`rake spec`
+If a test does not pass, modify the spec locally and rerun it inside the gridium container again. Repeat until green.
+
 ## Elements
 
 Elements are the building blocks of page objects.  Elements are anything that a user, or a test would care about on the page.  To create a new Element, you will need three things:  
