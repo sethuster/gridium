@@ -35,4 +35,10 @@ class Gridium::ElementExtensions
   def self.trigger_onblur(element)
     Driver.execute_script("arguments[0].focus(); arguments[0].blur(); return true", element.element)
   end
+
+  # Occasionaly selenium is unable to click on elements in the DOM which have some 
+  # interesting React goodies around the element.
+  def self.jquery_click(element)
+    Driver.execute_script("arguments[0].click().change();", element.element)
+  end
 end
