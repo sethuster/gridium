@@ -3,6 +3,8 @@ require 'uri'
 require 'spec_data'
 
 class Driver
+
+  alias_method :cookie_named, :get_cookie
   @@driver = nil
 
   def self.reset
@@ -298,19 +300,29 @@ class Driver
     Log.debug("[Gridium::Driver] Now back to Parent Frame")
   end
 
+  def self.add_cookie(cookie)
+    Log.debug("[Gridium::Driver] Adding cookie named #{cookie[:name]}")
+    Driver.driver.manage.add_cookie(cookie)
+  end
+
   def self.delete_cookie(cookie)
+    Log.debug("[Gridium::Driver] Deleting cookie named #{cookie[:name]}")
     Driver.driver.manage.delete_cookie(cookie)
   end
 
   def self.get_cookie(cookie_name)
-    Driver.driver.manage.all_cookies().each do |cookie|
-      # match cookie
-      if cookie[:name] == cookie_name
-        return cookie
-      end
-    end
+    Log.debug("[Gridium::Driver] Getting cookie named #{cookie[:name]}")
+    Driver.driver.manage.cookie_named(cookie_name)
+  end
 
-    return nil
+  def self.all_cookies
+    Log.debug("[Gridium::Driver] Getting all cookies")
+    Driver.driver.manage.all_cookies
+  end
+
+  def self.delete_all_cookies
+    Log.debug("[Gridium::Driver] Deleting all cookies")
+    Driver.driver.manage.delete_all_cookies
   end
 
 end
