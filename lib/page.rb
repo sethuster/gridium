@@ -95,6 +95,17 @@ module Gridium
       self.evaluate_script("jQuery.active").zero?
     end
 
+    #
+    # JQuery click
+    # @param [String] CSS selector
+    # 
+    # Occasionaly selenium is unable to click on elements in the DOM which have some 
+    # interesting React goodies around the element. 
+    #
+    def self.jquery_click(selector)
+      Driver.evaluate_script("$(\"#{selector}\").click().change();")
+    end
+
     def all(by, locator)
       root = Element.new("root", :tag_name, "html")
       root.find_elements(by, locator)

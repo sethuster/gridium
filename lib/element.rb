@@ -250,6 +250,16 @@ class Element
     end
   end
 
+  def jquery_click
+    Log.debug("[GRIDIUM::Element] JQuery clickin (#{self.to_s})...")
+    if element.enabled?
+      $verification_passes += 1
+      ElementExtensions.jquery_click(self)
+    else
+      Log.error('[GRIDIUM::Element] Cannot jquery_click.  Element is not present.')
+    end
+  end  
+
   def size
     element.size
   end
