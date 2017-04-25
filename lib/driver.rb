@@ -4,7 +4,6 @@ require 'spec_data'
 
 class Driver
 
-  # alias_method :cookie_named, :get_cookie
   @@driver = nil
 
   def self.reset
