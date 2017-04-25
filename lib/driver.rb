@@ -129,10 +129,16 @@ class Driver
 
   def self.quit
     if @@driver
-      _log_shart #push out the last logs
-      Log.debug('[Gridium::Driver] Shutting down web driver...')
-      @@driver.quit
-      @@driver = nil
+      begin
+        _log_shart #push out the last logs
+        Log.debug('[Gridium::Driver] Shutting down web driver...')
+        @@driver.quit
+      rescue Selenium::WebDriver::Error::NoSuchDriverError => e
+        Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
+        Log.error("[Gridium::Driver] Failed to shutdown webdriver: #{e.message}")
+      ensure
+        @@driver = nil
+      end
     end
   end
 
