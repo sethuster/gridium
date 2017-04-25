@@ -4,7 +4,7 @@ require 'spec_data'
 
 class Driver
 
-  alias_method :cookie_named, :get_cookie
+  # alias_method :cookie_named, :get_cookie
   @@driver = nil
 
   def self.reset
@@ -305,13 +305,13 @@ class Driver
     Driver.driver.manage.add_cookie(cookie)
   end
 
-  def self.delete_cookie(cookie)
-    Log.debug("[Gridium::Driver] Deleting cookie named #{cookie[:name]}")
-    Driver.driver.manage.delete_cookie(cookie)
+  def self.delete_cookie(cookie_name)
+    Log.debug("[Gridium::Driver] Deleting cookie named #{cookie_name}")
+    Driver.driver.manage.delete_cookie(cookie_name)
   end
 
   def self.get_cookie(cookie_name)
-    Log.debug("[Gridium::Driver] Getting cookie named #{cookie[:name]}")
+    Log.debug("[Gridium::Driver] Getting cookie named #{cookie_name}")
     Driver.driver.manage.cookie_named(cookie_name)
   end
 
