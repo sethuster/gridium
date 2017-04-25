@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'page_objects/cookie_page'
 # require 'pry'
 
 describe Driver do
@@ -368,6 +369,68 @@ describe Driver do
       Log.debug("remote_file is #{remote_file} and local_file is #{local_file}")
       upload_success = test_driver.s3._verify_upload(remote_file, local_file)
       expect(upload_success).to be true
+    end
+
+  end
+
+  describe 'cookies' do
+    let(:cookie_url) {"#{mustadio}#{CookiePage::PAGE_NAME}"}
+    let(:cookie_page) {CookiePage.new}
+    let(:cookie_name) {"IAmJacksDefaultCookie"}
+    let(:cookie_value) {"i_am_jacks_cookie_value"}
+    let(:simplified_cookie) {{:name => cookie_name, :value => cookie_value}}
+
+    before :all do
+      Gridium.config.element_timeout = 2
+    end
+
+    before :each do
+      test_driver.visit cookie_url
+      cookie_page.refresh
+    end
+
+    after :each do
+      test_driver.quit
+    end
+
+    after :all do
+      Gridium.config.element_timeout = 15
+    end
+
+    it 'should get all cookies' do
+      actual_cookies = cookie_page.get_all_cookies
+      expected_cookies = test_driver.all_cookies.map {|x| {:name => x[:name], :value => x[:value]}}
+      expect(actual_cookies).to eq expected_cookies
+    end
+
+    it 'should get a cookie by name' do
+      actual_cookie = cookie_page.get_cookie(cookie_name)
+      expected_cookie = test_driver.get_cookie(cookie_name).select {|k, v| [:name, :value].include? k }
+      expect(actual_cookie).to eq expected_cookie
+    end
+
+    it 'should add a cookie ' do
+      new_cookie = {:name => "first_rule",
+                         :value => "do_not_talk_about_fight_club",
+                         :expires => (Time.now.to_i + 5000),
+                         :secure => false}
+      expected_cookie = new_cookie.select {|k, v| [:name, :value].include? k }
+      test_driver.add_cookie(new_cookie)
+      actual_cookie = cookie_page.refresh.get_cookie(expected_cookie[:name])
+      expect(actual_cookie).to eq expected_cookie
+    end
+
+    it 'should delete a cookie by name' do
+      test_driver.delete_cookie("IAmJacksDefaultCookie")
+      actual_cookies = cookie_page.refresh.get_all_cookies
+      expect(actual_cookies).not_to include simplified_cookie
+    end
+
+    it 'should delete all cookies' do
+      test_driver.delete_all_cookies
+      expected_cookies = test_driver.all_cookies.map {|x| {:name => x[:name], :value => x[:value]}}
+      actual_cookies = cookie_page.refresh.get_all_cookies
+      expect(actual_cookies). to eq expected_cookies
     end
 
   end
