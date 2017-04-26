@@ -34,6 +34,7 @@ class Driver
         if Gridium.config.browser_source == :remote
           @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: _set_capabilities())
           Log.debug("[Gridium::Driver] Remote Browser Requested: #{@@driver}")
+
           #this file detector is only used for remote drivers and is needed to upload files from test_host through Grid to browser
           @@driver.file_detector = lambda do |args|
             str = args.first.to_s
@@ -129,10 +130,16 @@ class Driver
 
   def self.quit
     if @@driver
-      _log_shart #push out the last logs
-      Log.debug('[Gridium::Driver] Shutting down web driver...')
-      @@driver.quit
-      @@driver = nil
+      begin
+        _log_shart #push out the last logs
+        Log.debug('[Gridium::Driver] Shutting down web driver...')
+        @@driver.quit
+      rescue Selenium::WebDriver::Error::NoSuchDriverError => e
+        Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
+        Log.error("[Gridium::Driver] Failed to shutdown webdriver: #{e.message}")
+      ensure
+        @@driver = nil
+      end
     end
   end
 
@@ -322,6 +329,12 @@ class Driver
   def self.delete_all_cookies
     Log.debug("[Gridium::Driver] Deleting all cookies")
     Driver.driver.manage.delete_all_cookies
+  end
+
+  private
+
+  def self.raw_driver
+    @@driver
   end
 
 end

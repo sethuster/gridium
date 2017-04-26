@@ -220,8 +220,8 @@ To open the firehose to selenium's logging (https://github.com/SeleniumHQ/seleni
 
 ## Testing with docker
 Gridium's unit tests are run in docker using selenium grid and some helper images:
-* gprestes/the-internet
-* yetanotherlucas/mustadio
+* [gprestes/the-internet](https://hub.docker.com/r/gprestes/the-internet/)
+* [yetanotherlucas/mustadio](https://hub.docker.com/r/yetanotherlucas/mustadio/)
 
 The bin folder contains helper scripts to setup and teardown the docker containers:
 * `bin/pull`: Use this to pull the latest docker images prior to starting. 
