@@ -26,24 +26,25 @@ describe Driver do
   describe '#quit' do
     it 'cleans up the session and resets driver to nil' do
       test_driver.quit
-      expect(test_driver.raw_driver).to be_nil
+      expect(test_driver.send(:raw_driver)).to be_nil
     end
 
     context 'when driver session is borked' do
-      it 'gracefully handles NoSuchDriverError' do
+      before :example do
         expect(test_driver.driver).to receive(:quit).and_raise(Selenium::WebDriver::Error::NoSuchDriverError)
+      end
+
+      it 'gracefully handles NoSuchDriverError' do
         expect {test_driver.quit}.not_to raise_error
       end
 
       it 'sets the driver to nil' do
-        expect(test_driver.driver).to receive(:quit).and_raise(Selenium::WebDriver::Error::NoSuchDriverError)
         test_driver.quit
-        expect(test_driver.raw_driver).to be_nil
+        expect(test_driver.send(:raw_driver)).to be_nil
       end
 
       it 'logs the failure' do
         fail_msg = /Failed to shutdown webdriver: Selenium::WebDriver::Error::NoSuchDriverError/
-        expect(test_driver.driver).to receive(:quit).and_raise(Selenium::WebDriver::Error::NoSuchDriverError)
         expect(test_driver.quit).to include fail_msg
       end
     end

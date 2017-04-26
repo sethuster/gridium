@@ -25,10 +25,6 @@ class Driver
     end
   end
 
-  def self.raw_driver
-    @@driver
-  end
-
   def self.driver
     begin
       unless @@driver
@@ -333,6 +329,12 @@ class Driver
   def self.delete_all_cookies
     Log.debug("[Gridium::Driver] Deleting all cookies")
     Driver.driver.manage.delete_all_cookies
+  end
+
+  private
+
+  def self.raw_driver
+    @@driver
   end
 
 end
