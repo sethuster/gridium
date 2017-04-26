@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'page_objects/cookie_page'
-# require 'pry'
 
 describe Driver do
   let(:gridium_config) { Gridium.config }
@@ -22,6 +21,32 @@ describe Driver do
 
   after :each do
     test_driver.quit
+  end
+
+  describe '#quit' do
+    it 'cleans up the session and resets driver to nil' do
+      test_driver.quit
+      expect(test_driver.raw_driver).to be_nil
+    end
+
+    context 'when driver session is borked' do
+      it 'gracefully handles NoSuchDriverError' do
+        expect(test_driver.driver).to receive(:quit).and_raise(Selenium::WebDriver::Error::NoSuchDriverError)
+        expect {test_driver.quit}.not_to raise_error
+      end
+
+      it 'sets the driver to nil' do
+        expect(test_driver.driver).to receive(:quit).and_raise(Selenium::WebDriver::Error::NoSuchDriverError)
+        test_driver.quit
+        expect(test_driver.raw_driver).to be_nil
+      end
+
+      it 'logs the failure' do
+        fail_msg = /Failed to shutdown webdriver: Selenium::WebDriver::Error::NoSuchDriverError/
+        expect(test_driver.driver).to receive(:quit).and_raise(Selenium::WebDriver::Error::NoSuchDriverError)
+        expect(test_driver.quit).to include fail_msg
+      end
+    end
   end
 
   describe '#reset' do
