@@ -78,16 +78,14 @@ class Element
   # ================ #
 
   # soft failure, will not kill test immediately
-  def verify(timeout: nil)
+  def verify(timeout: Gridium.config.element_timeout)
     Log.debug('[GRIDIUM::Element] Verifying new element...')
-    timeout = Gridium.config.element_timeout if timeout.nil?
     ElementVerification.new(self, timeout)
   end
 
   # hard failure, will kill test immediately
-  def wait_until(timeout: nil)
+  def wait_until(timeout: Gridium.config.element_timeout)
     Log.debug('[GRIDIUM::Element] Waiting for new element...')
-    timeout = Gridium.config.element_timeout if timeout.nil?
     ElementVerification.new(self, timeout, fail_test: true)
   end
 
@@ -98,8 +96,6 @@ class Element
   def css_value(name)
     element.css_value(name)
   end
-
-
 
   def present?
     return element.enabled?
