@@ -19,6 +19,16 @@ describe Element do
     Driver.quit
   end
 
+  context 'when element does not exist' do
+    context 'with default element timeout' do
+      it 'raises TimeOutError' do
+        msg = /timed out after #{Gridium.config.element_timeout} seconds/
+        expect { Element.new("Unknown element", :css, ".invalid-css").click }.to \
+          raise_error(Selenium::WebDriver::Error::TimeOutError, msg)
+      end
+    end
+  end
+
   describe '#verify' do
     xit 'verifies new element and logs it' do
       allow(logger).to receive(:debug)
@@ -52,6 +62,46 @@ describe Element do
       skip("skip until wait_until.not.visible works")
       vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
       vanishing_div.wait_until(timeout: wait_timeout).not.visible
+    end
+
+    context 'when element does not exist' do
+      context 'with explicit wait timeout' do
+        it 'raises TimeOutError' do
+          msg = /timed out after #{wait_timeout} seconds/
+          expect { Element.new("Unknown element", :css, ".invalid-css").wait_until(timeout: wait_timeout).visible.click }.to \
+            raise_error(Selenium::WebDriver::Error::TimeOutError, msg)
+        end
+
+        it 'timeouts within requested time in seconds' do
+          time = Benchmark.realtime do
+            msg = /timed out after #{wait_timeout} seconds/
+            expect { Element.new("Unknown element", :css, ".invalid-css").wait_until(timeout: wait_timeout).visible.click }.to \
+            raise_error(Selenium::WebDriver::Error::TimeOutError, msg)
+          end
+
+          expect(time).to be_within(3).of(wait_timeout), "Expected #{time} to be within 3 seconds of explicit wait timeout '#{wait_timeout}'"
+        end
+      end
+    end
+
+    context 'when element exists' do
+      context 'with explicit wait timeout' do
+        it 'raises TimeOutError on waiting to NOT be visible' do
+          msg = /timed out after #{wait_timeout} seconds/
+          expect { Element.new("Known element", :id, element_to_appear_id).wait_until(timeout: wait_timeout).not.visible }.to \
+            raise_error(Selenium::WebDriver::Error::TimeOutError, msg)
+        end
+
+        it 'timeouts within requested time in seconds' do
+          time = Benchmark.realtime do
+            msg = /timed out after #{wait_timeout} seconds/
+            expect { Element.new("Known element", :id, element_to_appear_id).wait_until(timeout: wait_timeout).not.visible }.to \
+            raise_error(Selenium::WebDriver::Error::TimeOutError, msg)
+          end
+
+          expect(time).to be_within(3).of(wait_timeout), "Expected #{time} to be within 3 seconds of explicit wait timeout '#{wait_timeout}'"
+        end
+      end
     end
   end
 

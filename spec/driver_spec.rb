@@ -315,13 +315,24 @@ describe Driver do
   end
 
   describe 'creating new page elements' do
-    it 'creates new Gridium Elements' do
+    it 'creates and waits with verify for new Gridium Elements' do
       test_driver.visit(test_url)
       element_one = create_new_element('ele1', :css, '#lst-ib')
       element_one.send_keys 'sendgrid'
 
-      element_two = create_new_element('ele2', :xpath, "//div[@id='search']//b[contains(.,'sendgrid')]")
-      element_two.verify.present
+      element_two = create_new_element('ele2', :xpath, "//div[@id='search']//*[contains(.,'sendgrid')]")
+      element_two.verify.visible
+
+      expect($verification_passes).to be < 4
+    end
+
+    it 'creates and waits with wait_until for new Gridium Elements' do
+      test_driver.visit(test_url)
+      element_one = create_new_element('ele1', :css, '#lst-ib')
+      element_one.send_keys 'sendgrid'
+
+      element_two = create_new_element('ele2', :xpath, "//div[@id='search']//*[contains(.,'sendgrid')]")
+      element_two.wait_until.visible
 
       expect($verification_passes).to be < 4
     end

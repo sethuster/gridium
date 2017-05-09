@@ -4,6 +4,7 @@ require 'rspec'
 require 'gridium'
 require 'page_objects/google_home'
 require 'dotenv'
+require 'benchmark'
 
 #Load settings from .env file - S3 and TestRail Info
 Dotenv.load '.env'

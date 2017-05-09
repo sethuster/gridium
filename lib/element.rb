@@ -29,9 +29,11 @@ class Element
     "'#{@name}' (By:#{@by} => '#{@locator}')"
   end
 
-  def element
+  def element(opts = {})
+    timeout = opts[:timeout].nil? ? Gridium.config.element_timeout : opts[:timeout]
+
     if stale?
-      wait = Selenium::WebDriver::Wait.new :timeout => Gridium.config.element_timeout, :interval => 1
+      wait = Selenium::WebDriver::Wait.new :timeout => timeout, :interval => 1
       if Gridium.config.visible_elements_only
         wait.until { @element = displayed_element }
       else
@@ -76,16 +78,14 @@ class Element
   # ================ #
 
   # soft failure, will not kill test immediately
-  def verify(timeout: nil)
+  def verify(timeout: Gridium.config.element_timeout)
     Log.debug('[GRIDIUM::Element] Verifying new element...')
-    timeout = Gridium.config.element_timeout if timeout.nil?
     ElementVerification.new(self, timeout)
   end
 
   # hard failure, will kill test immediately
-  def wait_until(timeout: nil)
+  def wait_until(timeout: Gridium.config.element_timeout)
     Log.debug('[GRIDIUM::Element] Waiting for new element...')
-    timeout = Gridium.config.element_timeout if timeout.nil?
     ElementVerification.new(self, timeout, fail_test: true)
   end
 
@@ -96,8 +96,6 @@ class Element
   def css_value(name)
     element.css_value(name)
   end
-
-
 
   def present?
     return element.enabled?
@@ -258,7 +256,7 @@ class Element
     else
       Log.error('[GRIDIUM::Element] Cannot jquery_click.  Element is not present.')
     end
-  end  
+  end
 
   def size
     element.size
