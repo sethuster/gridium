@@ -7,8 +7,7 @@ main(){
       docker exec $(docker-compose ps -q gridium) bundle install;
       ;;
     -d) #start in development mode
-      ${BUILD_NUMBER:=dev}
-      export BUILD_NUMBER
+      export BUILD_NUMBER=${BUILD_NUMBER:=dev}
       docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
       docker exec $(docker-compose ps -q gridium) bundle install;
       ;;

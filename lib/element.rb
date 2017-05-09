@@ -258,7 +258,7 @@ class Element
     else
       Log.error('[GRIDIUM::Element] Cannot jquery_click.  Element is not present.')
     end
-  end  
+  end
 
   def size
     element.size

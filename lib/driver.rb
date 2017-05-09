@@ -10,7 +10,7 @@ class Driver
     Log.debug("[Gridium::Driver] Driver.reset: #{@@driver}")
     driver.manage.delete_all_cookies
     driver.manage.timeouts.page_load = Gridium.config.page_load_timeout
-    driver.manage.timeouts.implicit_wait = Gridium.config.element_timeout
+    driver.manage.timeouts.implicit_wait = 0 # always use explicit waits!
 
     # Ensure the browser is maximized to maximize visibility of element
     # Ensure the browser is maximized to maximize visibility of element

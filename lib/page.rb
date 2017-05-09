@@ -89,6 +89,8 @@ module Gridium
       Timeout.timeout(Gridium.config.page_load_timeout) do
         loop until jquery_loaded?
       end
+    rescue Timeout::Error => e
+      Log.warn("[GRIDIUM::Page] Timed-out waiting for ajax")
     end
 
     def self.jquery_loaded?
@@ -98,9 +100,9 @@ module Gridium
     #
     # JQuery click
     # @param [String] CSS selector
-    # 
-    # Occasionaly selenium is unable to click on elements in the DOM which have some 
-    # interesting React goodies around the element. 
+    #
+    # Occasionaly selenium is unable to click on elements in the DOM which have some
+    # interesting React goodies around the element.
     #
     def self.jquery_click(selector)
       Driver.evaluate_script("$(\"#{selector}\").click().change();")
