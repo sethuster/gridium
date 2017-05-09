@@ -29,10 +29,10 @@ class Gridium::ElementVerification
     end
 
     if should_have_text
-      fail_message = "Element should contain text (#{text}), but does not."
+      fail_message = "Element should contain text (#{text}), but does not. timed out after #{@timeout} seconds"
       pass_message = "contains text (#{text})."
     else
-      fail_message = "Element should not contain text (#{text}), but does."
+      fail_message = "Element should not contain text (#{text}), but does. timed out after #{@timeout} seconds"
       pass_message = "does not contain text (#{text}).  Actual text is: (#{element_text})."
     end
 
@@ -49,6 +49,7 @@ class Gridium::ElementVerification
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
         else
+          # TODO: @rizzza: This `.not` case is wrong. It bails too early and does not evaluate with the wait block
           log_issue("#{fail_message}  Element's text is: (#{element_text}).")
         end
       end
@@ -62,17 +63,17 @@ class Gridium::ElementVerification
     should_be_visible = @should_exist
 
     if should_be_visible
-      fail_message = "Element should be visible."
+      fail_message = "Element should be visible. timed out after #{@timeout} seconds"
       pass_message = "Element is visible."
     else
-      fail_message = "Element should not be visible."
+      fail_message = "Element should not be visible. timed out after #{@timeout} seconds"
       pass_message = "Element is not visible."
     end
 
     wait = Selenium::WebDriver::Wait.new :timeout => @timeout, :interval => 1
     begin
       wait.until do
-        element_is_displayed = @element.displayed?
+        element_is_displayed = @element.element(timeout: @timeout).displayed?
         if element_is_displayed && should_be_visible
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
@@ -81,6 +82,7 @@ class Gridium::ElementVerification
           Log.debug("[GRIDIUM::ElementVerification] Confirming element is NOT visible...")
           log_success(pass_message)
         else
+          # TODO: @rizzza: This `.not` case is wrong. It bails too early and does not evaluate with the wait block
           log_issue(fail_message)
         end
       end
@@ -94,17 +96,17 @@ class Gridium::ElementVerification
     should_be_present = @should_exist
 
     if should_be_present
-      fail_message = "Element should be present."
+      fail_message = "Element should be present. timed out after #{@timeout} seconds"
       pass_message = "is present."
     else
-      fail_message = "Element should NOT be present."
+      fail_message = "Element should NOT be present. timed out after #{@timeout} seconds"
       pass_message = "is not present."
     end
 
     wait = Selenium::WebDriver::Wait.new :timeout => @timeout, :interval => 1
     begin
       wait.until do
-        element_is_present = @element.present?
+        element_is_present = @element.element(timeout: @timeout).present?
         if element_is_present && should_be_present
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
@@ -113,6 +115,7 @@ class Gridium::ElementVerification
           Log.debug("[GRIDIUM::ElementVerification] Confirming element is NOT present...")
           log_success(pass_message)
         else
+          # TODO: @rizzza: This `.not` case is wrong. It bails too early and does not evaluate with the wait block
           log_issue(fail_message)
         end
       end
@@ -147,7 +150,7 @@ class Gridium::ElementVerification
     if @fail_test
       Log.error("[GRIDIUM::ElementVerification] #{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
       $fail_test_instantly = true
-      Kernel.fail(message)
+      raise Selenium::WebDriver::Error::TimeOutError, message
     else
       Log.error("[GRIDIUM::ElementVerification] #{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
       $fail_test_at_end = true

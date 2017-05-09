@@ -29,9 +29,11 @@ class Element
     "'#{@name}' (By:#{@by} => '#{@locator}')"
   end
 
-  def element
+  def element(opts = {})
+    timeout = opts[:timeout].nil? ? Gridium.config.element_timeout : opts[:timeout]
+
     if stale?
-      wait = Selenium::WebDriver::Wait.new :timeout => Gridium.config.element_timeout, :interval => 1
+      wait = Selenium::WebDriver::Wait.new :timeout => timeout, :interval => 1
       if Gridium.config.visible_elements_only
         wait.until { @element = displayed_element }
       else
