@@ -121,7 +121,11 @@ class Element
   end
 
   def value
-    element.attribute "value"
+    attribute "value"
+  end
+
+  def innerHTML
+    attribute "innerHTML"
   end
 
   def click
@@ -409,15 +413,21 @@ class Element
 
   def field_empty_afterward?(*args)
     Log.debug("[GRIDIUM::Element] Checking the field after sending #{args}, to see if it's empty")
-    check_again = (has_characters? *args and no_symbols? *args)
-    field_is_empty_but_should_not_be = (check_again and field_empty?)
+    check_again = has_characters?(*args) && no_symbols?(*args)
+    field_is_empty_but_should_not_be = check_again && field_empty?
     if field_is_empty_but_should_not_be
       raise "Browser Error: tried to input #{args} but found an empty string afterward: #{value}"
     end
   end
 
   def field_empty?
-    value.empty?
+    if !value.nil?
+      value.empty?
+    elsif !innerHTML.nil?
+      innerHTML.empty?
+    else
+      raise "Element Error: Supported #{__method__} text attributes are nil"
+    end
   end
 
   #
