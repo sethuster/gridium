@@ -7,7 +7,14 @@ describe Page do
   let(:test_driver) { Driver }
   let(:test_page) { Page }
   let(:logger) { Log }
-  let(:the_internet_url) {'http://the-internet:5000'}
+  let(:the_internet_url) { 'http://the-internet:5000' }
+  let(:jquery_menu_url) { "#{the_internet_url}/jqueryui/menu" }
+
+  before :all do
+    Gridium.config.browser_source = :remote
+    Gridium.config.target_environment = "http://hub:4444/wd/hub"
+    Gridium.config.browser = :chrome
+  end
 
   after :each do
     test_driver.quit
@@ -131,6 +138,36 @@ describe Page do
       new_page_object = status_code_page.refresh
       expect(new_page_object.class).to eq StatusCodes
     end
+  end
 
+  describe '#has_text?' do
+    before do
+      test_driver.visit the_internet_url
+    end
+
+    it 'finds text in all page source' do
+      expect(Page.has_text?("Elemental Selenium")).to be true
+    end
+
+    it 'fails to find text in all page source' do
+      test_driver.visit jquery_menu_url
+      expect(Page.has_text?("Non-elemental Selenium", timeout: 2)).to be false
+    end
+
+    context 'with visible' do
+      it 'finds only visible text' do
+        expect(Page.has_text?("Elemental Selenium", visible: true)).to be true
+      end
+
+      it 'finds non-visible text in all page source' do
+        test_driver.visit jquery_menu_url
+        expect(Page.has_text?("Back to JQuery UI", visible: false)).to be true
+      end
+
+      it 'fails to find non-visible text' do
+        test_driver.visit jquery_menu_url
+        expect(Page.has_text?("Back to JQuery UI", visible: true, timeout: 5)).to be false
+      end
+    end
   end
 end

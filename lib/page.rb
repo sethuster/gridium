@@ -48,17 +48,23 @@ module Gridium
       end
     end
 
-    def self.has_text?(text)
-      has_flash?(text)
+
+    def self.has_text?(text, opts = {})
+      has_flash?(text, opts)
     end
 
-    def self.has_flash?(text)
-      wait = Selenium::WebDriver::Wait.new(:timeout => 5) #5 seconds every 500ms
+    def self.has_flash?(text, opts = {})
+      timeout = opts[:timeout] || 5
+      wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
       begin
-        element = wait.until {Driver.html.include? text}
+        if opts[:visible]
+          element = wait.until { Element.new("Finding text '#{text}'", :xpath, "//*[text()='#{text}']").displayed? }
+        else
+          element = wait.until { Driver.html.include? text }
+        end
       rescue Exception => exception
-        Log.debug("[GRIDIUM::Page] has_flash? exception was rescued: #{exception}")
-        Log.warn("[GRIDIUM::Page] Could not find the flash message!")
+        Log.debug("[GRIDIUM::Page] exception was rescued: #{exception}")
+        Log.warn("[GRIDIUM::Page] Could not find the text '#{text}'!")
       end
 
       if element
@@ -122,7 +128,7 @@ module Gridium
     end
 
     def click_on(text)
-      Element.new("Clicking #{text}", :xpath, "//*[text()='#{text}')]").click
+      Element.new("Clicking #{text}", :xpath, "//*[text()='#{text}']").click
     end
 
     # Click the link on the page
