@@ -23,6 +23,8 @@ class Element
 
     #how long to wait between clearing an input and sending keys to it
     @text_padding_time = 0.15
+
+    @default_timeout = Gridium.config.element_timeout
   end
 
   def to_s
@@ -30,7 +32,7 @@ class Element
   end
 
   def element(opts = {})
-    timeout = opts[:timeout].nil? ? Gridium.config.element_timeout : opts[:timeout]
+    timeout = opts[:timeout].nil? ? @default_timeout : opts[:timeout]
 
     if stale?
       wait = Selenium::WebDriver::Wait.new :timeout => timeout, :interval => 1
