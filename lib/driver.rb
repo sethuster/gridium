@@ -41,7 +41,7 @@ class Driver
             str if File.exist?(str)
           end
         else
-          @@driver = Selenium::WebDriver.for(Gridium.config.browser)
+          @@driver = Selenium::WebDriver.for(Gridium.config.browser, desired_capabilities: _set_capabilities())
         end
         if Gridium.config.screenshots_to_s3
           #do stuff
@@ -80,12 +80,27 @@ class Driver
   def self._set_capabilities()
     log_level = Gridium.config.selenium_log_level
     Selenium::WebDriver::Remote::Capabilities.new(
-      :browser_name => Gridium.config.browser,
+      browser_name: Gridium.config.browser,
       # log all the things
-      :loggingPrefs => {:browser => log_level,
-                        :client => log_level,
-                        :driver => log_level,
-                        :server => log_level}
+      loggingPrefs: {
+        :browser => log_level,
+        :client => log_level,
+        :driver => log_level,
+        :server => log_level
+      },
+      chrome_options: {
+        'args' => ['--start-maximized'],
+        'prefs' => {
+          'download': {
+            'prompt_for_download': false,
+            'directory_upgrade': true,
+            'default_directory': Dir.pwd
+          },
+          'save_file': {
+            'default_directory': Dir.pwd
+          }
+        }
+      }
     )
   end
 
