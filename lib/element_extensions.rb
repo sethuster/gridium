@@ -28,15 +28,21 @@ class Gridium::ElementExtensions
     sleep 1
   end
 
-  def self.mouse_over(element)
-    Driver.driver.mouse.move_to(element.element)
+  #
+  # Mouse over the requested element at coordinate (Default x:0, y:0)
+  # @param [Element] element
+  # @param [Integer] x - element x coordinate
+  # @param [Integer] y - element y coordinate
+  #
+  def self.mouse_over(element, x: 0, y: 0)
+    Driver.driver.action.move_to(element.element, x, y).perform
   end
 
   def self.trigger_onblur(element)
     Driver.execute_script("arguments[0].focus(); arguments[0].blur(); return true", element.element)
   end
 
-  # Occasionaly selenium is unable to click on elements in the DOM which have some 
+  # Occasionaly selenium is unable to click on elements in the DOM which have some
   # interesting React goodies around the element.
   def self.jquery_click(element)
     Driver.execute_script("arguments[0].click().change();", element.element)
