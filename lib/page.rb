@@ -58,7 +58,7 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
       begin
         if opts[:visible]
-          element = wait.until { Element.new("Finding text '#{text}'", :xpath, "//*[text()='#{text}']").displayed? }
+          element = wait.until { Element.new("Finding text '#{text}'", :xpath, "//*[text()=\"#{text}\"]").displayed? }
         else
           element = wait.until { Driver.html.include? text }
         end

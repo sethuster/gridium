@@ -115,6 +115,23 @@ describe Element do
     end
   end
 
+  describe '#mouse_over / #hover_over' do
+    let(:hover_url) { "http://mustadio:3000/hover"}
+    let(:invisible_text) { "I am Jack's smirking div" }
+
+    it 'can mouse_over' do
+      test_driver.visit hover_url
+      Page.new.find(:id, "hover-target").mouse_over
+      expect(Page.has_text?(invisible_text, visible: true)).to be true
+    end
+
+    it 'can hover_over' do
+      test_driver.visit hover_url
+      Page.new.find(:id, "hover-target").hover_over
+      expect(Page.has_text?(invisible_text, visible: true)).to be true
+    end
+  end
+
   describe '#css_value' do
     it 'should return a css value' do
       Driver.visit the_internet_url
@@ -291,6 +308,5 @@ describe Element do
       this_one.clear
       expect {this_one.send(:field_empty_afterward?, desired_text)}.to  raise_error error=RuntimeError, message=expected_error
     end
-
   end
 end
