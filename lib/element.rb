@@ -225,11 +225,11 @@ class Element
   end
 
   # Raw webdriver mouse over
-  def mouse_over
+  def mouse_over(x: 0, y: 0)
     Log.debug("[GRIDIUM::Element] Triggering mouse over for (#{self.to_s})...")
     if element.enabled?
       $verification_passes += 1
-      ElementExtensions.mouse_over(self)
+      ElementExtensions.mouse_over(self, x: x, y: y)
     else
       Log.error('[GRIDIUM::Element] Cannot mouse over.  Element is not present.')
     end
