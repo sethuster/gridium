@@ -89,6 +89,24 @@ describe Page do
     end
   end
 
+  describe '#mouse_over' do
+    let(:hover_url) { "http://mustadio:3000/hover"}
+    let(:hover_txt) { "I am Jack's hover action" }
+    let(:invisible_text) { "I am Jack's smirking div" }
+
+    it 'can mouse_over text' do
+      test_driver.visit hover_url
+      Page.new.mouse_over hover_txt
+      expect(Page.has_text?(invisible_text, visible: true)).to be true
+    end
+
+    it 'can hover text' do
+      test_driver.visit hover_url
+      Page.new.hover hover_txt
+      expect(Page.has_text?(invisible_text, visible: true)).to be true
+    end
+  end
+
   describe '#click_*' do
     it 'clicks a link' do
       $verification_passes = 0

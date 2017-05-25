@@ -119,16 +119,29 @@ module Gridium
       root.find_elements(by, locator)
     end
 
-    def find(by, locator)
-      Element.new("Page Find Element", by, locator)
+    def find(by, locator, opts = {})
+      Element.new("Page Find Element", by, locator, opts)
     end
 
     def first(by, locator)
       all(by, locator).first
     end
 
+    #
+    # mouse/hover over request 'text' at options coordinates and optional index
+    # @param [String] text
+    # @param [Integer] x - optional x coordinate
+    # @param [Integer] y - optional y coordinate
+    # @param [Integer] index - optional index, if multiple instances of 'text' are found
+    #
+    def mouse_over(text, x: 0, y: 0, index: 1)
+      Element.new("Clicking #{text}", :xpath, "(//*[text()=\"#{text}\"])[#{index}]").mouse_over(x: x, y: y)
+    end
+
+    alias_method :hover, :mouse_over
+
     def click_on(text)
-      Element.new("Clicking #{text}", :xpath, "//*[text()='#{text}']").click
+      Element.new("Clicking #{text}", :xpath, "//*[text()=\"#{text}\"]").click
     end
 
     # Click the link on the page
@@ -136,9 +149,9 @@ module Gridium
     # @param [Integer] link_index (optional) - With multiple links on the page with the same name, click on the specified link index
     def click_link(link_text, link_index: nil)
       if link_index
-        Element.new("Clicking #{link_text} Link (#{link_index})", :xpath, "(//a[contains(., '#{link_text}')])[#{link_index}]").click
+        Element.new("Clicking #{link_text} Link (#{link_index})", :xpath, "(//a[contains(., \"#{link_text}\")])[#{link_index}]").click
       else
-        Element.new("Clicking #{link_text} Link", :xpath, "//a[contains(., '#{link_text}')]").click
+        Element.new("Clicking #{link_text} Link", :xpath, "//a[contains(., \"#{link_text}\")]").click
       end
     end
 
@@ -148,9 +161,9 @@ module Gridium
     def click_button(button_name, button_index: nil)
       #The button maybe a link that looks like a button - we want to handle both
       if button_index
-        button = Element.new("Clicking #{button_name} button (#{button_index})", :xpath, "(//button[contains(., '#{button_name}')])[#{button_index}]")
+        button = Element.new("Clicking #{button_name} button (#{button_index})", :xpath, "(//button[contains(., \"#{button_name}\")])[#{button_index}]")
       else
-        button = Element.new("Clicking #{button_name} button", :xpath, "//button[contains(., '#{button_name}')]")
+        button = Element.new("Clicking #{button_name} button", :xpath, "//button[contains(., \"#{button_name}\")]")
       end
       begin
         button.click
