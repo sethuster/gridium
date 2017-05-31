@@ -18,20 +18,32 @@ module Gridium
       end
     end
 
-    def self.has_css?(css, options={})
-      wait = Selenium::WebDriver::Wait.new(:timeout => 5)
+    def self.has_css?(css, opts = {})
+      timeout = opts[:timeout] || 5
+      wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
       begin
-        wait.until {Driver.driver.find_element(:css, css).enabled?}
+        element = Driver.driver.find_element :css, css
+        if opts[:visible]
+          wait.until {element.displayed?}
+        else
+          wait.until {element.enabled?}
+        end
       rescue Exception => exception
         Log.debug("[GRIDIUM::Page] has_css? is false because this exception was rescued: #{exception}")
         return false
       end
     end
 
-    def self.has_xpath?(xpath, options={})
-      wait = Selenium::WebDriver::Wait.new(:timeout => 5)
+    def self.has_xpath?(xpath, opts = {})
+      timeout = opts[:timeout] || 5
+      wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
       begin
-        wait.until {Driver.driver.find_element(:xpath, xpath).enabled?}
+        element = Driver.driver.find_element :xpath, xpath
+        if opts[:visible]
+          wait.until {element.displayed?}
+        else
+          wait.until {element.enabled?}
+        end
       rescue Exception => exception
         Log.debug("[GRIDIUM::Page] has_xpath? is false because this exception was rescued: #{exception}")
         return false

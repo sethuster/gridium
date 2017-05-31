@@ -7,8 +7,9 @@ describe Page do
   let(:test_driver) { Driver }
   let(:test_page) { Page }
   let(:logger) { Log }
-  let(:the_internet_url) { 'http://the-internet:5000' }
-  let(:jquery_menu_url) { "#{the_internet_url}/jqueryui/menu" }
+  let(:the_internet_url)  { 'http://the-internet:5000' }
+  let(:jquery_menu_url)   { "#{the_internet_url}/jqueryui/menu" }
+  let(:dynamic_url)       { "#{the_internet_url}/dynamic_loading/1"}
 
   before :all do
     Gridium.config.browser_source = :remote
@@ -107,7 +108,9 @@ describe Page do
     end
   end
 
-  describe '#click_*' do
+  xdescribe '#click_*' do
+    skip "QEA-1675"
+
     it 'clicks a link' do
       $verification_passes = 0
       Driver.visit "https://www.sendgrid.com"
@@ -185,6 +188,70 @@ describe Page do
       it 'fails to find non-visible text' do
         test_driver.visit jquery_menu_url
         expect(Page.has_text?("Back to JQuery UI", visible: true, timeout: 5)).to be false
+      end
+    end
+  end
+
+  describe '#has_css?' do
+    let(:visible_content) { "#start" }
+    let(:hidden_content)  { "#finish" }
+    let(:unknown_content) { ".not-here" }
+
+    before do
+      test_driver.visit dynamic_url
+    end
+
+    it 'finds css' do
+      expect(Page.has_css?(hidden_content)).to be true
+    end
+
+    it 'fails to find non-existent css' do
+      expect(Page.has_css?(unknown_content, timeout: 2)).to be false
+    end
+
+    context 'with visible' do
+      it 'finds only visible css' do
+        expect(Page.has_css?(visible_content, visible: true)).to be true
+      end
+
+      it 'finds non-visible css' do
+        expect(Page.has_css?(hidden_content, visible: false)).to be true
+      end
+
+      it 'fails to find non-visible css' do
+        expect(Page.has_css?(hidden_content, visible: true, timeout: 2)).to be false
+      end
+    end
+  end
+
+  describe '#has_xpath?' do
+    let(:visible_content) { "//*[@id='start']" }
+    let(:hidden_content)  { "//*[@id='finish']" }
+    let(:unknown_content) { "//*[@class='.not-here']" }
+
+    before do
+      test_driver.visit dynamic_url
+    end
+
+    it 'finds xpath' do
+      expect(Page.has_xpath?(hidden_content)).to be true
+    end
+
+    it 'fails to find non-existent xpath' do
+      expect(Page.has_xpath?(unknown_content, timeout: 2)).to be false
+    end
+
+    context 'with visible' do
+      it 'finds only visible xpath' do
+        expect(Page.has_xpath?(visible_content, visible: true)).to be true
+      end
+
+      it 'finds non-visible xpath' do
+        expect(Page.has_xpath?(hidden_content, visible: false)).to be true
+      end
+
+      it 'fails to find non-visible xpath' do
+        expect(Page.has_xpath?(hidden_content, visible: true, timeout: 2)).to be false
       end
     end
   end
