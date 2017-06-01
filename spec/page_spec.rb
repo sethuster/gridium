@@ -206,7 +206,19 @@ describe Page do
     end
 
     it 'fails to find non-existent css' do
-      expect(Page.has_css?(unknown_content, timeout: 2)).to be false
+      expect(Page.has_css?(unknown_content)).to be false
+    end
+
+    context 'with timeout' do
+      let(:wait_timeout) { 5 }
+
+      it 'timeouts within requested time in seconds' do
+        time = Benchmark.realtime do
+          expect(Page.has_css?(unknown_content, timeout: wait_timeout)).to be false
+        end
+
+        expect(time).to be_within(2).of(wait_timeout), "Expected #{time} to be within 2 seconds of requested timeout '#{wait_timeout}'"
+      end
     end
 
     context 'with visible' do
@@ -238,7 +250,19 @@ describe Page do
     end
 
     it 'fails to find non-existent xpath' do
-      expect(Page.has_xpath?(unknown_content, timeout: 2)).to be false
+      expect(Page.has_xpath?(unknown_content)).to be false
+    end
+
+    context 'with timeout' do
+      let(:wait_timeout) { 5 }
+
+      it 'timeouts within requested time in seconds' do
+        time = Benchmark.realtime do
+          expect(Page.has_xpath?(unknown_content, timeout: wait_timeout)).to be false
+        end
+
+        expect(time).to be_within(2).of(wait_timeout), "Expected #{time} to be within 2 seconds of requested timeout '#{wait_timeout}'"
+      end
     end
 
     context 'with visible' do
