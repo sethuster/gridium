@@ -27,6 +27,21 @@ describe Element do
           raise_error(Selenium::WebDriver::Error::TimeOutError, msg)
       end
     end
+
+    context 'with timeout' do
+      let(:wait_timeout) { 5 }
+
+      it 'timeouts within requested time in seconds' do
+        msg = /timed out after #{wait_timeout} seconds/
+
+        time = Benchmark.realtime do
+          expect { Element.new("Unknown element", :css, ".invalid-css", timeout: wait_timeout).click }.to \
+          raise_error(Selenium::WebDriver::Error::TimeOutError, msg)
+        end
+
+        expect(time).to be_within(3).of(wait_timeout), "Expected #{time} to be within 3 seconds of requested timeout '#{wait_timeout}'"
+      end
+    end
   end
 
   describe '#verify' do

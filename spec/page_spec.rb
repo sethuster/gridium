@@ -4,12 +4,13 @@ require 'page_objects/status_codes'
 require 'page_objects/internet_home'
 
 describe Page do
-  let(:test_driver) { Driver }
-  let(:test_page) { Page }
-  let(:logger) { Log }
-  let(:the_internet_url)  { 'http://the-internet:5000' }
-  let(:jquery_menu_url)   { "#{the_internet_url}/jqueryui/menu" }
-  let(:dynamic_url)       { "#{the_internet_url}/dynamic_loading/1"}
+  let(:test_driver)           { Driver }
+  let(:test_page)             { Page }
+  let(:logger)                { Log }
+  let(:the_internet_url)      { 'http://the-internet:5000' }
+  let(:jquery_menu_url)       { "#{the_internet_url}/jqueryui/menu" }
+  let(:dynamic_url)           { "#{the_internet_url}/dynamic_loading/1"}
+  let(:dynamic_controls_url)  { "#{the_internet_url}/dynamic_controls"}
 
   before :all do
     Gridium.config.browser_source = :remote
@@ -64,7 +65,7 @@ describe Page do
   describe '#wait_for_ajax' do
     it 'waits for jquery to complete on page' do
       $verification_passes = 0
-      Driver.visit "https://www.sendgrid.com"
+      Driver.visit dynamic_url
       expect(Page.wait_for_ajax).to be nil
     end
   end
@@ -276,6 +277,58 @@ describe Page do
 
       it 'fails to find non-visible xpath' do
         expect(Page.has_xpath?(hidden_content, visible: true, timeout: 2)).to be false
+      end
+    end
+  end
+
+  describe '#has_link?' do
+    before do
+      test_driver.visit dynamic_controls_url
+    end
+
+    it 'has_link? "Elemental Selenium' do
+      expect(Page.has_link?("Elemental Selenium")).to be true
+    end
+
+    it 'does not has_link? "Selenium Elemental"' do
+      expect(Page.has_link?("Selenium Elemental")).to be false
+    end
+
+    context 'with timeout' do
+      let(:wait_timeout) { 1 }
+
+      it 'timeouts within requested time in seconds' do
+        time = Benchmark.realtime do
+          expect(Page.has_link?("Selemental", timeout: wait_timeout)).to be false
+        end
+
+        expect(time).to be_within(1).of(wait_timeout), "Expected #{time} to be within 1 second of requested timeout '#{wait_timeout}'"
+      end
+    end
+  end
+
+  describe '#has_button?' do
+    before do
+      test_driver.visit dynamic_controls_url
+    end
+
+    it 'has_button? "Remove"' do
+      expect(Page.has_button?("Remove")).to be true
+    end
+
+    it 'does not have button "Add"' do
+      expect(Page.has_button?("Add")).to be false
+    end
+
+    context 'with timeout' do
+      let(:wait_timeout) { 1 }
+
+      it 'timeouts within requested time in seconds' do
+        time = Benchmark.realtime do
+          expect(Page.has_button?("Selemental", timeout: wait_timeout)).to be false
+        end
+
+        expect(time).to be_within(1).of(wait_timeout), "Expected #{time} to be within 1 second of requested timeout '#{wait_timeout}'"
       end
     end
   end

@@ -89,16 +89,18 @@ class Driver
         :server => log_level
       },
       chrome_options: {
-        'args' => ['--start-maximized'],
-        'prefs' => {
-          'download': {
-            'prompt_for_download': false,
-            'directory_upgrade': true,
-            'default_directory': Dir.pwd
+        args: ['--start-maximized', '--privileged', '--disable-web-security'],
+        prefs: {
+          download: {
+            prompt_for_download: false,
+            directory_upgrade: true,
+            default_directory: Dir.pwd,
+            extensions_to_open: ""
           },
-          'save_file': {
-            'default_directory': Dir.pwd
-          }
+          save_file: {
+            default_directory: Dir.pwd
+          },
+          credentials_enable_service: false
         }
       }
     )

@@ -295,8 +295,8 @@ describe Driver do
 
   describe 'launching a browser' do
     it 'launches a browser and navigates to a url via Gridium config' do
-      test_driver.visit(gridium_config.url)
-      test_driver.verify_url("sendgrid.com")
+      test_driver.visit mustadio
+      test_driver.verify_url("mustadio:3000")
 
       expect($verification_passes).to eq(2)
     end
@@ -351,7 +351,7 @@ describe Driver do
   end
 
   describe 'stale elements on page' do
-    it 'warns when stale elements are found' do
+    xit 'warns when stale elements are found' do
       test_driver.visit("http://www.sendgrid.com")
       get_started_btn = create_new_element("Plans and Pricing", :css, '#home-pricing-cta')
       get_started_btn.click
