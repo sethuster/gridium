@@ -11,6 +11,8 @@ describe Page do
   let(:jquery_menu_url)       { "#{the_internet_url}/jqueryui/menu" }
   let(:dynamic_url)           { "#{the_internet_url}/dynamic_loading/1"}
   let(:dynamic_controls_url)  { "#{the_internet_url}/dynamic_controls"}
+  let(:mustadio_url)          { "http://mustadio:3000" }
+  let(:not_clickable_url)     { "#{mustadio_url}/notClickable"}
 
   before :all do
     Gridium.config.browser_source = :remote
@@ -92,7 +94,7 @@ describe Page do
   end
 
   describe '#mouse_over' do
-    let(:hover_url) { "http://mustadio:3000/hover"}
+    let(:hover_url) { "#{mustadio_url}/hover"}
     let(:hover_txt) { "I am Jack's hover action" }
     let(:invisible_text) { "I am Jack's smirking div" }
 
@@ -329,6 +331,27 @@ describe Page do
         end
 
         expect(time).to be_within(1).of(wait_timeout), "Expected #{time} to be within 1 second of requested timeout '#{wait_timeout}'"
+      end
+    end
+  end
+
+  context 'with \'disabled\' param' do
+    before :example do
+      test_driver.visit not_clickable_url
+    end
+
+    describe '#has_button?' do
+      it 'finds the disabled button' do
+        pending "mustadio addition"
+        expect(Page.has_button?("no click for you", disabled: true)).to be true
+      end
+
+      it 'fails to find enabled button that is disabled - default' do
+        expect(Page.has_button?("no click for you")).to be false
+      end
+
+      it 'fails to find enabled button that is disabled - with param' do
+        expect(Page.has_button?("no click for you", disabled: false)).to be false
       end
     end
   end
