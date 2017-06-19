@@ -66,7 +66,12 @@ module Gridium
 
       begin
         elem = Element.new("#{button_text} button", :xpath, "//button[contains(., \"#{button_text}\")]", timeout: timeout)
-        wait.until {elem.enabled?}
+
+        if opts[:disabled]
+          wait.until {elem.disabled?}
+        else
+          wait.until {elem.enabled?}
+        end
       rescue Exception => exception
         Log.debug("[GRIDIUM::Page] has_button? is false because this exception was rescued: #{exception}")
         return false

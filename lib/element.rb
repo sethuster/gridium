@@ -115,6 +115,10 @@ class Element
     element.enabled?
   end
 
+  def disabled?
+    !enabled?
+  end
+
   def clear
     element.clear
     sleep @text_padding_time
