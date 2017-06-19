@@ -347,12 +347,10 @@ describe Page do
       end
 
       it 'fails to find enabled button that is disabled - default' do
-        pending "mustadio addition"
         expect(Page.has_button?("no click for you")).to be false
       end
 
       it 'fails to find enabled button that is disabled - with param' do
-        pending "mustadio addition"
         expect(Page.has_button?("no click for you", disabled: false)).to be false
       end
     end
