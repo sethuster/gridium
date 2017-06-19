@@ -10,6 +10,7 @@ class Element
     @name = name
     @by = by
     @locator = locator
+    @timeout = opts[:timeout] || Gridium.config.element_timeout
     @element_screenshot = nil #used to store the path of element screenshots for comparison
 
     # wrapped driver
@@ -23,8 +24,6 @@ class Element
 
     #how long to wait between clearing an input and sending keys to it
     @text_padding_time = 0.15
-
-    @default_timeout = Gridium.config.element_timeout
   end
 
   def to_s
@@ -32,8 +31,7 @@ class Element
   end
 
   def element(opts = {})
-    timeout = opts[:timeout].nil? ? @default_timeout : opts[:timeout]
-
+    timeout = opts[:timeout] || @timeout
     if stale?
       wait = Selenium::WebDriver::Wait.new :timeout => timeout, :interval => 1
       if Gridium.config.visible_elements_only
@@ -80,13 +78,13 @@ class Element
   # ================ #
 
   # soft failure, will not kill test immediately
-  def verify(timeout: Gridium.config.element_timeout)
+  def verify(timeout: @timeout)
     Log.debug('[GRIDIUM::Element] Verifying new element...')
     ElementVerification.new(self, timeout)
   end
 
   # hard failure, will kill test immediately
-  def wait_until(timeout: Gridium.config.element_timeout)
+  def wait_until(timeout: @timeout)
     Log.debug('[GRIDIUM::Element] Waiting for new element...')
     ElementVerification.new(self, timeout, fail_test: true)
   end

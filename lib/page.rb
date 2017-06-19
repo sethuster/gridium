@@ -48,8 +48,10 @@ module Gridium
       end
     end
 
-    def self.has_link?(linktext)
-      wait = Selenium::WebDriver::Wait.new(:timeout => 5)
+    def self.has_link?(linktext, opts = {})
+      timeout = opts[:timeout] || 5
+      wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
+
       begin
         wait.until {Driver.driver.find_element(:link_text, linktext).enabled?}
       rescue Exception => exception
@@ -58,6 +60,18 @@ module Gridium
       end
     end
 
+    def self.has_button?(button_text, opts = {})
+      timeout = opts[:timeout] || 5
+      wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
+
+      begin
+        elem = Element.new("#{button_text} button", :xpath, "//button[contains(., \"#{button_text}\")]", timeout: timeout)
+        wait.until {elem.enabled?}
+      rescue Exception => exception
+        Log.debug("[GRIDIUM::Page] has_button? is false because this exception was rescued: #{exception}")
+        return false
+      end
+    end
 
     def self.has_text?(text, opts = {})
       has_flash?(text, opts)
@@ -68,7 +82,7 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
       begin
         if opts[:visible]
-          element = wait.until { Element.new("Finding text '#{text}'", :xpath, "//*[text()=\"#{text}\"]").displayed? }
+          element = wait.until { Element.new("Finding text '#{text}'", :xpath, "//*[text()=\"#{text}\"]", timeout: timeout).displayed? }
         else
           element = wait.until { Driver.html.include? text }
         end
