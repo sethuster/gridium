@@ -91,6 +91,7 @@ class Driver
       chrome_options: {
         args: ['--start-maximized', '--privileged', '--disable-web-security'],
         prefs: {
+          # Need configurable download directory. Currently not supported on Selenium Grid
           download: {
             prompt_for_download: false,
             directory_upgrade: true,
