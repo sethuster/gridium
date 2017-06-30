@@ -2,7 +2,6 @@ require_relative 'spec_helper'
 # require 'pry'
 
 describe Gridium do
-
   describe 'Gridium' do
     let(:gridium_version) { Gridium::VERSION }
     let(:gridium_configuration) { Gridium.config }
@@ -18,7 +17,8 @@ describe Gridium do
         expect(gridium_configuration.target_environment).to eq('http://hub:4444/wd/hub')
         expect(gridium_configuration.browser).to eq(:chrome)
         expect(gridium_configuration.page_load_timeout).to eq(15)
-        expect(gridium_configuration.element_timeout).to eq (15)
+        expect(gridium_configuration.page_load_retries).to eq(0)
+        expect(gridium_configuration.element_timeout).to eq(15)
         expect(gridium_configuration.visible_elements_only).to be(true)
         expect(gridium_configuration.log_level).to eq(:error)
         expect(gridium_configuration.highlight_verifications).to be(true)

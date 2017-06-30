@@ -21,7 +21,7 @@ module Gridium
   end
 
   class Config
-    attr_accessor :report_dir, :browser_source, :target_environment, :browser, :url, :page_load_timeout, :element_timeout, :visible_elements_only, :log_level
+    attr_accessor :report_dir, :browser_source, :target_environment, :browser, :url, :page_load_timeout, :page_load_retries, :element_timeout, :visible_elements_only, :log_level
     attr_accessor :highlight_verifications, :highlight_duration, :screenshot_on_failure, :screenshots_to_s3, :project_name_for_s3, :subdirectory_name_for_s3
     attr_accessor :testrail, :selenium_log_level
 
@@ -33,6 +33,7 @@ module Gridium
       @browser = :chrome
       @url = "about:blank"
       @page_load_timeout = 15
+      @page_load_retries = 0
       @element_timeout = 15  #This needs to be changed to only look for an element after a page is done loading
       @visible_elements_only = true
       @log_level = :fatal
