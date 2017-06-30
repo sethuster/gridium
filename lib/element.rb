@@ -183,11 +183,11 @@ class Element
     unless element.enabled?
       raise "Browser Error: tried to enter #{args} but the input is disabled"
     end
-    if only_symbols? *args
-      append_keys *args
+    if only_symbols?(*args)
+      append_keys(*args)
     else
-      _stomp_input_text *args
-      field_empty_afterward? *args
+      _stomp_input_text(*args)
+      field_empty_afterward?(*args)
     end
   end
   alias_method :text=, :send_keys
@@ -227,7 +227,7 @@ class Element
   end
 
   # Raw webdriver mouse over
-  def mouse_over(x: 0, y: 0)
+  def mouse_over(x: 1, y: 1)
     Log.debug("[GRIDIUM::Element] Triggering mouse over for (#{self.to_s})...")
     if element.enabled?
       $verification_passes += 1
