@@ -3,7 +3,6 @@ require 'uri'
 require 'spec_data'
 
 class Driver
-
   @@driver = nil
 
   def self.reset
@@ -12,7 +11,6 @@ class Driver
     driver.manage.timeouts.page_load = Gridium.config.page_load_timeout
     driver.manage.timeouts.implicit_wait = 0 # always use explicit waits!
 
-    # Ensure the browser is maximized to maximize visibility of element
     # Ensure the browser is maximized to maximize visibility of element
     # Currently doesn't work with chromedriver, but the following workaround does:
     if @browser_type.eql?(:chrome)
@@ -26,44 +24,42 @@ class Driver
   end
 
   def self.driver
-    begin
-      unless @@driver
-        Log.debug("[Gridium::Driver]  Driver.driver: instantiating new driver")
-        @browser_type = Gridium.config.browser
-        ##Adding support for remote browsers
-        if Gridium.config.browser_source == :remote
-          @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: _set_capabilities())
-          Log.debug("[Gridium::Driver] Remote Browser Requested: #{@@driver}")
+    unless @@driver
+      Log.debug("[Gridium::Driver]  Driver.driver: instantiating new driver")
+      @browser_type = Gridium.config.browser
+      ##Adding support for remote browsers
+      if Gridium.config.browser_source == :remote
+        @@driver = Selenium::WebDriver.for(:remote, url: Gridium.config.target_environment, desired_capabilities: _set_capabilities)
+        Log.debug("[Gridium::Driver] Remote Browser Requested: #{@@driver}")
 
-          #this file detector is only used for remote drivers and is needed to upload files from test_host through Grid to browser
-          @@driver.file_detector = lambda do |args|
-            str = args.first.to_s
-            str if File.exist?(str)
-          end
-        else
-          @@driver = Selenium::WebDriver.for(Gridium.config.browser, desired_capabilities: _set_capabilities())
+        #this file detector is only used for remote drivers and is needed to upload files from test_host through Grid to browser
+        @@driver.file_detector = lambda do |args|
+          str = args.first.to_s
+          str if File.exist?(str)
         end
-        if Gridium.config.screenshots_to_s3
-          #do stuff
-          s3_project_folder = Gridium.config.project_name_for_s3
-          s3_subfolder = Gridium.config.subdirectory_name_for_s3
-          Log.debug("[Gridium::Driver] configuring s3 to save files to this directory: #{s3_project_folder} in addition to being saved locally")
-          @s3 = Gridium::GridiumS3.new(s3_project_folder, s3_subfolder)
-          Log.debug("[Gridium::Driver] s3 is #{@s3}")
-        else
-          Log.debug("[Gridium::Driver] s3 screenshots not enabled in spec_helper; they will be only be saved locally")
-          @s3 = nil
-        end
-        reset
+      else
+        @@driver = Selenium::WebDriver.for(Gridium.config.browser, desired_capabilities: _set_capabilities)
       end
-      _log_shart #push out logs before doing something with selenium
-      @@driver
-    rescue Exception => e
-      Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
-      Log.info("[Gridium::Driver] Driver did not load within (#{Gridium.config.page_load_timeout}) seconds.  [#{e.message}]")
-      $fail_test_instantly = true
-      Kernel.fail(e.message)
+      if Gridium.config.screenshots_to_s3
+        #do stuff
+        s3_project_folder = Gridium.config.project_name_for_s3
+        s3_subfolder = Gridium.config.subdirectory_name_for_s3
+        Log.debug("[Gridium::Driver] configuring s3 to save files to this directory: #{s3_project_folder} in addition to being saved locally")
+        @s3 = Gridium::GridiumS3.new(s3_project_folder, s3_subfolder)
+        Log.debug("[Gridium::Driver] s3 is #{@s3}")
+      else
+        Log.debug("[Gridium::Driver] s3 screenshots not enabled in spec_helper; they will be only be saved locally")
+        @s3 = nil
+      end
+      reset
     end
+    _log_shart #push out logs before doing something with selenium
+    @@driver
+  rescue StandardError => e
+    Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
+    Log.info("[Gridium::Driver] Driver did not load within (#{Gridium.config.page_load_timeout}) seconds.  [#{e.message}]")
+    $fail_test_instantly = true
+    Kernel.fail(e.message)
   end
 
   def self._log_shart
@@ -123,22 +119,28 @@ class Driver
 
   def self.visit(path)
     Log.debug("[Gridium::Driver]  Driver.Visit: #{@@driver}")
-    begin
-      if path
-        Log.debug("[Gridium::Driver] Navigating to url: (#{path}).")
-        driver
-        time_start = Time.now
-        driver.navigate.to(path)
-        time_end = Time.new
-        page_load = (time_end - time_start)
-        Log.debug("[Gridium::Driver] Page loaded in (#{page_load}) seconds.")
-        $verification_passes += 1
-      end
-    rescue Exception => e
-      Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
-      Log.error("[Gridium::Driver] Timed out attempting to load #{path} for #{Gridium.config.page_load_timeout} seconds:\n#{e.message}\n - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
-      raise e
+    retries = Gridium.config.page_load_retries
+
+    if path
+      Log.debug("[Gridium::Driver] Navigating to url: (#{path}).")
+      driver
+      time_start = Time.now
+      driver.navigate.to(path)
+      time_end = Time.new
+      page_load = (time_end - time_start)
+      Log.debug("[Gridium::Driver] Page loaded in (#{page_load}) seconds.")
+      $verification_passes += 1
     end
+  rescue StandardError => e
+    Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
+    Log.error("[Gridium::Driver] Timed out attempting to load #{path} for #{Gridium.config.page_load_timeout} seconds:\n#{e.message}\n - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
+    if retries > 0
+      Log.info("[Gridium::Driver] Retrying page load of #{path}")
+      retries -= 1
+      retry
+    end
+
+    raise e
   end
 
   def self.nav(path)
