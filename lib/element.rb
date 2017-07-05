@@ -104,8 +104,8 @@ class Element
     return false
   end
 
-  def displayed?
-    return element.displayed?
+  def displayed?(opts = {})
+    return element(opts).displayed?
   rescue StandardError => error
     Log.debug("[GRIDIUM::Element] element.displayed? is false because this error was rescued: #{error}")
     return false
