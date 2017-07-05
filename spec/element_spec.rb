@@ -324,4 +324,58 @@ describe Element do
       expect {this_one.send(:field_empty_afterward?, desired_text)}.to  raise_error error=RuntimeError, message=expected_error
     end
   end
+
+  describe '#displayed? and #not_displayed?' do
+    let(:gridium_config) { Gridium.config }
+    let(:wait) {Selenium::WebDriver::Wait.new :timeout => wait_timeout}
+    let(:element_to_appear_id) {"will-appear"}
+    let(:element_to_vanish_id) {"will-vanish"}
+    let(:moment) {2}
+
+    before :each do
+      test_driver.visit "http://mustadio:3000/wait?seconds=#{page_countdown}"
+      #small element_timeout so .displayed? doesn't take longer than the wait invoking it
+      gridium_config.element_timeout = (moment / 2)
+    end
+
+    after :each do
+      test_driver.quit
+    end
+
+    context 'when possible' do
+      let(:page_countdown) {moment}
+      let(:wait_timeout) {moment * 3}
+
+      it '#not_displayed? quickly determines an element is not visible' do
+        vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
+        await_disappearance = lambda { wait.until {vanishing_div.not_displayed?} }
+        expect(await_disappearance).not_to raise_exception
+      end
+
+      it '#displayed? quickly determines an element is visible' do
+        appearing_div = Element.new("I am jack's appearing div", :id, element_to_appear_id)
+        await_appearance = lambda { appearing_div.displayed? }
+        expect(await_appearance).not_to raise_exception
+      end
+    end
+
+    context 'when impossible' do
+      let(:page_countdown) {moment * 3}
+      let(:wait_timeout) {moment}
+
+      it '#not_displayed? eventually raises TimeOutError if an element remains visible' do
+        vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
+        await_disappearance = lambda { wait.until {vanishing_div.not_displayed?} }
+        expect(await_disappearance).to raise_error(Selenium::WebDriver::Error::TimeOutError)
+      end
+
+      it '#displayed? eventually eventually raises TimeOutError if an element remains not visible' do
+        appearing_div = Element.new("I am jack's appearing div", :id, element_to_appear_id)
+        await_appearance = lambda {wait.until {appearing_div.displayed?}}
+        expect(await_appearance).to raise_error(Selenium::WebDriver::Error::TimeOutError)
+      end
+
+    end
+  end
+
 end

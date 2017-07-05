@@ -111,6 +111,14 @@ class Element
     return false
   end
 
+  def not_displayed?
+    return !@driver.find_element(@by => @locator).displayed?
+  rescue StandardError => error
+    Log.debug("[GRIDIUM::Element] element.not_displayed? is false because this error was rescued: #{error}")
+    return false
+  end
+
+
   def enabled?
     element.enabled?
   end
