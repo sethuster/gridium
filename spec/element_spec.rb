@@ -341,6 +341,7 @@ describe Element do
     end
 
     after :each do
+      gridium_config.element_timeout = 15
       test_driver.quit
     end
 
