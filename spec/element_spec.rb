@@ -354,7 +354,7 @@ describe Element do
 
       it '#displayed? quickly determines an element is visible' do
         appearing_div = Element.new("I am jack's appearing div", :id, element_to_appear_id)
-        await_appearance = lambda { appearing_div.displayed? }
+        await_appearance = lambda {wait.until {appearing_div.displayed?}}
         expect(await_appearance).not_to raise_exception
       end
     end
