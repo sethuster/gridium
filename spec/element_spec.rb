@@ -325,7 +325,7 @@ describe Element do
     end
   end
 
-  describe '#displayed? and not #displayed?' do
+  describe 'waiting with #displayed? and not #displayed?' do
     let(:gridium_config) { Gridium.config }
     let(:wait) {Selenium::WebDriver::Wait.new :timeout => wait_timeout}
     let(:element_to_appear_id) {"will-appear"}
