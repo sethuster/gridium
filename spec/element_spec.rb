@@ -360,7 +360,7 @@ describe Element do
 
       it 'wait until not #displayed? quickly determines an element is not visible' do
         vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
-        await_disappearance = lambda { wait.until {!vanishing_div.displayed?({:timeout => moment})} }
+        await_disappearance = lambda { wait.until {!vanishing_div.displayed?(:timeout => moment)} }
         expect(await_disappearance).not_to raise_exception
       end
 
@@ -377,7 +377,7 @@ describe Element do
 
       it 'wait until not #displayed? eventually raises TimeOutError if an element remains visible' do
         vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
-        await_disappearance = lambda { wait.until {!vanishing_div.displayed?({:timeout => moment})} }
+        await_disappearance = lambda { wait.until {!vanishing_div.displayed?(:timeout => moment)} }
         expect(await_disappearance).to raise_error(Selenium::WebDriver::Error::TimeOutError)
       end
 
