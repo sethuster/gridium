@@ -505,6 +505,16 @@ describe Driver do
     end
   end
 
+  describe 'alerts' do
+    it 'should accept an alert' do
+      test_driver.visit("#{mustadio}/alert")
+      Element.new("trigger alert button", :id, "alert").click
+      sleep 2
+      expect {test_driver.driver.switch_to.alert.accept}.not_to raise_error
+      sleep 2
+    end
+  end
+
 
   def create_new_element(name, by, locator)
     Element.new(name, by, locator)
