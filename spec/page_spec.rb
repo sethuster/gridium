@@ -342,7 +342,6 @@ describe Page do
 
     describe '#has_button?' do
       it 'finds the disabled button' do
-        pending "mustadio addition"
         expect(Page.has_button?("no click for you", disabled: true)).to be true
       end
 

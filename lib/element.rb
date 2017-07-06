@@ -10,7 +10,7 @@ class Element
     @name = name
     @by = by
     @locator = locator
-    @timeout = opts[:timeout] || Gridium.config.element_timeout
+    @timeout = opts[:timeout] || Gridium.config.element_timeout #don't set this to zero
     @element_screenshot = nil #used to store the path of element screenshots for comparison
 
     # wrapped driver
@@ -104,8 +104,8 @@ class Element
     return false
   end
 
-  def displayed?
-    return element.displayed?
+  def displayed?(opts = {})
+    return element(opts).displayed?
   rescue StandardError => error
     Log.debug("[GRIDIUM::Element] element.displayed? is false because this error was rescued: #{error}")
     return false
