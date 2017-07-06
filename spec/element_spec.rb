@@ -325,7 +325,7 @@ describe Element do
     end
   end
 
-  describe '#displayed? and #not_displayed?' do
+  describe '#displayed? and not #displayed?' do
     let(:gridium_config) { Gridium.config }
     let(:wait) {Selenium::WebDriver::Wait.new :timeout => wait_timeout}
     let(:element_to_appear_id) {"will-appear"}
@@ -346,9 +346,9 @@ describe Element do
       let(:page_countdown) {moment}
       let(:wait_timeout) {moment * 3}
 
-      it '#not_displayed? quickly determines an element is not visible' do
+      it 'not #displayed? quickly determines an element is not visible' do
         vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
-        await_disappearance = lambda { wait.until {vanishing_div.displayed?({:timeout => moment})} }
+        await_disappearance = lambda { wait.until {!vanishing_div.displayed?({:timeout => moment})} }
         expect(await_disappearance).not_to raise_exception
       end
 
@@ -363,15 +363,9 @@ describe Element do
       let(:page_countdown) {moment * 3}
       let(:wait_timeout) {moment}
 
-      it '#not_displayed? eventually raises TimeOutError if an element remains visible for 0 seconds' do
+      it 'not #displayed? eventually raises TimeOutError if an element remains visible' do
         vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
-        await_disappearance = lambda { wait.until {vanishing_div.displayed?({:timeout => 0})} }
-        expect(await_disappearance).to raise_error(Selenium::WebDriver::Error::TimeOutError)
-      end
-
-      it '#not_displayed? eventually raises TimeOutError if an element remains visible for 1 second' do
-        vanishing_div = Element.new("I am jack's disappearing div", :id, element_to_vanish_id)
-        await_disappearance = lambda { wait.until {vanishing_div.displayed?({:timeout => 1})} }
+        await_disappearance = lambda { wait.until {!vanishing_div.displayed?({:timeout => moment})} }
         expect(await_disappearance).to raise_error(Selenium::WebDriver::Error::TimeOutError)
       end
 
