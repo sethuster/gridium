@@ -121,26 +121,28 @@ class Driver
     Log.debug("[Gridium::Driver]  Driver.Visit: #{@@driver}")
     retries = Gridium.config.page_load_retries
 
-    if path
-      Log.debug("[Gridium::Driver] Navigating to url: (#{path}).")
-      driver
-      time_start = Time.now
-      driver.navigate.to(path)
-      time_end = Time.new
-      page_load = (time_end - time_start)
-      Log.debug("[Gridium::Driver] Page loaded in (#{page_load}) seconds.")
-      $verification_passes += 1
-    end
-  rescue StandardError => e
-    Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
-    Log.error("[Gridium::Driver] Timed out attempting to load #{path} for #{Gridium.config.page_load_timeout} seconds:\n#{e.message}\n - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
-    if retries > 0
-      Log.info("[Gridium::Driver] Retrying page load of #{path}")
-      retries -= 1
-      retry
-    end
+    begin
+      if path
+        Log.debug("[Gridium::Driver] Navigating to url: (#{path}).")
+        driver
+        time_start = Time.now
+        driver.navigate.to(path)
+        time_end = Time.new
+        page_load = (time_end - time_start)
+        Log.debug("[Gridium::Driver] Page loaded in (#{page_load}) seconds.")
+        $verification_passes += 1
+      end
+    rescue StandardError => e
+      Log.debug("[Gridium::Driver] #{e.backtrace.inspect}")
+      Log.error("[Gridium::Driver] Timed out attempting to load #{path} for #{Gridium.config.page_load_timeout} seconds:\n#{e.message}\n - Also be sure to check the url formatting.  http:// is required for proper test execution (www is optional).")
+      if retries > 0
+        Log.info("[Gridium::Driver] Retrying page load of #{path}")
+        retries -= 1
+        retry
+      end
 
-    raise e
+      raise e
+    end
   end
 
   def self.nav(path)
