@@ -35,7 +35,7 @@ Gridium.configure do |config|
   config.browser = :chrome
   config.url = "http://www.applicationundertest.com"
   config.page_load_timeout = 30
-  config.page_load_retry = 0
+  config.page_load_retries = 0
   config.element_timeout = 30
   config.visible_elements_only = true
   config.log_level = :debug
@@ -103,7 +103,7 @@ You may be saying to yourself - 'Holy Crap that's a lot of settings!'.  Yeah.  I
 `config.browser = :firefox`: This tells gridium which browser you will be testing.  Only firefox is working currently.  Future browsers to come.  
 `config.url = "http://www.applicationundertest.com"`: Where's the entry point for your web application?  
 `config.page_load_timeout = 30` Along with Element Timeout, how long (in seconds) should Selenium wait when finding an element?  
-`config.page_load_retry = 1` On a failure to load the requested page, Gridium will retry loading the page this many times.  
+`config.page_load_retries = 1` On a failure to load the requested page, Gridium will retry loading the page this many times.  
 `config.visible_elements_only = true`: With this enabled Gridium will only find VISIBLE elements on the page.  Hidden elements or non-enabled elements will not be matched.  
 `config.log_level = :debug`: There are a few levels here `:debug` `:info` `:warn` `:error` and `:fatal`.  Your Gridium tests objects can have different levels of logging.  Adjusting this setting will turn those log levels on or off depending on your needs at the time.  
 `config.highlight_verifications = true`: Will highlight the element Gridium finds in the browser.  This makes watching tests run easier to follow, although it does slow the test execution time down.  Recommend this is turned off for automated tests running in Jenkins or headless mode.  
