@@ -31,10 +31,6 @@ end
 RSpec.configure do |config|
   include Gridium
 
-  # Filtered focus
-  # https://relishapp.com/rspec/rspec-core/v/3-6/docs/filtering/filter-run-when-matching
-  config.filter_run_when_matching :focus
-
   config.before :suite do |suite|
     # Create the test report root directory and then the spec_report directory
     Dir.mkdir(Gridium.config.report_dir) if not File.exist?(Gridium.config.report_dir)

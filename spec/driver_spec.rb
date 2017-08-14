@@ -302,7 +302,7 @@ describe Driver do
     end
   end
 
-  describe 'redirecting to another url' do
+  xdescribe 'redirecting to another url' do
     it 'logs an error when verifying a url for a redirected website' do
       allow(logger).to receive(:error)
 
@@ -314,7 +314,7 @@ describe Driver do
     end
   end
 
-  describe 'creating new page elements' do
+  xdescribe 'creating new page elements' do
     it 'creates and waits with verify for new Gridium Elements' do
       test_driver.visit(test_url)
       element_one = create_new_element('ele1', :css, '#lst-ib')
