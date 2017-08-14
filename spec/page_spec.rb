@@ -288,8 +288,19 @@ describe Page do
       test_driver.visit dynamic_controls_url
     end
 
-    it 'has_link? "Elemental Selenium' do
+    it 'has_link? "Elemental Selenium"' do
       expect(Page.has_link?("Elemental Selenium")).to be true
+    end
+
+    context 'with verifying href' do
+      it 'fails to verify link text with href not matchine' do
+        expect(Page.has_link?("Elemental Selenium", href: "")).to be false
+      end
+
+      it 'verifies link text and href' do
+        expect(Page.has_link?("Elemental Selenium", href: "http://elementalselenium.com/")).to be true
+      end
+
     end
 
     it 'does not has_link? "Selenium Elemental"' do

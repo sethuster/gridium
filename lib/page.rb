@@ -53,7 +53,18 @@ module Gridium
       wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
 
       begin
-        wait.until {Driver.driver.find_element(:link_text, linktext).enabled?}
+        elem = nil
+        wait.until do
+          elem = Driver.driver.find_element(:link_text, linktext)
+          elem.enabled?
+        end
+
+        if opts[:href]
+          href = elem.attribute 'href'
+          raise "Failed to verify link href='#{opts[:href]}': #{href} != #{opts[:href]}" unless href == opts[:href]
+        end
+
+        return true
       rescue Exception => exception
         Log.debug("[GRIDIUM::Page] has_link? is false because this exception was rescued: #{exception}")
         return false
