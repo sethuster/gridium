@@ -70,7 +70,6 @@ describe Driver do
   end
 
   describe '#visit' do
-
     context 'timeout' do
       let(:original_timeout) {gridium_config.page_load_timeout}
       let(:instant_timeout) {0}
@@ -110,8 +109,6 @@ describe Driver do
     end
 
   end
-
-
 
   describe '#nav' do
     it 'visits a specified path via gridum configs' do
@@ -166,6 +163,30 @@ describe Driver do
       expect(test_driver.driver.navigate).to receive(:refresh)
 
       test_driver.refresh
+    end
+  end
+
+  describe '#send_keys' do
+    let(:test_input_page) { 'http://mustadio:3000/fields' }
+    let(:input_elem_1)    { Page.new.find(:css, '[id=input_1]') }
+    let(:input_elem_2)    { Page.new.find(:css, '[id=input_2]') }
+
+    before :example do
+      test_driver.visit test_input_page
+      input_elem_1.clear
+      input_elem_2.clear
+    end
+
+    it 'sends keys to active element' do
+      # activate input by clicking on it
+      input_elem_1.click
+      Driver.send_keys "42"
+      expect(input_elem_1.value).to eq "42"
+    end
+
+    it 'sends keys to requested element' do
+      Driver.send_keys(input_elem_2.element, "42")
+      expect(input_elem_2.value).to eq "42"
     end
   end
 
@@ -379,7 +400,6 @@ describe Driver do
   end
 
   describe 'S3 support' do
-
     before :each do
       Gridium.config.screenshots_to_s3 = true
     end

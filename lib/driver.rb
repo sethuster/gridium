@@ -353,6 +353,13 @@ class Driver
     Driver.driver.manage.delete_all_cookies
   end
 
+  # Raw driver send_keys to element, or to current active element
+  # @param [Array] args
+  # first arg may be an optional element, otherwise send the requested keys
+  def self.send_keys(*args)
+    Driver.driver.action.send_keys(*args).perform
+  end
+
   private
 
   def self.raw_driver
