@@ -140,9 +140,9 @@ class Element
       $verification_passes += 1
       begin
         element.click
-      rescue Exception => e
+      rescue StandardError => e
         Log.warn("[GRIDIUM::Element] Click Exception retrying...")
-        sleep 0.15
+        sleep 1
         click_retry -= 1
         if click_retry >= 0
           retry
@@ -371,7 +371,7 @@ class Element
       else
         return true
       end
-    rescue Exception => e
+    rescue StandardError => e
       Log.error("There was a problem comparing element images. #{e.to_s}")
     end
   end

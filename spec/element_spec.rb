@@ -325,7 +325,6 @@ describe Element do
     end
   end
 
-
   describe '#displayed?' do
     let(:gridium_config) { Gridium.config }
     let(:wait) {Selenium::WebDriver::Wait.new :timeout => wait_timeout}
@@ -388,6 +387,35 @@ describe Element do
         expect(await_appearance).to raise_error(Selenium::WebDriver::Error::TimeOutError)
       end
 
+    end
+  end
+
+  describe '#click' do
+    let(:test_input_page)   { "http://mustadio:3000/fields" }
+    let(:input_elem)        { Element.new("some input", :css, "[id=input_1]") }
+
+    before :example do
+      Driver.visit test_input_page
+      input_elem.wait_until.visible
+
+      allow(input_elem).to receive(:displayed?).and_return(true)
+      allow(input_elem).to receive(:stale?).and_return(false)
+      allow(input_elem.element).to receive(:enabled?).and_return(true)
+      allow(input_elem.element).to receive(:click).and_raise(Selenium::WebDriver::Error::UnknownError, 'unknown error: unable to click element at point (blah, blah)')
+      allow(Log).to receive(:error)
+      allow(Log).to receive(:warn)
+    end
+
+    after :example do
+      Driver.quit
+    end
+
+    it 'should retry on click exception' do
+      aggregate_failures 'expectations' do
+        expect {input_elem.click}.to raise_error(Selenium::WebDriver::Error::UnknownError, /unknown error: unable to click element at point/)
+        expect(Log).to have_received(:error).with(/\[GRIDIUM::Element\] Click Exception unknown error: unable to click element at point/)
+        expect(Log).to have_received(:warn).with(/Click Exception retrying/).at_least(3).times
+      end
     end
   end
 
