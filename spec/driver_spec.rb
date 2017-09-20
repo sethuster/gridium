@@ -224,7 +224,7 @@ describe Driver do
       test_driver.visit(mustadio)
       test_driver.verify_url('www.dogewow.com')
 
-      expect(logger).to have_received(:error).with("[Gridium::Driver] (#{mustadio}) does not include (www.dogewow.com).")
+      expect(logger).to have_received(:error).with("[Gridium::Driver] (#{mustadio}/) does not include (www.dogewow.com).")
       expect($verification_passes).to eq(1)
     end
   end
