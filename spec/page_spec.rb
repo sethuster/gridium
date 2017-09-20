@@ -111,46 +111,74 @@ describe Page do
     end
   end
 
-  xdescribe '#click_*' do
-    skip "QEA-1675"
+  describe '#click_*' do
+    let(:link_button_txt) { 'Do it!' }
+    let(:url)             { "#{mustadio_url}/buttons-links" }
 
-    it 'clicks a link' do
-      $verification_passes = 0
-      Driver.visit "https://www.sendgrid.com"
-      page = Page.new
-      page.click_link "See Plans and Pricing"
-      Driver.verify_url "https://sendgrid.com/pricing"
+    before :example do
+      Driver.visit url
     end
 
-    xit 'clicks a button' do
-      # no buttons to click
+    context 'when page has multiple links with same text' do
+      it 'clicks a link' do
+        Page.new.click_link(link_button_txt)
+        aggregate_failures 'expectations' do
+          expect(Page.has_text?("Link 1 clicked...", visible: true, timeout: 1)).to be false
+          expect(Page.has_text?("Link 2 clicked...", visible: true, timeout: 1)).to be false
+          expect(Page.has_text?("Link 3 clicked...", visible: true, timeout: 1)).to be true
+        end
+      end
+
+      it 'clicks link index 1' do
+        Page.new.click_link(link_button_txt, link_index: 1)
+        aggregate_failures 'expectations' do
+          expect(Page.has_text?("Link 1 clicked...", visible: true, timeout: 1)).to be true
+          expect(Page.has_text?("Link 2 clicked...", visible: true, timeout: 1)).to be false
+          expect(Page.has_text?("Link 3 clicked...", visible: true, timeout: 1)).to be false
+        end
+      end
+
+      it 'clicks link index 2' do
+        Page.new.click_link(link_button_txt, link_index: 2)
+        aggregate_failures 'expectations' do
+          expect(Page.has_text?("Link 1 clicked...", visible: true, timeout: 1)).to be false
+          expect(Page.has_text?("Link 2 clicked...", visible: true, timeout: 1)).to be true
+          expect(Page.has_text?("Link 3 clicked...", visible: true, timeout: 1)).to be false
+        end
+      end
     end
 
-    it 'clicks link index 1' do
-      $verification_passes = 0
-      Driver.visit "https://www.sendgrid.com"
-      page = Page.new
+    context 'when page has multiple buttons with same text' do
+      it 'clicks a button' do
+        Page.new.click_button(link_button_txt)
+        aggregate_failures 'expectations' do
+          expect(Page.has_text?("Button 1 clicked...", visible: true, timeout: 1)).to be false
+          expect(Page.has_text?("Button 2 clicked...", visible: true, timeout: 1)).to be false
+          expect(Page.has_text?("Button 3 clicked...", visible: true, timeout: 1)).to be true
+        end
+      end
 
-      page.click_link "Contact Us", link_index: 1
-      Driver.verify_url "https://sendgrid.com/contact"
+      it 'clicks button index 1' do
+        Page.new.click_button(link_button_txt, button_index: 1)
+        aggregate_failures 'expectations' do
+          expect(Page.has_text?("Button 1 clicked...", visible: true, timeout: 1)).to be true
+          expect(Page.has_text?("Button 2 clicked...", visible: true, timeout: 1)).to be false
+          expect(Page.has_text?("Button 3 clicked...", visible: true, timeout: 1)).to be false
+        end
+      end
+
+      it 'clicks button index 2' do
+        Page.new.click_button(link_button_txt, button_index: 2)
+        aggregate_failures 'expectations' do
+          expect(Page.has_text?("Button 1 clicked...", visible: true, timeout: 1)).to be false
+          expect(Page.has_text?("Button 2 clicked...", visible: true, timeout: 1)).to be true
+          expect(Page.has_text?("Button 3 clicked...", visible: true, timeout: 1)).to be false
+        end
+      end
     end
 
-    it 'clicks link index 2' do
-      $verification_passes = 0
-      Driver.visit "https://www.sendgrid.com"
-      page = Page.new
-
-      page.click_link "Contact Us", link_index: 2
-      Driver.verify_url "https://sendgrid.com/contact"
-    end
-
-    it 'clicks on any element in dom' do
-      $verification_passes = 0
-      Driver.visit "https://www.sendgrid.com"
-      page = Page.new
-
-      page.click_link "Contact Us", link_index: 2
-      Driver.verify_url "https://sendgrid.com/login"
+    it 'clicks on element in dom with text' do
+      Page.new.click_on "Multi Links"
     end
   end
 
