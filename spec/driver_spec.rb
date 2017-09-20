@@ -2,11 +2,9 @@ require 'spec_helper'
 require 'page_objects/cookie_page'
 
 describe Driver do
-  let(:gridium_config) { Gridium.config }
-
-  let(:test_url) { 'https://www.google.com' }
-  let(:redirected_url) { 'https://goo.gl/H5mLQP' }
-  let(:mustadio) {'http://mustadio:3000'}
+  let(:gridium_config)    { Gridium.config }
+  let(:mustadio)          {'http://mustadio:3000'}
+  let(:the_internet_url)  {'http://the-internet:5000'}
 
   let(:test_driver) { Driver }
   let(:driver_manager) { Driver.driver.manage }
@@ -93,10 +91,10 @@ describe Driver do
     end
 
     it 'verifies a browser opening and navigating to a specified url' do
-      allow(logger).to receive(:debug).and_return("Navigating to url: (#{test_url}).")
+      allow(logger).to receive(:debug).and_return("Navigating to url: (#{mustadio}).")
       allow(logger).to receive(:debug).and_return('Shutting down web driver...')
 
-      test_driver.visit(test_url)
+      test_driver.visit(mustadio)
 
       expect($verification_passes).to eq(1)
       #expect(logger).to have_received(:debug).at_most(3).times
@@ -111,10 +109,10 @@ describe Driver do
   end
 
   describe '#nav' do
+    let(:url) { "/fields" }
     it 'visits a specified path via gridum configs' do
-      expect(test_driver).to receive(:visit).with(gridium_config.url + test_url)
-
-      test_driver.nav(test_url)
+      expect(test_driver).to receive(:visit).with(gridium_config.url + url)
+      test_driver.nav(url)
     end
   end
 
@@ -213,21 +211,20 @@ describe Driver do
     it 'verifies the given url' do
       allow(logger).to receive(:debug)
 
-      test_driver.visit(test_url)
-      test_driver.verify_url(test_url)
-
+      test_driver.visit(mustadio)
+      test_driver.verify_url "mustadio:3000"
       expect(logger).to have_received(:debug).with('[Gridium::Driver] Verifying URL...')
-      expect(logger).to have_received(:debug).with('[Gridium::Driver] Confirmed. (https://www.google.com/) includes (https://www.google.com).')
+      expect(logger).to have_received(:debug).with("[Gridium::Driver] Confirmed. (#{mustadio}/) includes (mustadio:3000).")
       expect($verification_passes).to eq(2)
     end
 
     it 'rescues and logs an error if the current_url does not match given url' do
       allow(logger).to receive(:error)
 
-      test_driver.visit(test_url)
+      test_driver.visit(mustadio)
       test_driver.verify_url('www.dogewow.com')
 
-      expect(logger).to have_received(:error).with('[Gridium::Driver] (https://www.google.com/) does not include (www.dogewow.com).')
+      expect(logger).to have_received(:error).with("[Gridium::Driver] (#{mustadio}/) does not include (www.dogewow.com).")
       expect($verification_passes).to eq(1)
     end
   end
@@ -282,10 +279,10 @@ describe Driver do
 
   describe '#open_new_window' do
     it 'logs and opens new window' do
-      allow(logger).to receive(:debug).with("[Gridium::Driver] Opening new window and loading url (#{test_url})...")
-      expect(test_driver_extension).to receive(:open_new_window).with(test_url)
+      allow(logger).to receive(:debug).with("[Gridium::Driver] Opening new window and loading url (#{mustadio})...")
+      expect(test_driver_extension).to receive(:open_new_window).with(mustadio)
 
-      test_driver.open_new_window(test_url)
+      test_driver.open_new_window(mustadio)
     end
   end
 
@@ -324,6 +321,8 @@ describe Driver do
   end
 
   xdescribe 'redirecting to another url' do
+    let(:redirected_url) { 'https://goo.gl/H5mLQP' }
+
     it 'logs an error when verifying a url for a redirected website' do
       allow(logger).to receive(:error)
 
@@ -335,24 +334,27 @@ describe Driver do
     end
   end
 
-  xdescribe 'creating new page elements' do
+  describe 'creating new page elements' do
+    let(:url) { "#{mustadio}/fields"}
+
     it 'creates and waits with verify for new Gridium Elements' do
-      test_driver.visit(test_url)
-      element_one = create_new_element('ele1', :css, '#lst-ib')
+      test_driver.visit(url)
+
+      element_one = create_new_element('ele1', :css, '#input_1')
       element_one.send_keys 'sendgrid'
 
-      element_two = create_new_element('ele2', :xpath, "//div[@id='search']//*[contains(.,'sendgrid')]")
+      element_two = create_new_element('ele2', :xpath, "//input[@id='input_2']")
       element_two.verify.visible
 
       expect($verification_passes).to be < 4
     end
 
     it 'creates and waits with wait_until for new Gridium Elements' do
-      test_driver.visit(test_url)
-      element_one = create_new_element('ele1', :css, '#lst-ib')
+      test_driver.visit(url)
+      element_one = create_new_element('ele1', :css, '#input_1')
       element_one.send_keys 'sendgrid'
 
-      element_two = create_new_element('ele2', :xpath, "//div[@id='search']//*[contains(.,'sendgrid')]")
+      element_two = create_new_element('ele2', :xpath, "//*[@id='input_2']")
       element_two.wait_until.visible
 
       expect($verification_passes).to be < 4
@@ -360,41 +362,50 @@ describe Driver do
   end
 
   describe 'finding elements on the page' do
+    let(:url)     { "#{mustadio}/fields"}
+    let(:heading) { "i am jack's form" }
+
     it 'uses the #has_text method to find elements on the page' do
-      allow(test_page).to receive(:has_text?).with('google').and_return(true)
+      allow(test_page).to receive(:has_text?).with(heading).and_return(true)
 
-      test_driver.visit(test_url)
-      test_page.has_text?("google")
+      test_driver.visit(url)
+      test_page.has_text?(heading)
 
-      expect(test_driver.html.include?("google")).to eq true
-      expect(test_page).to have_received(:has_text?).with('google')
+      expect(test_driver.html.include?(heading)).to eq true
+      expect(test_page).to have_received(:has_text?).with(heading)
     end
   end
 
   describe 'stale elements on page' do
-    xit 'warns when stale elements are found' do
-      test_driver.visit("http://www.sendgrid.com")
-      get_started_btn = create_new_element("Plans and Pricing", :css, '#home-pricing-cta')
-      get_started_btn.click
+    let(:url)             { "#{mustadio}/theStaleMaker" }
+    let(:stale_span)      { create_new_element("Stale Span", :css, '#stale') }
+    let(:make_stale_btn)  { create_new_element("Make stale button", :css, '#makeStale') }
+    let(:make_fresh_btn)  { create_new_element("Make fresh button", :css, '#makeFresh') }
+
+    before :example do
+      test_driver.visit(url)
+    end
+
+    it 'warns when stale elements are found' do
       sleep 0.5
-      expect(test_driver.current_url).to include '/pricing'
+      expect(test_driver.current_url).to include '/theStaleMaker'
       begin
-        get_started_btn.click
+        stale_span.click
+        make_stale_btn.click
+        make_fresh_btn.click
+        stale_span.wait_until.visible
       rescue
         expect(test_spec_data.execution_warnings.include?("[GRIDIUM::Element] Stale element detected.... 'Plans and Pricing' (By:css => '#home-pricing-cta')")).to eq true
       end
     end
 
-    xit 'calls #stale? when checking for elements on the page' do
-      page_element = create_new_element("Plans and Pricing", :css, '#home-pricing-cta')
-      allow(page_element).to receive(:stale?).and_return(false)
+    it 'calls #stale? when checking for elements on the page' do
+      allow(make_stale_btn).to receive(:stale?).and_return(false)
 
-      test_driver.visit("http://www.sendgrid.com")
-      #page_element.click
       begin
-        page_element.click
+        make_stale_btn.click
       rescue
-        expect(page_element).to have_received(:stale?).at_least(:once)
+        expect(make_stale_btn).to have_received(:stale?).at_least(:once)
       end
     end
   end
@@ -427,7 +438,6 @@ describe Driver do
       upload_success = test_driver.s3._verify_upload(remote_file, local_file)
       expect(upload_success).to be true
     end
-
   end
 
   describe 'cookies' do
@@ -489,11 +499,9 @@ describe Driver do
       actual_cookies = cookie_page.refresh.get_all_cookies
       expect(actual_cookies). to eq expected_cookies
     end
-
   end
 
   describe 'selenium logging' do
-
     after :each do
       test_driver.quit
     end
@@ -539,5 +547,4 @@ describe Driver do
   def create_new_element(name, by, locator)
     Element.new(name, by, locator)
   end
-
 end

@@ -15,7 +15,7 @@ Gridium.configure do |config|
   config.browser_source = :remote
   config.target_environment = "http://hub:4444/wd/hub"
   config.browser = :chrome
-  config.url = "http://www.sendgrid.com"
+  config.url = "http://mustadio:3000"
   config.page_load_timeout = 15
   config.element_timeout = 15
   config.log_level = :error
