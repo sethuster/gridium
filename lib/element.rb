@@ -94,8 +94,15 @@ class Element
     element.attribute(name)
   end
 
+  # Requires element to have an ID value, to successfully use `document.getElementById`
   def set_attribute(name, value)
-
+    id = self.attribute('id')
+    if id.nil? || id.empty?
+      Log.warn("[GRIDIUM::Element] #{self} does not have an 'id'. Consider adding one.")
+    else
+      Log.debug("[GRIDIUM::Element] setting element attribute '#{name}' to '#{value}'")
+      ElementExtensions.set_attribute(id, name, value)
+    end
   end
 
   def css_value(name)

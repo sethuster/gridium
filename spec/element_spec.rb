@@ -15,7 +15,7 @@ describe Element do
     Gridium.config.browser = :chrome
   end
 
-  after :each do
+  after :example do
     Driver.quit
   end
 
@@ -406,10 +406,6 @@ describe Element do
       allow(Log).to receive(:warn)
     end
 
-    after :example do
-      Driver.quit
-    end
-
     it 'should retry on click exception' do
       aggregate_failures 'expectations' do
         expect {input_elem.click}.to raise_error(Selenium::WebDriver::Error::UnknownError, /unknown error: unable to click element at point/)
@@ -457,6 +453,60 @@ describe Element do
     it 'raises error when dragging to target xpath locator' do
       aggregate_failures 'expectations' do
         expect {source.wait_until.visible.drag_to(xpath_elem_b)}.to raise_error(Gridium::InvalidTypeError, /target element selector must be ':css'/)
+      end
+    end
+  end
+
+  context 'with attributes' do
+    let(:url)                   { "#{the_internet_url}/drag_and_drop" }
+    let(:css_elem_a)            { Element.new('css elem a', :css, '#column-a') }
+    let(:xpath_elem_a)          { Element.new('xpath elem a', :xpath, "//*[@id='column-a']")}
+    let(:class_value)           { 'column' }
+    let(:new_class_value)       { 'something-something-dark-side' }
+
+    before :example do
+      allow(Log).to receive(:warn)
+      allow(Log).to receive(:debug)
+
+      Driver.visit url
+    end
+
+    describe '#attribute' do
+      it 'retrieves \'class\' attribute from an element found with css' do
+        expect(css_elem_a.attribute('class')).to eq class_value
+      end
+
+      it 'retrieves \'class\' attribute from an element found with xpath' do
+        expect(xpath_elem_a.attribute('class')).to eq class_value
+      end
+    end
+
+    describe '#set_attribute' do
+      context 'with element having an #id attribute' do
+        it 'sets new \'class\' attribute via JScript, on element found with css' do
+          css_elem_a.set_attribute('class', new_class_value)
+
+          aggregate_failures 'expectations' do
+            expect(css_elem_a.attribute('class')).to eq new_class_value
+            expect(Log).to have_received(:debug).with(/\[GRIDIUM::Element\] setting element attribute 'class' to '#{new_class_value}'/)
+          end
+        end
+
+        it 'sets new \'class\' attribute via JScript, on element found with xpath' do
+          xpath_elem_a.set_attribute('class', new_class_value)
+
+          aggregate_failures 'expectations' do
+            expect(xpath_elem_a.attribute('class')).to eq new_class_value
+            expect(Log).to have_received(:debug).with(/\[GRIDIUM::Element\] setting element attribute 'class' to '#{new_class_value}'/)
+          end
+        end
+      end
+
+      context 'with element not having an #id attributge' do
+        it 'silently fails and logs a message' do
+          Page.new.find(:css, "a[href*=elementalselenium]").set_attribute('class', new_class_value)
+          expect(Log).to have_received(:warn).with(/does not have an 'id'/)
+        end
       end
     end
   end
