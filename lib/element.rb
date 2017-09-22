@@ -5,6 +5,7 @@ require 'spec_data'
 class Element
   attr_reader :name, :by, :locator
 
+  class Gridium::InvalidTypeError < StandardError; end
 
   def initialize(name, by, locator, opts = {})
     @name = name
@@ -64,9 +65,9 @@ class Element
     rescue StandardError => error
       Log.debug("[GRIDIUM::Element] element.displayed_element rescued: #{error}")
       if found_element
-        Log.warn("[GRIDIUM::Element] An element was found, but it was not displayed on the page. Gridium.config.visible_elements_only set to: #{Gridium.config.visible_elements_only} Element: #{self.to_s}")
+        Log.warn("[GRIDIUM::Element] An element was found, but it was not displayed on the page. Gridium.config.visible_elements_only set to: #{Gridium.config.visible_elements_only} Element: #{self}")
       else
-        Log.warn("[GRIDIUM::Element] Could not find Element: #{self.to_s}")
+        Log.warn("[GRIDIUM::Element] Could not find Element: #{self}")
       end
     end
 
@@ -91,6 +92,10 @@ class Element
 
   def attribute(name)
     element.attribute(name)
+  end
+
+  def set_attribute(name, value)
+
   end
 
   def css_value(name)
@@ -204,7 +209,7 @@ class Element
   end
 
   def hover_over
-    Log.debug("[GRIDIUM::Element] Hovering over element (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] Hovering over element (#{self})...")
     # @driver.mouse.move_to(element)            # Note: Doesn't work with Selenium 2.42 bindings for Firefox v31
     # @driver.action.move_to(element).perform
     # @driver.mouse_over(@locator)
@@ -217,7 +222,7 @@ class Element
   end
 
   def hover_away
-    Log.debug("[GRIDIUM::Element] Hovering away from element (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] Hovering away from element (#{self})...")
     if element.enabled?
       $verification_passes += 1
       ElementExtensions.hover_away(self) # Javascript workaround to above issue
@@ -228,13 +233,23 @@ class Element
 
   # Raw webdriver mouse over
   def mouse_over(x: 1, y: 1)
-    Log.debug("[GRIDIUM::Element] Triggering mouse over for (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] Triggering mouse over for (#{self})...")
     if element.enabled?
       $verification_passes += 1
       ElementExtensions.mouse_over(self, x: x, y: y)
     else
       Log.error('[GRIDIUM::Element] Cannot mouse over.  Element is not present.')
     end
+  end
+
+  # HTML5 Drag n drop
+  # @param [Element] target element to drag to
+  def drag_to(target)
+    raise Gridium::InvalidTypeError, "source element selector must be ':css'" unless self.by == :css
+    raise Gridium::InvalidTypeError, "target element selector must be ':css'" unless target.by == :css
+
+    Log.debug("[GRIDIUM::Element] Dragging (#{self}) to (#{target})")
+    ElementExtensions.drag_to(self, target)
   end
 
   def scroll_into_view
@@ -247,7 +262,7 @@ class Element
   end
 
   def trigger_onblur
-    Log.debug("[GRIDIUM::Element] Triggering onblur for (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] Triggering onblur for (#{self})...")
     if element.enabled?
       $verification_passes += 1
       ElementExtensions.trigger_onblur(self)
@@ -257,7 +272,7 @@ class Element
   end
 
   def jquery_click
-    Log.debug("[GRIDIUM::Element] JQuery clickin (#{self.to_s})...")
+    Log.debug("[GRIDIUM::Element] JQuery clickin (#{self})...")
     if element.enabled?
       $verification_passes += 1
       ElementExtensions.jquery_click(self)
@@ -328,7 +343,7 @@ class Element
     element_height = self.size.height
 
     # ChunkyPNG commands tap into oily_png (performance-enhanced version of chunky_png)
-    image = ChunkyPNG::Image.from_file(screenshot_path.to_s)
+    image = ChunkyPNG::Image.from_file(screenshot_path)
     image1 = image.crop(location_x, location_y, element_width, element_height)
     image2 = image1.to_image
     element_screenshot_path = File.join($current_run_dir, "#{name}__#{timestamp}.png")
@@ -372,7 +387,7 @@ class Element
         return true
       end
     rescue StandardError => e
-      Log.error("There was a problem comparing element images. #{e.to_s}")
+      Log.error("There was a problem comparing element images. #{e.message}")
     end
   end
 
@@ -392,7 +407,7 @@ class Element
     @element.displayed?
   rescue StandardError => error
     Log.debug("[GRIDIUM::Element] element.stale? is true because this error was rescued: #{error}")
-    Log.warn("[GRIDIUM::Element] Stale element detected.... #{self.to_s}")
+    Log.warn("[GRIDIUM::Element] Stale element detected.... #{self}")
     return true
   end
 

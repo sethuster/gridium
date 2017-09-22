@@ -213,7 +213,7 @@ describe Element do
       expected_error = "Browser Error: tried to enter [\"#{desired_text}\"] but the input is disabled"
       Driver.visit test_input_page
       disabled = Element.new "disabled field", :css, "[id=\"input_disabled\"]"
-      expect {disabled.send_keys desired_text}.to  raise_error error=RuntimeError, message=expected_error
+      expect {disabled.send_keys desired_text}.to  raise_error RuntimeError, expected_error
     end
 
     it 'send_keys should replace preexisting values' do
@@ -321,7 +321,7 @@ describe Element do
       this_one = Element.new expected_selector, :css, expected_selector
       this_one.append_keys desired_text
       this_one.clear
-      expect {this_one.send(:field_empty_afterward?, desired_text)}.to  raise_error error=RuntimeError, message=expected_error
+      expect {this_one.send(:field_empty_afterward?, desired_text)}.to  raise_error RuntimeError, expected_error
     end
   end
 
@@ -419,4 +419,45 @@ describe Element do
     end
   end
 
+  describe '#drag_to' do
+    let(:url)           { "#{the_internet_url}/drag_and_drop" }
+    let(:source)        { Element.new('Source', :css, '#column-a') }
+    let(:target)        { Element.new('Target', :css, '#column-b') }
+    let(:xpath_elem_a)  { Element.new('xpath elem a', :xpath, "//*[@id='column-a']")}
+    let(:xpath_elem_b)  { Element.new('xpath elem b', :xpath, "//*[@id='column-b']")}
+
+    before :example do
+      allow(Log).to receive(:debug)
+      allow(Log).to receive(:error)
+
+      Driver.visit url
+
+      aggregate_failures 'pre drag' do
+        expect(source.text).to eq('A')
+        expect(target.text).to eq('B')
+      end
+    end
+
+    it 'drags source element to target' do
+      source.wait_until.visible.drag_to(target)
+
+      aggregate_failures 'post drag' do
+        expect(source.text).to eq('B')
+        expect(target.text).to eq('A')
+        expect(Log).to have_received(:debug).with(/\[GRIDIUM::Element\] Dragging/)
+      end
+    end
+
+    it 'raises error when dragging from source xpath locator' do
+      aggregate_failures 'expectations' do
+        expect {xpath_elem_a.wait_until.visible.drag_to(target)}.to raise_error(Gridium::InvalidTypeError, /source element selector must be ':css'/)
+      end
+    end
+
+    it 'raises error when dragging to target xpath locator' do
+      aggregate_failures 'expectations' do
+        expect {source.wait_until.visible.drag_to(xpath_elem_b)}.to raise_error(Gridium::InvalidTypeError, /target element selector must be ':css'/)
+      end
+    end
+  end
 end
