@@ -45,5 +45,26 @@ class Gridium::ElementExtensions
     def jquery_click(element)
       Driver.execute_script("arguments[0].click().change();", element.element)
     end
+
+    #
+    # Javascript HTML5 Drag n drop
+    # @param [Element] source element (css locator required)
+    # @param [Element] target element (css locator required)
+    #
+    def drag_to(source, target)
+      dnd_js = File.read(File.join(File.dirname(__FILE__), "./js/dnd.js"))
+      Log.debug("[GRIDIUM::ElementExtensions] dragging '#{source}' to '#{target}'")
+      Driver.execute_script_driver(dnd_js + "$('#{source.locator}').simulateDragDrop({ dropTarget: '#{target.locator}'});")
+    end
+
+    #
+    # Use Javascript to set element attribute value from :id
+    # @param [String] id
+    # @param [String] Attribute
+    # @param [String] value
+    #
+    def set_attribute(id, attr, val)
+      Driver.execute_script_driver("document.getElementById('#{id}').setAttribute('#{attr}', '#{val}')");
+    end
   end
 end
