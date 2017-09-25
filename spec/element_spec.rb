@@ -502,9 +502,9 @@ describe Element do
         end
       end
 
-      context 'with element not having an #id attributge' do
+      context 'with element not having an #id attribute' do
         it 'silently fails and logs a message' do
-          Page.new.find(:css, "a[href*=elementalselenium]").set_attribute('class', new_class_value)
+          Page.new.find(:xpath, "//a[contains(@href,'elementalselenium')]").set_attribute('class', new_class_value)
           expect(Log).to have_received(:warn).with(/does not have an 'id'/)
         end
       end
