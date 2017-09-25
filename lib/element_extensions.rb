@@ -59,12 +59,12 @@ class Gridium::ElementExtensions
 
     #
     # Use Javascript to set element attribute value from :id
-    # @param [String] id
-    # @param [String] Attribute
-    # @param [String] value
+    # @param [String] selector  - css selector for find element by
+    # @param [String] attribute - element attribute to set
+    # @param [String] value     - element value to set
     #
-    def set_attribute(id, attr, val)
-      Driver.execute_script_driver("document.getElementById('#{id}').setAttribute('#{attr}', '#{val}')");
+    def set_attribute(selector, attr, val)
+      Driver.execute_script_driver("document.querySelectorAll('#{selector}')[0].setAttribute('#{attr}', '#{val}')")
     end
   end
 end
