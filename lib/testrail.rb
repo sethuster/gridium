@@ -59,20 +59,28 @@ module Gridium
         if rspec_test.nil? then
           Log.error("[GRIDIUM::TestRail] No test added to results. Turn of Gridium.config.testrail\n")
         end
+
         if rspec_test.exception
           status = CONFIG[:fail]
           message = rspec_test.exception.message
+          screenshot_url = rspec_test.metadata[:screenshot_url]
+          if screenshot_url
+            message << "- Screenshot: #{screenshot_url}"
+          end
         else
           status = CONFIG[:pass]
           message = 'Test Passed.'
         end
+
         test_info = {:case_id => rspec_test.metadata[:testrail_id], :status_id => status, :comment => message}
+
         @tc_results.push(test_info)
         @tc_ids.push(test_info[:case_id])
         added = true
-       end
-       return added
-     end
+      end
+
+      return added
+    end
 
     # Updates the existing test run with test cases and results.  Adds error text for missing test cases if needed. Closes the run as long as it exists.
     #
@@ -151,5 +159,4 @@ module Gridium
       result
     end
   end
-
 end

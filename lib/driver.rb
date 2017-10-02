@@ -206,7 +206,7 @@ class Driver
   def self.verify_url(given_url)
     Log.debug('[Gridium::Driver] Verifying URL...')
     current_url = self.current_url.to_s
-    current_domain = self.current_domain.to_s
+
     if current_url.include?(given_url)
       Log.debug("[Gridium::Driver] Confirmed. (#{current_url}) includes (#{given_url}).")
       $verification_passes += 1
@@ -248,23 +248,28 @@ class Driver
     driver.execute_script "return #{script}"
   end
 
+  #
+  # Saves the screenshot of browser to local disk. Uploads if S3, if configured
+  # @return [String] screenshot_path - Local path, or S3 url
+  #
   def self.save_screenshot(type = 'saved')
     Log.debug ("[Gridium::Driver] Capturing screenshot of browser...")
     timestamp = Time.now.strftime("%Y_%m_%d__%H_%M_%S")
-    screenshot_path = File.join($current_run_dir, "screenshot__#{timestamp}__#{type}.png")
-    driver.save_screenshot(screenshot_path)
-    _save_to_s3_if_configured(screenshot_path)
-    SpecData.screenshots_captured.push("screenshot__#{timestamp}__#{type}.png")   # used by custom_formatter.rb for embedding in report
+    filename = "screenshot__#{timestamp}__#{type}.png"
+    screenshot_path = local_path = File.join($current_run_dir, filename)
+
+    driver.save_screenshot(local_path)
+    Log.info("[Gridium::Driver] screenshot saved to #{local_path}")
+
+    if Gridium.config.screenshots_to_s3
+      screenshot_path = @s3.save_file(local_path)
+      Log.info("[Gridium::Driver] #{filename} uploaded to S3 at '#{screenshot_path}'")
+    end
+
+    SpecData.screenshots_captured.push filename   # used by custom_formatter.rb for embedding in report
+
     screenshot_path
   end
-
-  def self._save_to_s3_if_configured(screenshot_path)
-    if Gridium.config.screenshots_to_s3
-      url = @s3.save_file(screenshot_path)
-      Log.info("[Gridium::Driver] #{screenshot_path} saved to #{url}")
-    end
-  end
-
 
   def self.list_open_windows
     handles = driver.window_handles
