@@ -254,14 +254,18 @@ describe Driver do
   end
 
   describe '#save_screenshot' do
-    xit 'saves the screenshot and logs it' do
+    it 'saves the screenshot and logs it' do
       allow(logger).to receive(:debug)
-      allow(test_driver.driver).to receive(:save_screenshot).with('path/of/screenshot/', 'screenshot__blah__saved.png')
+      allow(logger).to receive(:info)
+      allow(logger).to receive(:debug).and_return('Shutting down web driver...')
 
-      test_driver.save_screenshot
+      local_path = test_driver.save_screenshot
 
-      expect(logger).to have_received(:debug).with('Capturing screenshot of browser...')
-      expect(test_spec_data.screenshots_captured).to have_received(:push).with('screenshot.png')
+      aggregate_failures 'expectations' do
+        expect(logger).to have_received(:debug).with(/Capturing screenshot of browser.../)
+        expect(local_path).to include $current_run_dir
+        expect(File.exist?(local_path)).to be true
+      end
     end
   end
 
@@ -428,15 +432,42 @@ describe Driver do
       expect(s3_is_instantiated).to be true
     end
 
-    it 'should save a screenshot to s3 when configured' do |test|
-      #TODO fix the things that make this test ugly
-      test_driver.visit('https://the-internet.herokuapp.com/')
-      test_name = "#{test.metadata[:description]}".gsub(/[^\w]/i, '_')
-      local_file = test_driver.save_screenshot(test_name)
-      remote_file = test_driver.s3.create_s3_name(File.basename(local_file))
-      Log.debug("remote_file is #{remote_file} and local_file is #{local_file}")
-      upload_success = test_driver.s3._verify_upload(remote_file, local_file)
-      expect(upload_success).to be true
+    context 'with s3 screenshot upload configured' do
+      before :example do
+        allow(logger).to receive(:debug)
+        allow(logger).to receive(:info)
+
+        test_driver.visit('https://the-internet.herokuapp.com/')
+      end
+
+      it 'should save a screenshot to s3 when configured' do |example|
+        test_name   = "#{example.metadata[:description]}".gsub(/[^\w]/i, '_')
+        remote_path = test_driver.save_screenshot(test_name)
+        file_name = remote_path.match(/\/screenshot.+/)[0].delete('/')
+        local_path = "#{$current_run_dir}/#{file_name}"
+
+        remote_file = test_driver.s3.create_s3_name(file_name)
+        Log.debug("remote_file is #{remote_file} and local_file is #{local_path}")
+        expect(test_driver.s3._verify_upload(remote_file, local_path)).to be true
+      end
+
+      it 'returns s3 screenshot url' do |example|
+        test_name   = "#{example.metadata[:description]}".gsub(/[^\w]/i, '_')
+        remote_path = test_driver.save_screenshot(test_name)
+
+        aggregate_failures 'expectations' do
+          expect(remote_path).to include "https://#{ENV['S3_ROOT_BUCKET']}.s3.amazonaws.com"
+        end
+      end
+
+      it 'also saves screenshot locally' do |example|
+        test_name   = "#{example.metadata[:description]}".gsub(/[^\w]/i, '_')
+        remote_path = test_driver.save_screenshot(test_name)
+        file_name = remote_path.match(/\/screenshot.+/)[0].delete('/')
+        local_path = "#{$current_run_dir}/#{file_name}"
+
+        expect(File.exist?(local_path)).to be true
+      end
     end
   end
 
