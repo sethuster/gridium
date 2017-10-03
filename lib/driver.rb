@@ -258,9 +258,11 @@ class Driver
     filename = "screenshot__#{timestamp}__#{type}.png"
     screenshot_path = local_path = File.join($current_run_dir, filename)
 
+    # Save screenshot locally
     driver.save_screenshot(local_path)
     Log.info("[Gridium::Driver] screenshot saved to #{local_path}")
 
+    # Push the screenshot up to S3?
     if Gridium.config.screenshots_to_s3
       screenshot_path = @s3.save_file(local_path)
       Log.info("[Gridium::Driver] #{filename} uploaded to S3 at '#{screenshot_path}'")

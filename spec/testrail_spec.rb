@@ -55,33 +55,37 @@ describe TestRail do
         let(:screenshot_url)    { "https://aws.com" }
         let(:testrail_id)       { 1234 }
 
-        before :example do
-          allow(rspec_result).to receive(:exception).and_return exception
-          allow(rspec_result).to receive(:metadata).and_return({:screenshot_url => screenshot_url, :testrail_id => testrail_id})
-          allow(exception).to receive(:message).and_return("You failed... ")
-        end
+        context 'when `screenshot_url` included in example metadata' do
+          before :example do
+            allow(rspec_result).to receive(:exception).and_return exception
+            allow(rspec_result).to receive(:metadata).and_return({:screenshot_url => screenshot_url, :testrail_id => testrail_id})
+            allow(exception).to receive(:message).and_return("You failed... ")
+          end
 
-        it 'adds screenshot url to failure message' do |example|
-          r = @tr.add_case(rspec_result)
+          it 'adds screenshot url to failure message' do |example|
+            r = @tr.add_case(rspec_result)
 
-          aggregate_failures 'expectations' do
-            expect(r).to be true
-            tc_results = @tr.instance_variable_get :@tc_results
-            fails_w_screenshot = tc_results.select { |tc| tc[:comment].include?("Screenshot") }
-            expect(fails_w_screenshot).not_to be_empty
-            expect(fails_w_screenshot.first[:comment]).to include "Screenshot: #{screenshot_url}"
+            aggregate_failures 'expectations' do
+              expect(r).to be true
+              tc_results = @tr.instance_variable_get :@tc_results
+              fails_w_screenshot = tc_results.select { |tc| tc[:comment].include?("Screenshot") }
+              expect(fails_w_screenshot).not_to be_empty
+              expect(fails_w_screenshot.first[:comment]).to include "Screenshot: #{screenshot_url}"
+            end
           end
         end
 
-        it 'does not add screenshot url to failures' do |example|
-          @tr.instance_variable_set :@tc_results, []
+        context 'when `screenshot_url` NOT included in example metadata' do
+          it 'does not add screenshot url to failures' do |example|
+            @tr.instance_variable_set :@tc_results, []
 
-          aggregate_failures 'expectations' do
-            r = @tr.add_case(example)
-            expect(r).to be true
-            tc_results = @tr.instance_variable_get :@tc_results
-            fails_w_screenshot = tc_results.select { |tc| tc[:comment].include?("Screenshot") }
-            expect(fails_w_screenshot).to be_empty
+            aggregate_failures 'expectations' do
+              r = @tr.add_case(example)
+              expect(r).to be true
+              tc_results = @tr.instance_variable_get :@tc_results
+              fails_w_screenshot = tc_results.select { |tc| tc[:comment].include?("Screenshot") }
+              expect(fails_w_screenshot).to be_empty
+            end
           end
         end
       end
