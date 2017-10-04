@@ -191,10 +191,10 @@ describe Driver do
   describe '#current_domain' do
     it 'returns the current domain' do
       allow(logger).to receive(:debug)
-      test_driver.visit("http://www.mozilla.org")
+      test_driver.visit the_internet_url
       test_driver.current_domain
 
-      expect(logger).to have_received(:debug).with('[Gridium::Driver] Current domain is: (www.mozilla.org).')
+      expect(logger).to have_received(:debug).with('[Gridium::Driver] Current domain is: (the-internet).')
     end
 
     xit 'returns an error if host is nil' do
@@ -325,9 +325,10 @@ describe Driver do
   end
 
   xdescribe 'redirecting to another url' do
-    let(:redirected_url) { 'https://goo.gl/H5mLQP' }
+    # TODO: mustadio
+    # let(:redirected_url) { 'https://goo.gl/H5mLQP' }
 
-    it 'logs an error when verifying a url for a redirected website' do
+    xit 'logs an error when verifying a url for a redirected website' do
       allow(logger).to receive(:error)
 
       test_driver.visit(redirected_url)
@@ -437,7 +438,7 @@ describe Driver do
         allow(logger).to receive(:debug)
         allow(logger).to receive(:info)
 
-        test_driver.visit('https://the-internet.herokuapp.com/')
+        test_driver.visit the_internet_url
       end
 
       it 'should save a screenshot to s3 when configured' do |example|
