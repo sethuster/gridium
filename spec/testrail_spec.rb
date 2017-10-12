@@ -9,7 +9,7 @@ describe TestRail do
   let(:tr) { Gridium::TestRail.new }
   let(:logger) { Log }
 
-  before :all do
+  before :example do
     @tr = Gridium::TestRail.new
   end
 
@@ -44,6 +44,10 @@ describe TestRail do
     end
 
     describe '#add_case' do
+      before :example do
+        @tr.add_run("Gridium Unit Test: #{Time.now.to_i}", "Valid Description")
+      end
+
       it 'Can Add a single case Case to Run', testrail_id: 13313764 do |example|
         r = @tr.add_case(example)
         expect(r).to be true
@@ -55,18 +59,21 @@ describe TestRail do
         let(:screenshot_url)    { "https://aws.com" }
         let(:testrail_id)       { 1234 }
 
+        before :example do
+          allow(rspec_result).to receive(:exception).and_return exception
+          allow(exception).to receive(:message).and_return("You failed... ")
+          allow(exception).to receive(:backtrace).and_return []
+          allow(rspec_result).to receive(:metadata).and_return({:testrail_id => testrail_id})
+        end
+
         context 'when `screenshot_url` included in example metadata' do
           before :example do
-            allow(rspec_result).to receive(:exception).and_return exception
             allow(rspec_result).to receive(:metadata).and_return({:screenshot_url => screenshot_url, :testrail_id => testrail_id})
-            allow(exception).to receive(:message).and_return("You failed... ")
+            expect(@tr.add_case(rspec_result)).to be true
           end
 
           it 'adds screenshot url to failure message' do |example|
-            r = @tr.add_case(rspec_result)
-
             aggregate_failures 'expectations' do
-              expect(r).to be true
               tc_results = @tr.instance_variable_get :@tc_results
               fails_w_screenshot = tc_results.select { |tc| tc[:comment].include?("Screenshot") }
               expect(fails_w_screenshot).not_to be_empty
@@ -76,15 +83,68 @@ describe TestRail do
         end
 
         context 'when `screenshot_url` NOT included in example metadata' do
-          it 'does not add screenshot url to failures' do |example|
-            @tr.instance_variable_set :@tc_results, []
+          before :example do
+            expect(@tr.add_case(rspec_result)).to be true
+          end
 
+          it 'does not add screenshot url to failures' do |example|
             aggregate_failures 'expectations' do
-              r = @tr.add_case(example)
-              expect(r).to be true
               tc_results = @tr.instance_variable_get :@tc_results
               fails_w_screenshot = tc_results.select { |tc| tc[:comment].include?("Screenshot") }
               expect(fails_w_screenshot).to be_empty
+            end
+          end
+        end
+
+        context 'with backtrace' do
+          let(:bt) do
+            [
+              "/Users/gridium/.rbenv/versions/2.3.4/lib/ruby/gems/2.3.0/gems/selenium-webdriver-3.4.0/lib/selenium/webdriver/common/wait.rb:73:in `until'",
+              "/Users/gridium/sitetestui/spec/project/sub-project/navigation_spec.rb:20:in `block (2 levels) in <top (required)>'"
+            ]
+          end
+
+          before :example do
+            allow(exception).to receive(:backtrace).and_return(bt)
+          end
+
+          it "adds 'sitetestui' rspec backtrace to test case result message by default" do
+            expect(@tr.add_case(rspec_result)).to be true
+
+            tc_results = @tr.instance_variable_get :@tc_results
+
+            aggregate_failures 'expectations' do
+              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("#") }
+              expect(fails_w_bt).not_to be_empty
+              expect(fails_w_bt.first[:comment]).not_to include bt[0]
+              expect(fails_w_bt.first[:comment]).to include bt[1]
+            end
+          end
+
+          it "adds specific backtrace output with a regex" do
+            allow(rspec_result).to receive(:metadata).and_return({:backtrace_regex => 'selenium', :testrail_id => testrail_id})
+            expect(@tr.add_case(rspec_result)).to be true
+
+            tc_results = @tr.instance_variable_get :@tc_results
+
+            aggregate_failures 'expectations' do
+              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("#") }
+              expect(fails_w_bt).not_to be_empty
+              expect(fails_w_bt.first[:comment]).to include bt[0]
+              expect(fails_w_bt.first[:comment]).not_to include bt[1]
+            end
+          end
+
+          it "outputs multiple bt with newlines" do
+            allow(rspec_result).to receive(:metadata).and_return({:backtrace_regex => 'gridium', :testrail_id => testrail_id})
+            expect(@tr.add_case(rspec_result)).to be true
+
+            tc_results = @tr.instance_variable_get :@tc_results
+
+            aggregate_failures 'expectations' do
+              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("#") }
+              expect(fails_w_bt).not_to be_empty
+              expect(fails_w_bt.first[:comment]).to include bt.join("\n # ")
             end
           end
         end
