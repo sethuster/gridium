@@ -65,8 +65,13 @@ module Gridium
           message = rspec_test.exception.message
           screenshot_url = rspec_test.metadata[:screenshot_url]
           if screenshot_url
-            message << "- Screenshot: #{screenshot_url}"
+            message << "\n - Screenshot: #{screenshot_url}"
           end
+
+          # add backtrace to test case
+          bt_search_re = rspec_test.metadata[:backtrace_regex] || 'sitetestui'
+          bt = rspec_test.exception.backtrace.grep(/#{bt_search_re}/)
+          message << "\n\n # " + bt.join("\n # ") unless bt.empty?
         else
           status = CONFIG[:pass]
           message = 'Test Passed.'
