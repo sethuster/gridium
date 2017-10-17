@@ -4,6 +4,7 @@ require 'spec_data'
 
 class Driver
   @@driver = nil
+  @@s3 = nil
 
   def self.reset
     Log.debug("[Gridium::Driver] Driver.reset: #{@@driver}")
@@ -23,6 +24,23 @@ class Driver
     end
   end
 
+  def self.s3
+    unless @@s3
+      if Gridium.config.screenshots_to_s3
+        #do stuff
+        s3_project_folder = Gridium.config.project_name_for_s3
+        s3_subfolder = Gridium.config.subdirectory_name_for_s3
+        Log.debug("[Gridium::Driver] configuring s3 to save files to this directory: #{s3_project_folder} in addition to being saved locally")
+        @@s3 = Gridium::GridiumS3.new(s3_project_folder, s3_subfolder)
+        Log.debug("[Gridium::Driver] s3 is #{@@s3}")
+      else
+        Log.debug("[Gridium::Driver] s3 screenshots not enabled in spec_helper; they will be only be saved locally")
+      end
+    end
+
+    @@s3
+  end
+
   def self.driver
     unless @@driver
       Log.debug("[Gridium::Driver]  Driver.driver: instantiating new driver")
@@ -40,19 +58,10 @@ class Driver
       else
         @@driver = Selenium::WebDriver.for(Gridium.config.browser, desired_capabilities: _set_capabilities)
       end
-      if Gridium.config.screenshots_to_s3
-        #do stuff
-        s3_project_folder = Gridium.config.project_name_for_s3
-        s3_subfolder = Gridium.config.subdirectory_name_for_s3
-        Log.debug("[Gridium::Driver] configuring s3 to save files to this directory: #{s3_project_folder} in addition to being saved locally")
-        @s3 = Gridium::GridiumS3.new(s3_project_folder, s3_subfolder)
-        Log.debug("[Gridium::Driver] s3 is #{@s3}")
-      else
-        Log.debug("[Gridium::Driver] s3 screenshots not enabled in spec_helper; they will be only be saved locally")
-        @s3 = nil
-      end
+
       reset
     end
+
     _log_shart #push out logs before doing something with selenium
     @@driver
   rescue StandardError => e
@@ -101,11 +110,6 @@ class Driver
         }
       }
     )
-  end
-
-  def self.s3
-    #TODO figure out why I can't just use attr_reader :s3
-    @s3
   end
 
   def self.driver= driver
@@ -264,7 +268,7 @@ class Driver
 
     # Push the screenshot up to S3?
     if Gridium.config.screenshots_to_s3
-      screenshot_path = @s3.save_file(local_path)
+      screenshot_path = s3.save_file(local_path)
       Log.info("[Gridium::Driver] #{filename} uploaded to S3 at '#{screenshot_path}'")
     end
 

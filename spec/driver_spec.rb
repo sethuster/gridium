@@ -444,11 +444,11 @@ describe Driver do
       it 'should save a screenshot to s3 when configured' do |example|
         test_name   = "#{example.metadata[:description]}".gsub(/[^\w]/i, '_')
         remote_path = test_driver.save_screenshot(test_name)
-        file_name = remote_path.match(/\/screenshot.+/)[0].delete('/')
+        file_name = remote_path.split('/').last
         local_path = "#{$current_run_dir}/#{file_name}"
 
         remote_file = test_driver.s3.create_s3_name(file_name)
-        Log.debug("remote_file is #{remote_file} and local_file is #{local_path}")
+        puts("remote_file is #{remote_file} and local_file is #{local_path}")
         expect(test_driver.s3._verify_upload(remote_file, local_path)).to be true
       end
 
@@ -464,8 +464,9 @@ describe Driver do
       it 'also saves screenshot locally' do |example|
         test_name   = "#{example.metadata[:description]}".gsub(/[^\w]/i, '_')
         remote_path = test_driver.save_screenshot(test_name)
-        file_name = remote_path.match(/\/screenshot.+/)[0].delete('/')
+        file_name = remote_path.split('/').last
         local_path = "#{$current_run_dir}/#{file_name}"
+        puts("remote_path is #{remote_path} and local_path is #{local_path}")
 
         expect(File.exist?(local_path)).to be true
       end
