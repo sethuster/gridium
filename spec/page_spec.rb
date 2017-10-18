@@ -4,7 +4,7 @@ require 'page_objects/status_codes'
 require 'page_objects/internet_home'
 
 describe Page do
-  let(:test_driver)           { Driver }
+  test_driver = Driver
   let(:test_page)             { Page }
   let(:logger)                { Log }
   let(:the_internet_url)      { 'http://the-internet:5000' }
@@ -20,7 +20,7 @@ describe Page do
     Gridium.config.browser = :chrome
   end
 
-  after :each do
+  after :all do
     test_driver.quit
   end
 
