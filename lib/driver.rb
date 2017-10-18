@@ -15,9 +15,9 @@ class Driver
     # Ensure the browser is maximized to maximize visibility of element
     # Currently doesn't work with chromedriver, but the following workaround does:
     if @browser_type.eql?(:chrome)
+      driver.manage.window.move_to(0, 0)
       width = driver.execute_script("return screen.width;")
       height = driver.execute_script("return screen.height;")
-      driver.manage.window.move_to(0, 0)
       driver.manage.window.resize_to(width, height)
     else
       driver.manage.window.maximize

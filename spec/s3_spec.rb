@@ -85,7 +85,7 @@ describe GridiumS3 do
         expect(actual_s3_name).to eq expected_s3_name
       end
 
-      it 'will sanitize whitespace in subdirectory name', :focus => true  do
+      it 'sanitizes whitespace in subdirectory name' do
         whitespaced_subdirectory_name = "\t\r\n desc \t\r\n of \t\r\n spec \t\r\n "
         sanitized_subdirectory_name = "desc_of_spec"
         s3 = Gridium::GridiumS3.new(project_name, whitespaced_subdirectory_name)

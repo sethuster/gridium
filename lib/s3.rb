@@ -6,6 +6,8 @@ module Gridium
       Log.debug("[GRIDIUM::S3] initializing GridiumS3 with #{project_name} and #{subdirectory_path}")
       Aws.config.update({ credentials: Aws::Credentials.new(ENV['S3_ACCESS_KEY_ID'], ENV['S3_SECRET_ACCESS_KEY']) , region: ENV['S3_DEFAULT_REGION']})
       _validate_string(project_name)
+      _validate_string(subdirectory_path)
+
       @project_name = _sanitize_string(project_name)
       @subdirectory_path = _sanitize_string(subdirectory_path)
       @bucket = Aws::S3::Resource.new.bucket(ENV['S3_ROOT_BUCKET'])
