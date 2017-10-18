@@ -24,7 +24,7 @@ Gridium.configure do |config|
   config.screenshot_on_failure = false
   config.screenshots_to_s3 = false
   config.project_name_for_s3 = 'gridium'
-  config.subdirectory_name_for_s3 = DateTime.now.strftime("%m_%d_%Y__%H_%M_%S")
+  config.subdirectory_name_for_s3 = Time.now.utc.strftime("%Y/%m/%d") # s3://{bucket}/nlvx/{YYYY}/{MM}/{DD}
   config.testrail = true
 end
 
