@@ -19,6 +19,7 @@ class Driver
       width = driver.execute_script("return screen.width;")
       height = driver.execute_script("return screen.height;")
       driver.manage.window.resize_to(width, height)
+      driver.manage.window.move_to(0, 0)
     else
       driver.manage.window.maximize
     end
