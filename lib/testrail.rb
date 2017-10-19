@@ -65,13 +65,17 @@ module Gridium
           message = rspec_test.exception.message
           screenshot_url = rspec_test.metadata[:screenshot_url]
           if screenshot_url
-            message << "\n - Screenshot: #{screenshot_url}"
+            message << "\n - Screenshot: #{screenshot_url}\n"
           end
 
           # add backtrace to test case
           bt_search_re = rspec_test.metadata[:backtrace_regex] || 'sitetestui'
           bt = rspec_test.exception.backtrace.grep(/#{bt_search_re}/)
-          message << "\n\n # " + bt.join("\n # ") unless bt.empty?
+          message << "\n\n -> " + bt.join("\n -> ") unless bt.empty?
+
+          # replace rspec backtick (`): special formatting for TestRail
+          # http://docs.gurock.com/testrail-userguide/userguide-editor
+          message.gsub!('`', "'")
         else
           status = CONFIG[:pass]
           message = 'Test Passed.'

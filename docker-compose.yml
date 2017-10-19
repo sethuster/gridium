@@ -5,7 +5,9 @@ services:
     ports:
       - "4444"
     environment:
-      - GRID_BROWSER_TIMEOUT=30
+      SE_OPTS: -browserTimeout 30
+      JAVA_OPTS: -Xmx1024m
+
   chrome:
     image: selenium/node-chrome-debug:3.1.0
     depends_on:
@@ -15,16 +17,22 @@ services:
       - HUB_PORT_4444_TCP_PORT=4444
       - no_proxy=localhost
       - HUB_ENV_no_proxy=localhost
+    shm_size: 2048M
+    volumes:
+      - /dev/shm:/dev/shm
     ports:
       - "5900:5900"
+
   mustadio:
     image: yetanotherlucas/mustadio
     ports:
       - "3000"
+
   the-internet:
     image: gprestes/the-internet
     ports:
       - "5000"
+
   gridium:
     build: .
     environment:

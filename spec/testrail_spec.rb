@@ -99,8 +99,8 @@ describe TestRail do
         context 'with backtrace' do
           let(:bt) do
             [
-              "/Users/gridium/.rbenv/versions/2.3.4/lib/ruby/gems/2.3.0/gems/selenium-webdriver-3.4.0/lib/selenium/webdriver/common/wait.rb:73:in `until'",
-              "/Users/gridium/sitetestui/spec/project/sub-project/navigation_spec.rb:20:in `block (2 levels) in <top (required)>'"
+              "/Users/gridium/.rbenv/versions/2.3.4/lib/ruby/gems/2.3.0/gems/selenium-webdriver-3.4.0/lib/selenium/webdriver/common/wait.rb:73:in 'until'",
+              "/Users/gridium/sitetestui/spec/project/sub-project/navigation_spec.rb:20:in 'block (2 levels) in <top (required)>'"
             ]
           end
 
@@ -114,7 +114,7 @@ describe TestRail do
             tc_results = @tr.instance_variable_get :@tc_results
 
             aggregate_failures 'expectations' do
-              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("#") }
+              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("->") }
               expect(fails_w_bt).not_to be_empty
               expect(fails_w_bt.first[:comment]).not_to include bt[0]
               expect(fails_w_bt.first[:comment]).to include bt[1]
@@ -128,7 +128,7 @@ describe TestRail do
             tc_results = @tr.instance_variable_get :@tc_results
 
             aggregate_failures 'expectations' do
-              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("#") }
+              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("->") }
               expect(fails_w_bt).not_to be_empty
               expect(fails_w_bt.first[:comment]).to include bt[0]
               expect(fails_w_bt.first[:comment]).not_to include bt[1]
@@ -142,9 +142,9 @@ describe TestRail do
             tc_results = @tr.instance_variable_get :@tc_results
 
             aggregate_failures 'expectations' do
-              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("#") }
+              fails_w_bt = tc_results.select { |tc| tc[:comment].include?("->") }
               expect(fails_w_bt).not_to be_empty
-              expect(fails_w_bt.first[:comment]).to include bt.join("\n # ")
+              expect(fails_w_bt.first[:comment]).to include bt.join("\n -> ")
             end
           end
         end
