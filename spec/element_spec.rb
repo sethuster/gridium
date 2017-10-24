@@ -19,12 +19,33 @@ describe Element do
     Driver.quit
   end
 
+  describe '#to_s' do
+    context 'with :css' do
+      it 'returns element metadata' do
+        expect(Element.new("Graph Container", :css, ".whoo-hah").to_s).to eq "'Graph Container' (By:css => '.whoo-hah')"
+      end
+    end
+
+    context 'with :xpath' do
+      it 'returns element metadata' do
+        expect(Element.new("Graph Container", :xpath, "//*[@class='gotcha-all-in-check']").to_s).to eq "'Graph Container' (By:xpath => '//*[@class='gotcha-all-in-check']')"
+      end
+    end
+  end
+
   context 'when element does not exist' do
     context 'with default element timeout' do
+      let(:timeout_msg) { "timed out after #{Gridium.config.element_timeout} seconds" }
+
       it 'raises TimeOutError' do
-        msg = /timed out after #{Gridium.config.element_timeout} seconds/
         expect { Element.new("Unknown element", :css, ".invalid-css").click }.to \
-          raise_error(Selenium::WebDriver::Error::TimeOutError, msg)
+          raise_error(Selenium::WebDriver::Error::TimeOutError, /#{timeout_msg}/)
+      end
+
+      it 'raises and adds Element metadata to error msg' do
+        dne_elem = Element.new("Unknown element", :css, ".invalid-css")
+        expect { dne_elem.click }.to \
+          raise_error(Selenium::WebDriver::Error::TimeOutError, /\(By:css => '\.invalid-css'\)/)
       end
     end
 
@@ -40,6 +61,12 @@ describe Element do
         end
 
         expect(time).to be_within(3).of(wait_timeout), "Expected #{time} to be within 3 seconds of requested timeout '#{wait_timeout}'"
+      end
+
+      it 'raises and adds Element metadata to error msg' do
+        dne_elem = Element.new("Unknown element", :css, ".invalid-css", timeout: wait_timeout)
+        expect { dne_elem.click }.to \
+          raise_error(Selenium::WebDriver::Error::TimeOutError, /\(By:css => '\.invalid-css'\)/)
       end
     end
   end

@@ -36,9 +36,9 @@ class Element
     if stale?
       wait = Selenium::WebDriver::Wait.new :timeout => timeout, :interval => 1
       if Gridium.config.visible_elements_only
-        wait.until { @element = displayed_element }
+        human_readable_error { wait.until { @element = displayed_element } }
       else
-        wait.until { @element = @parent.find_element(@by, @locator); Log.debug("[GRIDIUM::Element] Finding element #{self}..."); @element.enabled? }
+        human_readable_error { wait.until { @element = @parent.find_element(@by, @locator); Log.debug("[GRIDIUM::Element] Finding element #{self}..."); @element.enabled? } }
       end
 
     end
@@ -503,4 +503,9 @@ class Element
     true
   end
 
+  def human_readable_error(&block)
+    block.call
+  rescue StandardError => e
+    raise e.exception.class, "#{self} : #{e.message}"
+  end
 end
