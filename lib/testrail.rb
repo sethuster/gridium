@@ -94,7 +94,7 @@ module Gridium
     # Updates the existing test run with test cases and results.  Adds error text for missing test cases if needed. Closes the run as long as it exists.
     #
     # @return [bool] if the run was closed or not
-    def close_run
+    def close_run(opts = {})
       closed = false
       if Gridium.config.testrail && !@run_info[:error]
         Log.debug("[GRIDIUM::TestRail] Closing test runid: #{@run_info[:id]}\n")
@@ -108,22 +108,30 @@ module Gridium
           Log.debug("[GRIDIUM::TestRail] #{r.class}")
           if r.is_a?(Hash)
             r = _send_request('POST', "#{@url}update_run/#{@run_info[:id]}", {:name => "ER:#{@run_info[:name]}", :description => "#{@run_info[:desc]}\nThe following was returned when adding cases: #{r}"})
-            Log.warn("[GRIDIUM::TestRail] ERROR: #{r}")
+            Log.error("[GRIDIUM::TestRail] ERROR: #{r}")
             sleep 0.25
           end
         end
-        r = _send_request('POST', "#{@url}close_run/#{@run_info[:id]}", nil)
+        r = _send_request('POST', "#{@url}close_run/#{@run_info[:id]}", nil, opts)
+
         Log.debug("[GRIDIUM::TestRail] CLOSE RUN: #{r}")
-        closed = true
+        if r.has_key?("error")
+          Log.error("[GRIDIUM::TestRail]: #{r}")
+        else
+          closed = true
+        end
       end
-      return closed
+
+      closed
     end
 
     private
-    def _send_request(method, uri, data)
+    def _send_request(method, uri, data, opts = {})
+      read_timeout = opts[:read_timeout]
       attempts = @retry_attempts
       url = URI.parse(uri)
       Log.debug("[GRIDIUM::TestRail] Method: #{method} URL:#{uri} Data:#{data}")
+
       if method == 'POST'
         request = Net::HTTP::Post.new(url.path + '?' + url.query)
         request.body = JSON.dump(data)
@@ -134,6 +142,7 @@ module Gridium
       request.add_field('Content-Type', 'application/json')
 
       conn = Net::HTTP.new(url.host, url.port)
+      conn.read_timeout = read_timeout if read_timeout
       if url.scheme == 'https'
         conn.use_ssl = true
         conn.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -154,15 +163,15 @@ module Gridium
           end
            Log.error("[GRIDIUM::TestRail] #{response.code} - Error with request: #{error}")
         end
-      rescue SocketError => error
-        Log.warn("[GRIDIUM::TestRail] SocketError - Retrying....")
+      rescue SocketError, Net::ReadTimeout => error
+        Log.warn("[GRIDIUM::TestRail] Error - Retrying....")
         if attempts > 0
           attempts -= 1
           sleep @time_between_retries
           retry
         end
-        Log.error("[GRIDIUM::TestRail] Socket Error after numerous attempts. Error: #{error}")
-        result = {error: "SocketError after #{@retry_attempts} attempts.  See Error Log."}
+        Log.error("[GRIDIUM::TestRail] Error after numerous attempts. Error: #{error}")
+        result = {error: "Error after #{@retry_attempts} attempts. See Error Log."}
       end
 
       result
