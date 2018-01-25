@@ -49,8 +49,7 @@ describe TestRail do
       end
 
       it 'Can Add a single case Case to Run', testrail_id: 13313764 do |example|
-        r = @tr.add_case(example)
-        expect(r).to be true
+        expect(@tr.add_case(example)).to be true
       end
 
       context 'when there is a failure' do
@@ -151,9 +150,42 @@ describe TestRail do
       end
     end
 
-    it 'Can Close Run' do
-      c = @tr.close_run
-      expect(c).to be true
+    describe 'when run exists and is not closed' do
+      let!(:id) { @tr.add_run("Gridium Unit Test: #{Time.now.to_i}", "Valid Description") }
+
+      it 'closes run' do
+        expect(@tr.close_run).to be true
+      end
+    end
+
+    describe 'when run does not exist' do
+      let!(:id) { @tr.add_run("Gridium Unit Test: #{Time.now.to_i}", "Valid Description") }
+
+      before :example do
+        @tr.instance_variable_set(:@run_info, {:id => -1 ,:error => false, :include_all => false})
+      end
+
+      it 'fails to close run' do
+        expect(@tr.close_run).to be false
+      end
+    end
+
+    describe 'when run fails to close' do
+      it 'reports accordingly' do
+        expect(@tr.close_run).to be false
+      end
+    end
+
+    describe 'when run is already closed' do
+      let!(:id) { @tr.add_run("Gridium Unit Test: #{Time.now.to_i}", "Valid Description") }
+
+      before :example do
+        @tr.close_run
+      end
+
+      it 'fails to close run again' do
+        expect(@tr.close_run).to be false
+      end
     end
   end
 
