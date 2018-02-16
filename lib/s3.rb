@@ -31,7 +31,7 @@ module Gridium
         Log.error("[GRIDIUM::S3] unable to save file to s3 due to Aws::S3::Errors::InvalidAccessKeyId")
       rescue Seahorse::Client::NetworkingError => error
         Log.error("[GRIDIUM::S3] unable to save file to s3 due to underlying network error: #{error}")
-      rescue StandardErrer => error
+      rescue StandardError => error
         Log.error("[GRIDIUM::S3] unable to save file to s3 due to unexpected error: #{error}")
       end
     end
