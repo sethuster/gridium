@@ -1,10 +1,14 @@
-sudo: required
-
-language: ruby
+env:
+ - DOCKER_COMPOSE_VERSION=1.11.2
 
 services:
   - docker
 
 before_install:
-  - docker pull selenium/hub:3.1.0
-  - docker-compose --version
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker-compose up -d
+  - docker exec $(docker-compose ps -q gridium) bundle install;
+  - docker exec $(docker-compose ps -q gridium) rake spec
