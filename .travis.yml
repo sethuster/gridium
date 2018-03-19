@@ -16,8 +16,7 @@ before_script:
 - bundle install
 script:
 - rake gridium
-after_script:
-- docker-compose down
+
 deploy:
   provider: rubygems
   api_key:
