@@ -13,6 +13,8 @@ before_install:
 - sudo mv docker-compose /usr/local/bin
 - docker-compose up -d
 - docker exec $(docker-compose ps -q gridium) bundle install;
+
+script:
 - docker exec $(docker-compose ps -q gridium) rake spec
 deploy:
   provider: rubygems
