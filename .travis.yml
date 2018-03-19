@@ -1,14 +1,24 @@
 env:
- - DOCKER_COMPOSE_VERSION=1.11.2
+  - DOCKER_COMPOSE_VERSION=1.11.2
+
+language: ruby
+rvm: 
+  - 2.3.4
 
 services:
   - docker
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
+    -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - docker-compose up -d
   - docker exec $(docker-compose ps -q gridium) bundle install;
   - docker exec $(docker-compose ps -q gridium) rake spec
+
+deploy:
+  provider: rubygems
+  api_key:
+    secure: GduydY4CJpZRetTg/hODbTrQKVnkC8ENMRoYYHbRBFdpSayNblvEK8svg9wbxbA1w+aY32RQLCP92vrmFudUUNsIyBzCdHcxPIMye7Xy0Rk9yjHd9PVSPF8T13PWz4hgKhziE6IGpJ5LoJNfS0J2YdGKTONkKSoFPk2+Nm2y73kREQAJFVT4hXrt0dYaXUcnInaC6jmH1USVhlR0gNNbXMvdz+I7YUDg3BuqZMhRqJ9qdt95nPidHm1k0FzN6UpWPVrhO6Py8RafH55YzyhIF7XnhdBBS+HC6Pk2V+l8/J8sagLSCWzGZssVvBHsC05C2bKAfsbO7tNfjeSKZnzp88qGiD3ubVvE+BEkv5R6tVusjy0Sbcl6yJYXaaqwAy30uXjUSO/+Zy2S3XVOoAEqQL8I7eTjgkrLbN8worxpOV/WUa8L9m9MxyhgKV7KcxexabX6MOylJbQyF34OgsKyaDRm/Yn07nDYL+h/b7iYw9TwwE7EuT45DyhWbvaXJx4yJlCoARXaP+rJ9xQTDwu3CxM/YNiWfty4qAAwvxp5FQPpcZL65DcRYWmrc8qXzM65oLWPELmB3+qe3rEiC1yewmAlRKHnV28CN5O6Drsl2CtCI79oHhlurNTtZUn3Tc5CMNTQg8Sa4F4Qc3cXUrbVnZSFnY+SP4K+QI0Kt1aWdhU=
