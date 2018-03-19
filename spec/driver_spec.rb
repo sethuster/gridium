@@ -427,7 +427,7 @@ describe Driver do
       expect(s3_is_instantiated).to be false
     end
 
-    it 'should instantiate S3 if configuration is true' do
+    xit 'should instantiate S3 if configuration is true' do
       test_driver.driver
       s3_is_instantiated = !test_driver.s3.nil?
       expect(s3_is_instantiated).to be true
@@ -441,7 +441,7 @@ describe Driver do
         test_driver.visit the_internet_url
       end
 
-      it 'should save a screenshot to s3 when configured' do |example|
+      xit 'should save a screenshot to s3 when configured' do |example|
         test_name   = "#{example.metadata[:description]}".gsub(/[^\w]/i, '_')
         remote_path = test_driver.save_screenshot(test_name)
         file_name = remote_path.split('/').last
@@ -452,7 +452,7 @@ describe Driver do
         expect(test_driver.s3._verify_upload(remote_file, local_path)).to be true
       end
 
-      it 'returns s3 screenshot url' do |example|
+      xit 'returns s3 screenshot url' do |example|
         test_name   = "#{example.metadata[:description]}".gsub(/[^\w]/i, '_')
         remote_path = test_driver.save_screenshot(test_name)
 
@@ -461,7 +461,7 @@ describe Driver do
         end
       end
 
-      it 'also saves screenshot locally' do |example|
+      xit 'also saves screenshot locally' do |example|
         test_name   = "#{example.metadata[:description]}".gsub(/[^\w]/i, '_')
         remote_path = test_driver.save_screenshot(test_name)
         file_name = remote_path.split('/').last
