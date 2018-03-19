@@ -44,5 +44,5 @@ services:
       - GRIDIUM_TR_PW=$GRIDIUM_TR_PW
       - GRIDIUM_TR_URL=$GRIDIUM_TR_URL
       - GRIDIUM_TR_USER=$GRIDIUM_TR_USER
-      - BUILD_NUMBER=$BUILD_NUMBER
+      - BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
     command: "tail -f /dev/null"
