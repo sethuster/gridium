@@ -11,11 +11,13 @@ before_install:
   -s`-`uname -m` > docker-compose
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
+before_script:
 - docker-compose up -d
 - docker exec $(docker-compose ps -q gridium) bundle install;
-
 script:
 - docker exec $(docker-compose ps -q gridium) rake spec
+after_script:
+- docker-compose down
 deploy:
   provider: rubygems
   api_key:
