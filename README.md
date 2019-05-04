@@ -1,7 +1,5 @@
 # Gridium
 
-#GEM MOVED to SendGrid/Gridium - All future changes and updates will be made there
-
 Welcome to Gridium! Gridium helps you build better automated tests using only Selenium and your advanced knowledge of page objects.  This is a replacement gem for Capybara.  I found it more difficult to use Capybara with Firefox and Selenium, and wanted to take advantage of everything that Selenium offered and Capybara lacked.
 
 Before you get started you should understand how page objects work.  A primer on Page Objects:
