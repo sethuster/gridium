@@ -1,3 +1,3 @@
 module Gridium
-  VERSION = "0.2.7"
+  VERSION = "1.2.#{ENV['TRAVIS_BUILD_NUMBER']}"
 end

@@ -29,29 +29,29 @@ class SpecData
 
   def self.determine_spec_result
     if execution_warnings.empty?
-      Log.info("No warnings detected during test run.")
+      Log.info("[GRIDIUM::SpecData] No warnings detected during test run.")
     else
-      Log.info("Warnings detected during test run: (#{execution_warnings.length} total).")
+      Log.info("[GRIDIUM::SpecData]Warnings detected during test run: (#{execution_warnings.length} total).")
       msg = "Warning detected during test execution:"
       execution_warnings.each { |error_message| msg << "\n\t" + error_message }
     end
 
     if verification_errors.empty?
-      Log.info("No errors detected during test run.")
+      Log.info("[GRIDIUM::SpecData]No errors detected during test run.")
     else
-      Log.info("Errors detected during test run: (#{verification_errors.length} total).")
+      Log.info("[GRIDIUM::SpecData]Errors detected during test run: (#{verification_errors.length} total).")
       msg = "TEST FAILURE: Errors detected during test execution:"
       verification_errors.each { |error_message| msg << "\n\t" + error_message }
     end
 
     if $fail_test_instantly
-      Log.info("TEST FAILED - CRITICAL ERROR DETECTED")
+      Log.info("[GRIDIUM::SpecData]TEST FAILED - CRITICAL ERROR DETECTED")
       Kernel.fail("TEST FAILED - CRITICAL ERROR DETECTED\n")
     elsif $fail_test_at_end
-      Log.info("TEST FAILED - VERIFICATION ERRORS DETECTED")
+      Log.info("[GRIDIUM::SpecData]TEST FAILED - VERIFICATION ERRORS DETECTED")
       Kernel.fail("TEST FAILED - VERIFICATION ERRORS DETECTED\n")
     else
-      Log.info("TEST PASSED\n")
+      Log.info("[GRIDIUM::SpecData]TEST PASSED\n")
     end
   end
 

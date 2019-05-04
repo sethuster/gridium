@@ -29,10 +29,12 @@ To get started using Gridium add the Gem to your automated test library.  Includ
 Gridium.configure do |config|
   config.report_dir = '/path/to/automation/project'
   config.browser_source = :local
+  config.selenium_log_level = 'OFF' #OFF, SEVERE, WARNING, INFO, DEBUG, ALL https://github.com/SeleniumHQ/selenium/wiki/Logging
   config.target_environment = "Integration"
-  config.browser = :firefox
+  config.browser = :chrome
   config.url = "http://www.applicationundertest.com"
   config.page_load_timeout = 30
+  config.page_load_retries = 0
   config.element_timeout = 30
   config.visible_elements_only = true
   config.log_level = :debug
@@ -94,18 +96,21 @@ You may be saying to yourself - 'Holy Crap that's a lot of settings!'.  Yeah.  I
 
 ##### Gridium Configuration Options:  
 `config.report_dir = '/path/to/automation/project'`: This setting tells Gridium where to write reports (i.e. Log files) out to.  This could and probably will be changed at some point to eliminate some required Rspec.configuration options.  
+`config.browser_source = :local` = This to use a local or remote (with grid) webdriver
+`config.selenium_log_level = 'OFF'`: This tells gridium which level to use for Selenium's loggingPrefs, which are then logged at the debug level.
 `config.target_environment = "Stage"`: This is a simple log entry to tell remind you which environment you're testing.  
 `config.browser = :firefox`: This tells gridium which browser you will be testing.  Only firefox is working currently.  Future browsers to come.  
 `config.url = "http://www.applicationundertest.com"`: Where's the entry point for your web application?  
 `config.page_load_timeout = 30` Along with Element Timeout, how long (in seconds) should Selenium wait when finding an element?  
+`config.page_load_retries = 1` On a failure to load the requested page, Gridium will retry loading the page this many times.  
 `config.visible_elements_only = true`: With this enabled Gridium will only find VISIBLE elements on the page.  Hidden elements or non-enabled elements will not be matched.  
 `config.log_level = :debug`: There are a few levels here `:debug` `:info` `:warn` `:error` and `:fatal`.  Your Gridium tests objects can have different levels of logging.  Adjusting this setting will turn those log levels on or off depending on your needs at the time.  
 `config.highlight_verifications = true`: Will highlight the element Gridium finds in the browser.  This makes watching tests run easier to follow, although it does slow the test execution time down.  Recommend this is turned off for automated tests running in Jenkins or headless mode.  
 `config.highlight_duration = 0.100`: How long should the element be highlighted (in milliseconds) before the action is performed on the element.  
 `config.screenshot_on_failure = false`: Take a screenshot on failure.  On or off. Obviously.  
-`config.screenshots_to_s3 = false`: This option allows users to save screenshots to an s3 bucket.  AWS S3 buckets need to be setup and configured in AWS.  Environment variables needs to be set for S3.  See environment variables section.
-`config.project_name_for_s3 = 'GRIDIUM'`: This will be appended to the filename in the front of the file. Should not contain spaces.
-`config.subdirectory_name_for_s3 = 'TEST NAME'`: This will be the directory in S3 root to store the files.  Used primarily to differentiate between project artifacts in the same s3 bucket.
+`config.screenshots_to_s3 = false`: This option allows users to save screenshots to an s3 bucket.  AWS S3 buckets need to be setup and configured in AWS.  Environment variables needs to be set for S3.  See environment variables section.  
+`config.project_name_for_s3 = 'GRIDIUM'`: This will be appended to the filename in the front of the file. Should not contain spaces.  
+`config.subdirectory_name_for_s3 = 'TEST NAME'`: This will be the directory in S3 root to store the files.  Used primarily to differentiate between project artifacts in the same s3 bucket.  
 `config.testrail = true`: This to enable TestRail integration. With this turned on, test results will be updated in your TestRail instance.
 
 ##### Environment variables
@@ -145,7 +150,7 @@ $errors_total = 0
 Spec_data.load_suite_state
 Spec_data.load_spec_state
 ```
-##Saving screenshots to S3
+## Saving screenshots to S3
 
 S3 support is available for persisting screenshots online. This is especially helpful when running tests in CI and/or Docker environments.
 
@@ -201,6 +206,35 @@ Notice that to use Gridium functionality, Gridium needs to be included at the to
 Page object are made up of Elements.  The methods on the page object tells the test how interact with the elements.  For example, the Login method shown in the example sets the Username field, the password field and then clicks the login button.  
 
 This action will return a new page, that our test is setup to handle.
+
+## Logging
+A log file will always be created with at least one line, showing whichever config.log_level is set to.
+This file can be found in `spec_reports/spec_results_{timestamp}/{timestamp}_spec.log` alongside any screenshots taken.
+Any log statements using a level equal or lower than config.log_level will be logged.
+
+#### Selenium Logging
+The supported log levels in selenium are OFF, SEVERE, WARNING, INFO, DEBUG, ALL
+To open the firehose to selenium's logging (https://github.com/SeleniumHQ/selenium/wiki/Logging):
+1. Set `config.selenium_log_level = 'ALL'` to  set each type of selenium logging (browser, driver, client, server) to 'ALL'  
+2. Set `config.log_level = :debug` to have them picked up by gridium's logger.
+
+
+## Testing with docker
+Gridium's unit tests are run in docker using selenium grid and some helper images:
+* [gprestes/the-internet](https://hub.docker.com/r/gprestes/the-internet/)
+* [yetanotherlucas/mustadio](https://hub.docker.com/r/yetanotherlucas/mustadio/)
+
+The bin folder contains helper scripts to setup and teardown the docker containers:
+* `bin/pull`: Use this to pull the latest docker images prior to starting. 
+* `bin/start`: Use this to start up all the docker containers.
+  * `dev mode`: -d switch to map your local gridium (via $GRIDIUMPATH) to the gridium container
+  * `$GRIDIUMPATH`: set this to point at your Gridium repo -> export GRIDIUMPATH="/path/to/gridium"
+* `bin/cleanup`: Use this to cleanup any dangling containers afterward.
+
+Once the containers are running, you can shell into the gridium container to kick off tests:
+`docker exec -it gridium_gridium_1 /bin/bash`
+`rake spec`
+If a test does not pass, modify the spec locally and rerun it inside the gridium container again. Repeat until green.
 
 ## Elements
 

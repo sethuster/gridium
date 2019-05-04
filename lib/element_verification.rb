@@ -14,7 +14,7 @@ class Gridium::ElementVerification
   end
 
   def not
-    ElementVerification.new(@element, @timeout, @fail_test, element_should_exist: false)
+    ElementVerification.new(@element, @timeout, fail_test: @fail_test, element_should_exist: false)
   end
 
   def text(text)
@@ -25,14 +25,14 @@ class Gridium::ElementVerification
     if @element.present?
       $verification_passes += 1
     else
-      Log.error("Cannot determine element text.  Element is not present.")
+      Log.error("[GRIDIUM::ElementVerification] Cannot determine element text.  Element is not present.")
     end
 
     if should_have_text
-      fail_message = "Element should contain text (#{text}), but does not."
+      fail_message = "Element should contain text (#{text}), but does not. timed out after #{@timeout} seconds"
       pass_message = "contains text (#{text})."
     else
-      fail_message = "Element should not contain text (#{text}), but does."
+      fail_message = "Element should not contain text (#{text}), but does. timed out after #{@timeout} seconds"
       pass_message = "does not contain text (#{text}).  Actual text is: (#{element_text})."
     end
 
@@ -41,14 +41,15 @@ class Gridium::ElementVerification
       wait.until do
         element_contains_text = element_text.eql?(text)
         if should_have_text && element_contains_text
-          Log.debug("Confirming text (#{text}) is within element...")
+          Log.debug("[GRIDIUM::ElementVerification] Confirming text (#{text}) is within element...")
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
         elsif !should_have_text && !element_contains_text
-          Log.debug("Confirming text (#{text}) is NOT within element...")
+          Log.debug("[GRIDIUM::ElementVerification] Confirming text (#{text}) is NOT within element...")
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
         else
+          # TODO: @rizzza: This `.not` case is wrong. It bails too early and does not evaluate with the wait block
           log_issue("#{fail_message}  Element's text is: (#{element_text}).")
         end
       end
@@ -62,25 +63,26 @@ class Gridium::ElementVerification
     should_be_visible = @should_exist
 
     if should_be_visible
-      fail_message = "Element should be visible."
+      fail_message = "Element should be visible. timed out after #{@timeout} seconds"
       pass_message = "Element is visible."
     else
-      fail_message = "Element should not be visible."
+      fail_message = "Element should not be visible. timed out after #{@timeout} seconds"
       pass_message = "Element is not visible."
     end
 
     wait = Selenium::WebDriver::Wait.new :timeout => @timeout, :interval => 1
     begin
       wait.until do
-        element_is_displayed = @element.displayed?
+        element_is_displayed = @element.element(timeout: @timeout).displayed?
         if element_is_displayed && should_be_visible
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
           return @element
         elsif !element_is_displayed && !should_be_visible
-          Log.debug("Confirming element is NOT visible...")
+          Log.debug("[GRIDIUM::ElementVerification] Confirming element is NOT visible...")
           log_success(pass_message)
         else
+          # TODO: @rizzza: This `.not` case is wrong. It bails too early and does not evaluate with the wait block
           log_issue(fail_message)
         end
       end
@@ -94,25 +96,26 @@ class Gridium::ElementVerification
     should_be_present = @should_exist
 
     if should_be_present
-      fail_message = "Element should be present."
+      fail_message = "Element should be present. timed out after #{@timeout} seconds"
       pass_message = "is present."
     else
-      fail_message = "Element should NOT be present."
+      fail_message = "Element should NOT be present. timed out after #{@timeout} seconds"
       pass_message = "is not present."
     end
 
     wait = Selenium::WebDriver::Wait.new :timeout => @timeout, :interval => 1
     begin
       wait.until do
-        element_is_present = @element.present?
+        element_is_present = @element.element(timeout: @timeout).present?
         if element_is_present && should_be_present
           ElementExtensions.highlight(@element) if Gridium.config.highlight_verifications
           log_success(pass_message)
           return @element
         elsif !element_is_present && !should_be_present
-          Log.debug("Confirming element is NOT present...")
+          Log.debug("[GRIDIUM::ElementVerification] Confirming element is NOT present...")
           log_success(pass_message)
         else
+          # TODO: @rizzza: This `.not` case is wrong. It bails too early and does not evaluate with the wait block
           log_issue(fail_message)
         end
       end
@@ -145,17 +148,17 @@ class Gridium::ElementVerification
 
   def log_issue(message)
     if @fail_test
-      Log.error("#{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
+      Log.error("[GRIDIUM::ElementVerification] #{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
       $fail_test_instantly = true
-      Kernel.fail(message)
+      raise Selenium::WebDriver::Error::TimeOutError, message
     else
-      Log.error("#{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
+      Log.error("[GRIDIUM::ElementVerification] #{message} ['#{@element.name}' (By:(#{@element.by} => '#{@element.locator}'))].")
       $fail_test_at_end = true
     end
   end
 
   def log_success(pass_message)
     $verification_passes += 1
-    Log.debug("Verified: '#{@element.name}' (By:(#{@element.by} => '#{@element.locator}')) #{pass_message}")
+    Log.debug("[GRIDIUM::ElementVerification] Verified: '#{@element.name}' (By:(#{@element.by} => '#{@element.locator}')) #{pass_message}")
   end
 end

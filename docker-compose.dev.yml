@@ -1,0 +1,11 @@
+version: '2'
+services:
+  hub:
+    ports:
+      - "4444:4444"
+  chrome:
+    ports:
+      - "5900:5900"
+  gridium:
+    volumes:
+      - $GRIDIUMPATH:/gridium

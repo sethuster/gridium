@@ -1,24 +1,40 @@
 version: '2'
 services:
   hub:
-    image: sethuster/selenium-hub
+    image: selenium/hub:3.4.0
     ports:
       - "4444"
-  firefox:
-    image: sethuster/node-firefox-debugx
-    ports:
-      - "5900"
+    environment:
+      SE_OPTS: -browserTimeout 30
+      JAVA_OPTS: -Xmx1024m
+
+  chrome:
+    image: selenium/node-chrome-debug:3.4.0
     depends_on:
       - hub
+    environment:
+      - HUB_PORT_4444_TCP_ADDR=hub
+      - HUB_PORT_4444_TCP_PORT=4444
+      - no_proxy=localhost
+      - HUB_ENV_no_proxy=localhost
+    shm_size: 2048M
+    volumes:
+      - /dev/shm:/dev/shm
+    ports:
+      - "5900:5900"
+
   mustadio:
     image: yetanotherlucas/mustadio
     ports:
       - "3000"
+
+  the-internet:
+    image: gprestes/the-internet
+    ports:
+      - "5000"
+
   gridium:
     build: .
     environment:
-      - S3_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
-      - S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
-      - S3_DEFAULT_REGION=$S3_DEFAULT_REGION
-      - S3_ROOT_BUCKET=$S3_ROOT_BUCKET
+      - TRAVIS_BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
     command: "tail -f /dev/null"
